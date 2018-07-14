@@ -1,0 +1,37 @@
+prefix: '&3&lMail&b&l+ &7&l>&f'
+messages:
+  mailbox:
+    deletemail-info:
+      syntax-message: '{PREFIX} &cYou deleted an mail from mailbox'
+      description-message: '&bMail remains &c{MAILBOX_AMOUNT_TARGET}'
+    claimitem-get:
+     syntax-message: '{PREFIX} &bYou claimed an item from mailbox'
+     description-message: '&bMail remains &c{MAILBOX_AMOUNT_TARGET}'
+    sendmessage-error:
+      syntax-message: '{PREFIX} &cError occured while doing this command..'
+      description-message: '&cPlease ask server owner or admins to check console!'
+    sendmessage-failed:
+      syntax-message: '{PREFIX} &aFailed to send mail..'
+      description-message: '&bMail target &7: &a{TARGET}'
+    sendmessage-pre:
+      syntax-message: '{PREFIX} &aPlease type your message on chat..'
+      description-message: '&bMail target &7: &a{TARGET}'
+    sendmessage-cancel:
+      syntax-message: '{PREFIX} &aCancelled to send mail'
+      description-message: '&bYou cancel to mail &a{TARGET}'
+    sendmessage-sender:
+      syntax-message: '{PREFIX} &aMail has been sent'
+      description-message: '&bMail target &7: &a{TARGET}'
+    sendmessage-target:
+      syntax-message: '{PREFIX} &aYou have got a mail!'
+      description-message: '&bMail sender &7: &a{SENDER}'
+  help:
+    mailbox-message:
+      syntax-message: '&f- &a/mail'
+      description-message: '&bOpen your mailbox'
+    item-message:
+      syntax-message: '&f- &a/mail item &7<Player>'
+      description-message: '&bSend item to other player mailbox'
+    send-message:
+      syntax-message: '&f- &a/mail send &7<Player>'
+      description-message: '&bSend message to other player mailbox'
