@@ -73,7 +73,8 @@ public class MailCmd implements CommandExecutor {
 				UUID uuid = p.getUniqueId();
 				if (!ConfigManager.hasMailData(uuid.toString())) {
 					ConfigManager.createPlayerData(uuid.toString());
-					ConfigManager.putData(uuid.toString(), "mailbox", "{}");
+					ConfigManager.putData(uuid.toString(), "mailbox.apple", "1");
+					ConfigManager.putData(uuid.toString(), "mailbox.apple", null);
 				}
 				
 				if (args.length == 0) {

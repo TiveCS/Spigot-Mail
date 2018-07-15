@@ -2,7 +2,7 @@ prefix: '&3&lMail&b&l+ &7&l>&f'
 messages:
   mailbox:
     deletemail-info:
-      syntax-message: '{PREFIX} &cYou deleted an mail from mailbox'
+      syntax-message: '{PREFIX} &cYou deleted a mail from mailbox'
       description-message: '&bMail remains &c{MAILBOX_AMOUNT_TARGET}'
     claimitem-get:
      syntax-message: '{PREFIX} &bYou claimed an item from mailbox'

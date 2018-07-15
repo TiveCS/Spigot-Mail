@@ -46,12 +46,16 @@ public class DataManager {
 	public static void readMail(Player sender, OfflinePlayer target, String uuid) {
 		String msg = ChatColor.translateAlternateColorCodes('&', "&f&o" + ConfigManager.getPlayerData(target.getUniqueId().toString()).getString("mailbox." + uuid + ".message"));
 		try {
-			if (ConfigManager.getPlayerData(target.getUniqueId().toString()).getShortList("mailbox." + uuid + ".sender").equals(null)) {
-				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lTo &f" + ConfigManager.getPlayerData(target.getUniqueId().toString()).getString("mailbox." + uuid + ".target")));
+			String s = ConfigManager.getPlayerData(target.getUniqueId().toString()).getString("mailbox." + uuid + ".sender"), t = ConfigManager.getPlayerData(target.getUniqueId().toString()).getString("mailbox." + uuid + ".target");
+			if (t.length() > 0) {
+				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lTo &f" + t));
 			}else {
-				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lSender &f" + ConfigManager.getPlayerData(target.getUniqueId().toString()).getString("mailbox." + uuid + ".sender")));
+				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lSender &f" + s));
 			}
-		}catch(Exception e) {}
+		}catch(Exception e) {
+			String s = ConfigManager.getPlayerData(target.getUniqueId().toString()).getString("mailbox." + uuid + ".sender");
+			sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a&lSender &f" + s));
+		}
 		sender.sendMessage(" ");
 		sender.sendMessage(msg);
 		sender.sendMessage(" ");
@@ -136,25 +140,30 @@ public class DataManager {
 	@SuppressWarnings("deprecation")
 	public static void deleteMail(Player executor, OfflinePlayer target, String mailuuid) {
 		String path = "mailbox." + mailuuid;
+		OfflinePlayer sender = null, rec = null;
+		boolean notice = false;
 		try {
-			OfflinePlayer sender = Bukkit.getOfflinePlayer(ConfigManager.getPlayerData(target.getUniqueId().toString()).getString(path + ".sender"));
-			OfflinePlayer rec = Bukkit.getOfflinePlayer(ConfigManager.getPlayerData(target.getUniqueId().toString()).getString(path + ".target"));
-			if (target.equals(sender) || !(rec.equals(null)) || !(rec.equals(sender))) {
-				if (!ConfigManager.getPlayerData(target.getUniqueId().toString()).getItemStack(path + ".item").equals(null)) {
-					TextJson.sendHoverJson(executor, TextJson.placeholderReplace(executor, target, plugin.getConfig().getString("messages.mailbox.claimitem-get.syntax-message")),
-							TextJson.placeholderReplace(executor, target,plugin.getConfig().getString("messages.mailbox.claimitem-get.description-message")));
-					ItemStack item = ConfigManager.getPlayerData(target.getUniqueId().toString()).getItemStack(path + ".item");
-					executor.getInventory().addItem(item);
-					readMail(executor, target, mailuuid);
+			sender = Bukkit.getOfflinePlayer(ConfigManager.getPlayerData(target.getUniqueId().toString()).getString(path + ".sender"));
+			rec = Bukkit.getOfflinePlayer(ConfigManager.getPlayerData(sender.getUniqueId().toString()).getString(path + ".target"));
+		}catch(Exception e) {}
+		try {
+			if (sender != null && rec != null) {
+				if (target.equals(sender) || !target.equals(sender)) {
+					if (!ConfigManager.getPlayerData(target.getUniqueId().toString()).getItemStack(path + ".item").equals(null)) {
+						TextJson.sendHoverJson(executor, TextJson.placeholderReplace(executor, target, plugin.getConfig().getString("messages.mailbox.claimitem-get.syntax-message")),
+								TextJson.placeholderReplace(executor, target,plugin.getConfig().getString("messages.mailbox.claimitem-get.description-message")));
+						ItemStack item = ConfigManager.getPlayerData(target.getUniqueId().toString()).getItemStack(path + ".item");
+						executor.getInventory().addItem(item);
+						notice = true;
+					}
 				}
 			}
 		}
-		catch(Exception e) {
+		catch(Exception e) {}
+		if (notice == false) {
 			TextJson.sendHoverJson(executor, TextJson.placeholderReplace(executor, target, plugin.getConfig().getString("messages.mailbox.deletemail-info.syntax-message")),
-					TextJson.placeholderReplace(executor, target, plugin.getConfig().getString("messages.mailbox.deletemail-info.description-message")));
-			readMail(executor, target, mailuuid);
+				TextJson.placeholderReplace(executor, target, plugin.getConfig().getString("messages.mailbox.deletemail-info.description-message")));
 		}
-		
 		ConfigManager.putData(target.getUniqueId().toString(), path, null);
 		initMailboxData(target);
 		if (MailboxMenu.inv.containsKey(executor)) {
