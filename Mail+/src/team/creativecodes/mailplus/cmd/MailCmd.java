@@ -106,7 +106,6 @@ public class MailCmd implements CommandExecutor {
 									TextJson.placeholderReplace(p, Bukkit.getPlayer(args[1]), dm));
 							return true;
 						}
-						p.sendMessage("d");
 						String sm = plugin.getConfig().getString("messages.mailbox.sendmessage-pre.syntax-message");
 						String dm = plugin.getConfig()
 								.getString("messages.mailbox.sendmessage-pre.description-message");
