@@ -1,0 +1,10 @@
+name: DiaMail
+version: 2.0
+api-version: 1.13
+main: team.creativecode.diamail.Main
+description: The second generation of Mail+
+authors: [TiveCS, CreativeCodes_Team]
+commands:
+  diamail:
+    permission: diamail.command
+    description: Main command for diamail

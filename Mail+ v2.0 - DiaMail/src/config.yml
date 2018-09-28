@@ -1,0 +1,116 @@
+prefix: '&8[&2Dia&aMail&8]&f'
+mail-perline-length: 20
+player-settings-option:
+  notification-display:
+    value:
+      - Message
+      - Title
+      - Actionbar
+    icon:
+      Actionbar:
+        Material: BOOK
+        Name: '&2Notification Display'
+        Lore:
+          - ' '
+          - '&7- Message'
+          - '&7- Title'
+          - '&f- Actionbar'
+      Title:
+        Material: SIGN
+        Name: '&2Notification Display'
+        Lore:
+          - ' '
+          - '&7- Message'
+          - '&f- Title'
+          - '&7- Actionbar'
+      Message:
+        Material: PAPER
+        Name: '&2Notification Display'
+        Lore:
+          - ' '
+          - '&f- Message'
+          - '&7- Title'
+          - '&7- Actionbar'
+  notification-display-enable:
+    value:
+      - true
+      - false
+    icon:
+      false:
+        Material: RED_TERRACOTTA
+        Name: '&2Notification&8: &cDisabled'
+      true:
+        Material: GREEN_TERRACOTTA
+        Name: '&2Notification&8: &aEnabled'
+  notification-sound:
+    value:
+      - true
+      - false
+    icon:
+      false:
+        Material: RED_TERRACOTTA
+        Name: '&2Sound&8: &cDisabled'
+      true:
+        Material: GREEN_TERRACOTTA
+        Name: '&2Sound&8: &aEnabled'
+  checking-mailbox-interval:
+    value: Number
+    icon:
+      Material: BEACON
+      Name: '&2Checking Interval&8: &b%value% &bsecond(s)'
+  show-mailbox:
+    value:
+      - Inbox
+      - Outbox
+      - All
+    icon:
+      Inbox:
+        Material: CHEST
+        Name: '&2Show Mailbox'
+        Lore:
+          - ' '
+          - '&7- All'
+          - '&7- Outbox'
+          - '&f- Inbox'
+      Outbox:
+        Material: ENDER_CHEST
+        Name: '&2Show Mailbox'
+        Lore:
+          - ' '
+          - '&7- All'
+          - '&f- Outbox'
+          - '&7- Inbox'
+      All:
+        Material: CYAN_SHULKER_BOX
+        Name: '&2Show Mailbox'
+        Lore:
+          - ' '
+          - '&f- All'
+          - '&7- Outbox'
+          - '&7- Inbox'
+  delete-mail-after-read:
+    value:
+      - true
+      - false
+    icon:
+      false:
+        Material: RED_TERRACOTTA
+        Name: '&2Delete Mail After Read&8: &cDisabled'
+      true:
+        Material: GREEN_TERRACOTTA
+        Name: '&2Delete Mail After Read&8: &aEnabled'
+player-settings:
+  notification-display: Message
+  notification-display-enable: true
+  notification-sound: true
+  checking-mailbox-interval: 600
+  show-mailbox: Inbox
+  delete-mail-after-read: false
+activity-sound:
+  getmail-notification: BLOCK_NOTE_BLOCK_PLING-1-1
+  checkmail-notification: BLOCK_ENCHANTMENT_TABLE_USE-1-1
+  deletemail-notification: BLOCK_NOTE_BLOCK_BASS-1-1
+command-aliases:
+  mail: 'diamail'
+  inbox: 'diamail mailbox 1 inbox'
+  outbox: 'diamail mailbox 1 outbox'
