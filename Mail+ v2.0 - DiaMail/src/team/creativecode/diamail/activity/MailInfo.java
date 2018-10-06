@@ -20,6 +20,10 @@ public class MailInfo {
 		this.m = mm;
 	}
 	
+	public Mail getMail() {
+		return this.m;
+	}
+	
 	public void action() {
 		Mailbox mb = Mailbox.mailbox.get(this.executor);
 		if (slot == 3*9 - 5) {
@@ -62,8 +66,12 @@ public class MailInfo {
 		else if (slot == 2*9 - 1) {
 			MailManager.deleteMail(this.executor, this.m.getPlayerMail().getPlayer(), this.m.getPath());
 			Mailbox.mailbox.remove(this.executor);
-			Mailbox.mailbox.put(this.executor, new Mailbox(this.executor, 1, m.getMailType()));
-			this.executor.openInventory(Mailbox.mailbox.get(this.executor).getInventory());
+			Mailbox.mailbox.put(this.executor, new Mailbox(this.executor, mb.getPage(), mb.getMailboxType()));
+			Mailbox mbox = Mailbox.mailbox.get(this.executor);
+			mbox.getPlayerMail().setMailboxData(mbox);
+			mbox.initCurrentMailbox();
+			mbox.createMenu();
+			this.executor.openInventory(mbox.getInventory());
 		}else if (slot == 2*9 - 5) {
 			try {
 				if (!this.m.getItem().equals(null)) {

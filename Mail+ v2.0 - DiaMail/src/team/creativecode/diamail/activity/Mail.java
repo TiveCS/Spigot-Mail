@@ -34,9 +34,23 @@ public class Mail {
 		this.item = this.pm.getConfig().getItemStack(path + ".item");
 		try {
 			if (this.mt.equals(MailType.INBOX)) {
-				this.sender = Bukkit.getPlayer(UUID.fromString(this.pm.getConfig().getString("mailbox." + this.mt.toString().toLowerCase() + "." + uuid.toString() + ".sender")));
+				try {
+					this.sender = Bukkit.getPlayer(UUID.fromString(this.pm.getConfig().getString("mailbox." + this.mt.toString().toLowerCase() + "." + uuid.toString() + ".sender")));
+					if (this.sender.equals(null)) {
+						this.sender = Bukkit.getOfflinePlayer(UUID.fromString(this.pm.getConfig().getString("mailbox." + this.mt.toString().toLowerCase() + "." + uuid.toString() + ".sender")));
+					}
+				}catch(Exception e) {
+					this.sender = Bukkit.getOfflinePlayer(UUID.fromString(this.pm.getConfig().getString("mailbox." + this.mt.toString().toLowerCase() + "." + uuid.toString() + ".sender")));
+				}
 			}if (this.mt.equals(MailType.OUTBOX)) {
-				this.target = Bukkit.getPlayer(this.pm.getConfig().getString("mailbox." + this.mt.toString().toLowerCase() + "." + uuid.toString() + ".target"));
+				try {
+					this.target = Bukkit.getPlayer(UUID.fromString(this.pm.getConfig().getString("mailbox." + this.mt.toString().toLowerCase() + "." + uuid.toString() + ".target")));
+					if (this.target.equals(null)) {
+						this.target = Bukkit.getOfflinePlayer(UUID.fromString(this.pm.getConfig().getString("mailbox." + this.mt.toString().toLowerCase() + "." + uuid.toString() + ".target")));
+					}
+				}catch(Exception e) {
+					this.target = Bukkit.getOfflinePlayer(UUID.fromString(this.pm.getConfig().getString("mailbox." + this.mt.toString().toLowerCase() + "." + uuid.toString() + ".target")));
+				}
 			}
 		}catch(Exception e) {}
 	}

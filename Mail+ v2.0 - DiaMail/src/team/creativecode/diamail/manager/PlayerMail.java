@@ -44,15 +44,47 @@ public class PlayerMail {
 				settings.put(k, config.get("settings." + k));
 			}
 			try {
-				this.mb = Mailbox.mailbox.get(p);
+				if (Mailbox.mailbox.containsKey(p)) {
+					this.mb = Mailbox.mailbox.get(p);
+				}
 			}catch(Exception e){}
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
+	public PlayerMail(Mailbox mb) {
+		try {
+			this.p = (Player) mb.getPlayer();
+			this.p = p.getPlayer();
+			this.file = new File(plugin.getDataFolder() + "/PlayerData", p.getUniqueId().toString() + ".yml");
+			this.config = YamlConfiguration.loadConfiguration(file);
+			
+			ConfigurationSection ci = config.getConfigurationSection("mailbox.inbox"),
+					co = config.getConfigurationSection("mailbox.outbox");
+			Set<String> sk = config.getConfigurationSection("settings").getKeys(false);
+			
+			this.inbox = new ArrayList<String>(ci.getKeys(false));
+			this.outbox = new ArrayList<String>(co.getKeys(false));
+			this.settings = new HashMap<String, Object>();
+			for (String k : sk) {
+				settings.put(k, config.get("settings." + k));
+			}
+			
+		}catch(Exception e) {e.printStackTrace();}
+	}
+	
 	public Player getPlayer() {
 		return this.p;
+	}
+	
+	public void setMailboxData(Mailbox mbox) {
+		this.mb = mbox;
+	}
+	
+	public void generateMailboxData() {
+		Mailbox mailbox = new Mailbox(this.p);
+		this.mb = mailbox;
 	}
 	
 	public void setSetting(String path, Object value) {
@@ -83,16 +115,21 @@ public class PlayerMail {
 	}
 	
 	public Mailbox getMailboxData() {
+		try {
+			if (this.mb.equals(null)) {
+				generateMailboxData();
+			}
+		}catch(Exception e) {}
 		return this.mb;
 	}
 	
 	public List<String> getMailbox(MailType mt){
 		if (mt.equals(MailType.INBOX)) {
 			return this.inbox;
-		}else if (mt.equals(MailType.OUTBOX)) {
+		}if (mt.equals(MailType.OUTBOX)) {
 			return this.outbox;
 		}
-		else if (mt.equals(MailType.ALL)) {
+		if (mt.equals(MailType.ALL)) {
 			List<String> l = new ArrayList<String>();
 			for (String i : this.inbox) {
 				l.add("inbox." + i);

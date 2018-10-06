@@ -28,6 +28,17 @@ public class PlayerSetting {
 	PlayerMail pm;
 	Inventory inv;
 	
+	public PlayerSetting(PlayerMail pm) {
+		this.pm = pm;
+		this.p = pm.getPlayer();
+		this.inv = Bukkit.createInventory(null, 4*9, pm.getPlayer().getName() + " Setting");
+		this.page = 1;
+		this.setting = new HashMap<String, Object>(this.pm.getSettings());
+		this.listSetting = new ArrayList<String>(this.setting.keySet());
+		initMaxPage();
+		initSettingMenu();
+	}
+	
 	public PlayerSetting(OfflinePlayer op) {
 		this.inv = Bukkit.createInventory(null, 4*9, op.getName() + " Setting");
 		this.page = 1;

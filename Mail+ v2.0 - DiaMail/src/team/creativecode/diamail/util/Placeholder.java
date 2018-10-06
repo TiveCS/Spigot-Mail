@@ -3,6 +3,8 @@ package team.creativecode.diamail.util;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import team.creativecode.diamail.activity.MailInfo;
+import team.creativecode.diamail.activity.Mailbox;
 import team.creativecode.diamail.manager.PlayerMail;
 
 public class Placeholder {
@@ -29,6 +31,49 @@ public class Placeholder {
 			String value = pm.getConfig().get("settings." + setting).toString();
 			text = text.replace("%value%", value);
 		}catch(Exception e) {}
+		return text;
+	}
+	
+	public static String playermailPlaceholder(PlayerMail pm, String text) {
+		return text;
+	}
+	 
+	public static String mailinfoPlaceholder(MailInfo mi, String text) {
+		String sender = "Unknown", target = "Unknown";
+		try {
+			try {
+				sender = mi.getMail().getSender().getName();
+			}catch(Exception e) { 
+				sender = mi.getMail().getPlayerMail().getPlayer().getName();
+			}
+			try {
+				target = mi.getMail().getTarget().getName();
+			}catch(Exception e) {
+				target = sender;
+			}
+		}catch(Exception e) {}
+		
+		try {
+			text = text.replace("%mailinfo_sender%", sender);
+			text = text.replace("%mailinfo_target%", target);
+		}catch(Exception e) {}
+		return text;
+	}
+	
+	public static String mailboxPlaceholder(Mailbox mb, String text) {
+		String mailtype = null, player = null, size = null, page = null;
+		try {
+			mailtype = mb.getMailboxType().toString() + "";
+			player = mb.getPlayer().getName();
+			size = mb.getMailboxSize() + "";
+			page = mb.getPage() + "";
+		}catch(Exception e) {}
+		try {
+			text = text.replace("%mailbox_mailtype%", mailtype);
+			text = text.replace("%mailbox_player%", player);
+			text = text.replace("%mailbox_size%", size);
+			text = text.replace("%mailbox_page%", page);
+		}catch(Exception e) {e.printStackTrace();}
 		return text;
 	}
 	

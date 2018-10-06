@@ -15,10 +15,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import team.creativecode.diamail.ConfigManager;
 import team.creativecode.diamail.Main;
 import team.creativecode.diamail.manager.PlayerMail;
 import team.creativecode.diamail.util.ItemBuilder;
+import team.creativecode.diamail.util.Placeholder;
 import team.creativecode.diamail.util.StringEditor;
 
 public class MailManager {
@@ -30,8 +33,6 @@ public class MailManager {
 	private static Main plugin = Main.getPlugin(Main.class);
 	private final static String folder = plugin.getDataFolder().toString() + "/PlayerData";
 	private final static int maxLength = plugin.getConfig().getInt("mail-perline-length");
-	
-	public final static String mailInfoTitle = "Mail Contents Menu";
 
 	public static enum MailType{
 		INBOX, OUTBOX, ALL;
@@ -51,7 +52,10 @@ public class MailManager {
 			mailInfoMail.put(user, m);
 			List<String> lore = new ArrayList<String>();
 			ItemStack item = null;
-			Inventory inv = Bukkit.createInventory(null, 3*9, mailInfoTitle);
+			MailInfo mi = new MailInfo(user, 1, mailInfoMail.get(user));
+			String title = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("menu-manager.mailinfo.title"));
+			title = Placeholder.mailinfoPlaceholder(mi, title);
+			Inventory inv = Bukkit.createInventory(null, 3*9, title);
 			for (int i = 0; i < 3*9; i++) {
 				inv.setItem(i, ItemBuilder.createItem(Material.BLACK_STAINED_GLASS_PANE, " ", null, false));
 			}
@@ -120,7 +124,31 @@ public class MailManager {
 		PlayerMail pm = new PlayerMail(p);
 		int size = pm.getInbox().size() + pm.getOutbox().size();
 		if (!user.equals(null)) {
-			user.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " You have &a" + size + " &fmail(s)"));
+			String[] args = {"checkmail", size + ""};
+			notificationMail(user, args);
+		}
+	}
+	
+	public static void checkMailScheduled(Player user) {
+		PlayerMail pm = new PlayerMail(user);
+		long interval = 20*Long.parseLong(pm.getSettings().get("checking-mailbox-interval").toString());
+		if (interval < 0) {
+			return;
+		}
+		final boolean online = user.isOnline();
+		
+		if (online) {
+			Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
+
+				@Override
+				public void run() {
+					checkMail(user, user);
+					checkMailScheduled(user);
+				}
+				
+			}, interval);
+		}else {
+			return;
 		}
 	}
 	
@@ -130,24 +158,11 @@ public class MailManager {
 			giveMailItem(user, target, mailUUID);
 			ConfigManager.inputData(file, "mailbox." + mt.toString().toLowerCase() + "." + mailUUID.toString(), null);
 			
-			deleteMailSound(user, target, mailUUID);
+			String[] args = {"deletemail"};
+			notificationMail(user, args);
 		}catch(Exception e) {}
 	}
 	
-	public static void deleteMailSound(Player user, OfflinePlayer target, UUID mailUUID) {
-		PlayerMail pm = new PlayerMail(user);
-		if (pm.getSettings().get("notification-display").toString().equalsIgnoreCase("Message")) {
-			if (Boolean.parseBoolean(pm.getSettings().get("notification-display-enable").toString())) {
-				user.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &eDelete mail &7" + mailUUID.toString()));
-			}
-		}
-		if (Boolean.parseBoolean(pm.getSettings().get("notification-sound").toString())) {
-			String[] s = plugin.getConfig().getString("activity-sound.deletemail-notification").split("-");
-			int volume = Integer.parseInt(s[2]), pitch = Integer.parseInt(s[1]);
-			user.playSound(user.getLocation(), Sound.valueOf(s[0].toUpperCase()), volume,pitch);
-		}
-	}
-	 
 	public static void deleteMail(Player user, OfflinePlayer target, String path) {
 		File file = new File(folder, target.getUniqueId().toString() + ".yml");
 		String[] split = {};
@@ -161,7 +176,8 @@ public class MailManager {
 		UUID uuid = UUID.fromString(split[1]);
 		giveMailItem(user, target, uuid);
 		ConfigManager.inputData(file, path, null);
-		deleteMailSound(user, target, uuid);
+		String[] args = {"deletemail"};
+		notificationMail(user, args);
 	}
 	
 	public static void sendMail(Player u, OfflinePlayer t) {
@@ -178,9 +194,9 @@ public class MailManager {
 			UUID mail = UUID.randomUUID();
 			File uf = new File(folder, u.getUniqueId().toString() + ".yml"), tf = new File(folder, t.getUniqueId().toString() + ".yml");
 
-			ConfigManager.inputData(uf, "mailbox.inbox." + mail + ".sender", u.getUniqueId().toString());
+			ConfigManager.inputData(tf, "mailbox.inbox." + mail + ".sender", u.getUniqueId().toString());
 			ConfigManager.inputData(tf, "mailbox.inbox." + mail + ".message", msg);
-			ConfigManager.inputData(uf, "mailbox.inbox." + mail + ".item", item);
+			ConfigManager.inputData(tf, "mailbox.inbox." + mail + ".item", item);
 			
 			if (!u.equals(t)) {
 				ConfigManager.inputData(uf, "mailbox.outbox." + mail + ".target", t.getUniqueId().toString());
@@ -188,7 +204,12 @@ public class MailManager {
 				ConfigManager.inputData(uf, "mailbox.outbox." + mail + ".sender", item);
 			}
 			
-			sendMailSound(u, t);
+			String[] args = {"getmail", "SENDER", t.getName(), u.getName()};
+			notificationMail(u, args);
+			String[] args2 = {"getmail", "TARGET", t.getName(), u.getName()};
+			if (t.isOnline()) {
+				notificationMail(t.getPlayer(), args2);
+			}
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -199,9 +220,9 @@ public class MailManager {
 			UUID mail = UUID.randomUUID();
 			File uf = new File(folder, u.getUniqueId().toString() + ".yml"), tf = new File(folder, t.getUniqueId().toString() + ".yml");
 
-			ConfigManager.inputData(uf, "mailbox.inbox." + mail + ".sender", u.getUniqueId().toString());
+			ConfigManager.inputData(tf, "mailbox.inbox." + mail + ".sender", u.getUniqueId().toString());
 			ConfigManager.inputData(tf, "mailbox.inbox." + mail + ".message", StringEditor.stringToList(msg, maxLength));
-			ConfigManager.inputData(uf, "mailbox.inbox." + mail + ".item", item);
+			ConfigManager.inputData(tf, "mailbox.inbox." + mail + ".item", item);
 			
 			if (!u.equals(t)) {
 				ConfigManager.inputData(uf, "mailbox.outbox." + mail + ".target", t.getUniqueId().toString());
@@ -209,36 +230,57 @@ public class MailManager {
 				ConfigManager.inputData(uf, "mailbox.outbox." + mail + ".sender", item);
 			}
 			
-			sendMailSound(u, t);
+			String[] args = {"getmail", "SENDER", t.getName(), u.getName()};
+			notificationMail(u, args);
+			String[] args2 = {"getmail", "TARGET", t.getName(), u.getName()};
+			if (t.isOnline()) {
+				notificationMail(t.getPlayer(), args2);
+			}
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public static void sendMailSound(Player u, OfflinePlayer t) {
-		PlayerMail um = new PlayerMail(u),tm = new PlayerMail(t);
-		if (um.getSettings().get("notification-display").toString().equalsIgnoreCase("Message")) {
-			if (Boolean.parseBoolean(um.getSettings().get("notification-display-enable").toString())) {
-				u.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Your mail has been sent to &b" + t.getName()));
+	@SuppressWarnings("deprecation")
+	public static void notificationMail(Player p, String args[]) {
+		PlayerMail pm = new PlayerMail(p);
+		String[] s = plugin.getConfig().getString("activity-sound." + args[0].toLowerCase() + "-notification").split("-");
+		String msg = null;
+		int volume = Integer.parseInt(s[2]), pitch = Integer.parseInt(s[1]);
+		boolean useSound = Boolean.parseBoolean(pm.getSettings().get("notification-sound").toString()), useNotification = Boolean.parseBoolean(pm.getSettings().get("notification-display-enable").toString());
+		Sound sound = Sound.valueOf(s[0].toUpperCase());
+		String prefix = plugin.getConfig().getString("prefix"), type = pm.getSettings().get("notification-display").toString();
+		
+		if (args[0].equalsIgnoreCase("getmail")) {
+			s = plugin.getConfig().getString("activity-sound.getmail-notification").split("-");
+			if (args[1].equalsIgnoreCase("SENDER")) {
+				msg = ChatColor.translateAlternateColorCodes('&', "Your mail has been sent to &b" + args[2]);
+			}
+			if (args[1].equalsIgnoreCase("TARGET")) {
+				msg = ChatColor.translateAlternateColorCodes('&', "You've got mail from &a" + args[3]);
 			}
 		}
-		if (Boolean.parseBoolean(um.getSettings().get("notification-sound").toString())) {
-			String[] s = plugin.getConfig().getString("activity-sound.getmail-notification").split("-");
-			int volume = Integer.parseInt(s[2]), pitch = Integer.parseInt(s[1]);
-			u.playSound(u.getLocation(), Sound.valueOf(s[0].toUpperCase()), volume,pitch);
+		if (args[0].equalsIgnoreCase("deletemail")) {
+			s = plugin.getConfig().getString("activity-sound.deletemail-notification").split("-");
+			msg = ChatColor.translateAlternateColorCodes('&', "&cMail has been deleted");
 		}
-		if (t.isOnline()) {
-			Player p = t.getPlayer();
-			if (tm.getSettings().get("notification-display").toString().equalsIgnoreCase("Message")) {
-				if (Boolean.parseBoolean(tm.getSettings().get("notification-display-enable").toString())) {
-					p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " You have got mail from &e" + t.getName()));
-				}
+		
+		if (args[0].equalsIgnoreCase("checkmail")) {
+			s = plugin.getConfig().getString("activity-sound.checkmail-notification").split("-");
+			msg = ChatColor.translateAlternateColorCodes('&', "You have &a" + args[1] + " &fmail(s)");
+		}
+		
+		if (useNotification) {
+			if (type.equalsIgnoreCase("Message")) {
+				p.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " " + msg));
+			}else if (type.equalsIgnoreCase("Actionbar")) {
+				p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder(msg).create());
+			}else if (type.equalsIgnoreCase("Title")) {
+				p.sendTitle(" ", msg);
 			}
-			if (Boolean.parseBoolean(tm.getSettings().get("notification-sound").toString())) {
-				String[] s = plugin.getConfig().getString("activity-sound.getmail-notification").split("-");
-				int volume = Integer.parseInt(s[2]), pitch = Integer.parseInt(s[1]);
-				p.playSound(p.getLocation(), Sound.valueOf(s[0].toUpperCase()), volume,pitch);
-			}
+		}
+		if (useSound) {
+			p.playSound(p.getLocation(), sound, volume, pitch);
 		}
 	}
 

@@ -1,6 +1,38 @@
 prefix: '&8[&2Dia&aMail&8]&f'
 mail-perline-length: 20
+menu-manager:
+  mailinfo:
+    title: '&1Sender: %mailinfo_sender% | Target: %mailinfo_target%'
+  mailbox:
+    title: '&1%mailbox_size% Mail(s) | Page %mailbox_page%'
+player-settings:
+  notification-display: Message
+  notification-display-enable: true
+  notification-sound: true
+  checking-mailbox-interval: 600
+  show-mailbox: Inbox
+  show-tips: true
+  delete-mail-after-read: false
+activity-sound:
+  getmail-notification: BLOCK_NOTE_BLOCK_PLING-1-1
+  checkmail-notification: BLOCK_ENCHANTMENT_TABLE_USE-1-1
+  deletemail-notification: BLOCK_NOTE_BLOCK_BASS-1-1
+command-aliases:
+  mail: 'diamail'
+  inbox: 'diamail mailbox 1 inbox'
+  outbox: 'diamail mailbox 1 outbox'
 player-settings-option:
+  show-tips:
+    value:
+      - true
+      - false
+    icon:
+      true:
+        Material: GREEN_TERRACOTTA
+        Name: '&2Show Tips&8: &aEnabled'
+      false:
+        Material: RED_TERRACOTTA
+        Name: '&2Show Tips&8: &cDisabled'
   notification-display:
     value:
       - Message
@@ -99,18 +131,3 @@ player-settings-option:
       true:
         Material: GREEN_TERRACOTTA
         Name: '&2Delete Mail After Read&8: &aEnabled'
-player-settings:
-  notification-display: Message
-  notification-display-enable: true
-  notification-sound: true
-  checking-mailbox-interval: 600
-  show-mailbox: Inbox
-  delete-mail-after-read: false
-activity-sound:
-  getmail-notification: BLOCK_NOTE_BLOCK_PLING-1-1
-  checkmail-notification: BLOCK_ENCHANTMENT_TABLE_USE-1-1
-  deletemail-notification: BLOCK_NOTE_BLOCK_BASS-1-1
-command-aliases:
-  mail: 'diamail'
-  inbox: 'diamail mailbox 1 inbox'
-  outbox: 'diamail mailbox 1 outbox'

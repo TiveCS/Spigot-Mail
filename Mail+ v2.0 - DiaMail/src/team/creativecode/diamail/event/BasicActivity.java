@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -41,14 +42,20 @@ public class BasicActivity implements Listener {
 	public void onCommand(PlayerCommandPreprocessEvent event) {
 		Player p = event.getPlayer();
 		String cmd = event.getMessage().substring(1);
+		String[] split = cmd.split(" ");
+		String finalCmd = "";
 		List<String> aliases = new ArrayList<String>(plugin.getConfig().getConfigurationSection("command-aliases").getKeys(false));
-		for (String a : aliases) {
-			if (cmd.equalsIgnoreCase(a)) {
-				event.setCancelled(true);
-				event.setMessage(plugin.getConfig().getString("command-aliases." + a));
-				p.performCommand(event.getMessage());
-				break;
+		for (String sp : split) {
+			for (String a : aliases) {
+				if (sp.equalsIgnoreCase(a)) {
+					sp = sp.replace(sp, plugin.getConfig().getString("command-aliases." + a));
+				}
 			}
+			finalCmd = finalCmd.equals("") ? sp : finalCmd + " " + sp;
+		}
+		if (!finalCmd.equals("")) {
+			event.setCancelled(true);
+			p.performCommand(finalCmd);
 		}
 	}
 	
@@ -63,6 +70,7 @@ public class BasicActivity implements Listener {
 			}
 			DataManager.initSetting(p);
 			ConfigManager.inputData(file, "player-name", p.getName());
+			MailManager.checkMailScheduled(p);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -75,8 +83,8 @@ public class BasicActivity implements Listener {
 			Mailbox mb = Mailbox.mailbox.get(p);
 			MailSend ms = mb.getMailSend();
 			PlayerSetting ps = mb.getPlayerSettings();
-			Inventory inv = event.getInventory();
-			if (inv.getTitle().equalsIgnoreCase(MailManager.mailInfoTitle)) {
+			Inventory inv = event.getClickedInventory();
+			if (inv.equals(MailManager.mailInfo.get(p))) {
 				event.setCancelled(true);
 				MailInfo mi = new MailInfo(p, event.getSlot(), MailManager.mailInfoMail.get(p));
 				mi.action();
@@ -100,6 +108,7 @@ public class BasicActivity implements Listener {
 		}catch(Exception e) {}
 	}
 	
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onChat(AsyncPlayerChatEvent event) {
 		Player p = event.getPlayer();
@@ -117,9 +126,27 @@ public class BasicActivity implements Listener {
 				return;
 			}else if (event.getMessage().equalsIgnoreCase("Set-Item")) {
 				ms.setItem(p);
+			}else if (event.getMessage().equalsIgnoreCase("GUI")) {
+				try {
+					ms.initMenu();
+					p.openInventory(ms.getInventory());
+				}catch(Exception e) {}
+			}else if (event.getMessage().equalsIgnoreCase("Check-Mail")) {
+				String target = "None";
+				String item = "";
+				if (ms.hasTarget()) {
+					target = ms.getTarget().getName();
+				}
+				if (ms.hasItem()) {
+					item = ms.getItem().getType().toString() + "(" + ms.getItem().getAmount() + "x)";
+				}
+				p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &6Target &e" + target));
+				p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &8Item &7[" + item + "]"));
+				p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &3Message &b" + ms.getMessage().size() + " line(s)"));
 			}
 			else if (event.getMessage().equalsIgnoreCase("Done")) {
 				if ((ms.hasMessage() || ms.hasItem()) && (ms.hasTarget())) {
+					System.out.println(ms.getPlayer().getName() + " " + ms.getTarget().getName() + " ");
 					MailManager.sendMail(ms.getPlayer(), ms.getTarget(), ms.getMessage(), ms.getItem());
 					p.sendMessage(" ");
 					p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Sending the mail..."));
@@ -145,7 +172,14 @@ public class BasicActivity implements Listener {
 			else {
 				if (ms.hasTarget() == false) {
 					try {
-						ms.setTarget(Bukkit.getPlayer(event.getMessage()));
+						OfflinePlayer op = null;
+						try {
+							op = Bukkit.getPlayer(event.getMessage());
+							if (op.equals(null)) {
+								op = Bukkit.getOfflinePlayer(event.getMessage());
+							}
+						}catch(Exception e) {op = Bukkit.getOfflinePlayer(event.getMessage());}
+						ms.setTarget(op);
 						p.sendMessage(" ");
 						p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &6Target &e" + ms.getTarget().getName()));
 						p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &fYou can add your message now.."));
@@ -154,6 +188,9 @@ public class BasicActivity implements Listener {
 						p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &cPlayer not found!"));
 					}
 				}else {
+					try {
+						ms.initMenu();
+					}catch(Exception e) {}
 					ms.addMessage(event.getMessage());
 				}
 			}

@@ -12,9 +12,8 @@ public class Main extends JavaPlugin {
 		this.getConfig().options().copyDefaults(true);
 		saveConfig();
 		ConfigManager.createFolder(this.getDataFolder().toString() + "/PlayerData");
-		
+
 		this.getCommand("diamail").setExecutor(new DiamailCmd());
-		
 		this.getServer().getPluginManager().registerEvents(new BasicActivity(), this);
 	}
 

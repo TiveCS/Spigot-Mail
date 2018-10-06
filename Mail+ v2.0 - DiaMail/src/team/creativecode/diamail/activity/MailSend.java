@@ -14,13 +14,16 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import team.creativecode.diamail.Main;
+import team.creativecode.diamail.manager.PlayerMail;
 import team.creativecode.diamail.util.ItemBuilder;
+import team.creativecode.diamail.util.StringEditor;
 
 public class MailSend {
 	
 	public static HashMap<Player, MailSend> reg = new HashMap<Player, MailSend>();
 	Main plugin = Main.getPlugin(Main.class);
 	
+	PlayerMail pm;
 	Inventory inv;
 	Player user;
 	OfflinePlayer target;
@@ -30,11 +33,15 @@ public class MailSend {
 	public MailSend(Player user, OfflinePlayer target, boolean usegui) {
 		this.user = user;
 		this.target = target;
+		this.pm = new PlayerMail(user);
 		if (usegui == false) {
 			user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Preparing to send mail..."));
-			user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &cExit &fto cancel send mail"));
-			user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &eSet-Item &fto attach item using item on hand"));
-			user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &aDone &fto finish the mail"));
+			if (Boolean.parseBoolean(this.pm.getSettings().get("show-tips").toString())) {
+				user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &cExit &fto cancel send mail"));
+				user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &eSet-Item &fto attach item using item on hand"));
+				user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &9Check-Mail &fto check mail info"));
+				user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &aDone &fto finish the mail"));
+			}
 			user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " "));
 			try {
 				if (!this.target.equals(null)) {
@@ -78,8 +85,6 @@ public class MailSend {
 			setItem(cl);
 			p.getInventory().remove(item);
 			p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Item has been attached!"));
-		}else {
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " You cannot send &cAIR &fin your mail!"));
 		}
 	}
 	
@@ -88,17 +93,37 @@ public class MailSend {
 	}
 	
 	public void action(Player clicker, int slot) {
+		reg.remove(clicker);
 		if (slot == 3*9 - 5) {
 			clicker.openInventory(Mailbox.mailbox.get(clicker).getInventory());
 		}
 		else if (slot == 2*9 - 2) {
 			this.sendMail();
+			clicker.closeInventory();
 		}
 		else if (slot == 2*9 - 4) {
-			
+			reg.put(clicker, Mailbox.mailsend.get(clicker));
+			if (Boolean.parseBoolean(this.pm.getSettings().get("show-tips").toString())) {
+				clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &dGUI &fto use gui mode"));
+				clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &cExit &fto cancel the mail"));
+				clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Please type player's name &6(case sensitive)"));
+			}
+			clicker.closeInventory();
 		}
 		else if (slot == 2*9 - 6) {
-			
+			if (hasTarget()) {
+				reg.put(clicker, Mailbox.mailsend.get(clicker));
+				if (Boolean.parseBoolean(this.pm.getSettings().get("show-tips").toString())) {
+					clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &dGUI &fto use gui mode"));
+					clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &cExit &fto cancel the mail"));
+					clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &aDone &fto finish the mail"));
+				}
+				clicker.sendMessage(" ");
+				clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " You can add your message.."));
+				clicker.closeInventory();
+			}else {
+				clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " You can add message after select target.."));
+			}
 		}
 		else if (slot == 2*9 - 8) {
 			this.setItem(clicker);
@@ -142,10 +167,15 @@ public class MailSend {
 			for (String msg : this.getMessage()) {
 				lore.add(msg);
 			}
+			lore = StringEditor.normalizeColor(lore);
 		}
 		lore.add(" ");
 		lore.add("&b▶ Add new line message");
-		this.inv.setItem(2*9 - 6, ItemBuilder.createItem(Material.KNOWLEDGE_BOOK, "&3&lMessage&f&l:", lore, false));
+		if (hasTarget()) {
+			this.inv.setItem(2*9 - 6, ItemBuilder.createItem(Material.KNOWLEDGE_BOOK, "&3&lMessage&f&l:", lore, false));
+		}else {
+			this.inv.setItem(2*9 - 6, ItemBuilder.createItem(Material.KNOWLEDGE_BOOK, "&cNeed player target first", null, false));
+		}
 		lore.clear();
 		
 		if (!this.hasItem()) {
