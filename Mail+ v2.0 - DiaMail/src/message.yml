@@ -1,0 +1,65 @@
+#New message format
+#Use listed message to use multipled line message
+#Use single lined message to use single line message
+help:
+    header:
+        - '&3Help of &b%prefix% &av%version%'
+        - ''
+        - '&c<> &f= Required args, &7[] &f= Optional arg'
+        - ''
+    footer: ' '
+    value:
+        command-help:
+            - '&2/diamail &aaliases &8- &fShow all DiaMail command aliases'
+            - '&2/diamail &amailbox &7[Page] [Inbox/Outbox/All] &8- &fShow mailbox contents'
+            - '&2/diamail &asend &7[Player] [Message] &8- &fSend mail to player'
+            - '&2/diamail &adelete &7[&c<Inbox/Outbox> <Index>&7] &8- &fDelete a mail'
+            - '&2/diamail &acheck &8- &fCheck your mailbox size'
+            - '&2/diamail &aitem &7[Player] [Message] &8- &fSend mail with item on hand'
+action:
+    header: ' '
+    footer: ' '
+    value:
+        get-mail: 'You have got mail by &a%sender%'
+        delete-mail: '&cMail has been deleted'
+        send-mail: 'Mail has been sent to &b%target%'
+        sendall-mail: 'Mail has been sent to &6All&f players!'
+        check-mail: 'You have &a%size% &fmail(s)'
+        get-item-mail: 'You have receive your item!'
+        set-target: 'Mail target is &e%target%'
+        set-item: '&8Item&f: &7%item%'
+        add-message: '&bAdded&f message to line &a%line%'
+        remove-message: '&cRemoved&f message from line &a%line%'
+        unset-item: 'Attached item has been removed'
+        return-item: 'Previous item has been returned!'
+        pre-send-mail-leave: 'You have leaving mail send mode...'
+        pre-send-mail-info:
+            - '&6Target &e%target%'
+            - '&8Item&f &7%item%'
+            - '&3Message &b%line% line(s)'
+        pre-send-mail-gui:
+            - 'Type &dGUI &fto open the GUI menu'
+            - 'Type &cExit &fto cancel action'
+            - 'Type &3Check-Mail &fto check mail info'
+            - 'Type &aDone &fto finish the mail'
+            - 'Type &6(Un)&eSet-Item &fto (de)attach item'
+            - ' '
+            - 'Please type in the chat to input message'
+            - 'Input will be set as target if target is null'
+        pre-send-mail:
+            - 'Type &cExit &fto cancel action'
+            - 'Type &3Check-Mail &fto check mail info'
+            - 'Type &aDone &fto finish the mail'
+            - 'Type &6(Un)&eSet-Item &fto (de)attach item'
+            - ' '
+            - 'Please type in the chat to input message'
+            - 'Input will be set as target if target is null'
+
+error:
+    header: ''
+    footer: ''
+    value:
+        set-target-not-found: 'Player not found!'
+        send-mail-failed: '&cCould not send the mail! required field is empty!'
+        internal-error: '&4Internal error occured! please check console and report!'
+        unknown-command: '&cUnknown command argument!'

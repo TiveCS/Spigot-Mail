@@ -7,13 +7,13 @@ menu-manager:
     title: '&1%mailbox_size% Mail(s) | Page %mailbox_page%'
 player-settings:
   notification-display: Message
-  notification-display-enable: true
   notification-sound: true
   checking-mailbox-interval: 600
   show-mailbox: Inbox
   show-tips: true
   delete-mail-after-read: false
 activity-sound:
+  sendmail-notification: ENTITY_EXPERIENCE_ORB_PICKUP-1-1
   getmail-notification: BLOCK_NOTE_BLOCK_PLING-1-1
   checkmail-notification: BLOCK_ENCHANTMENT_TABLE_USE-1-1
   deletemail-notification: BLOCK_NOTE_BLOCK_BASS-1-1
@@ -38,7 +38,17 @@ player-settings-option:
       - Message
       - Title
       - Actionbar
+      - None
     icon:
+      None:
+        Material: BUCKET
+        Name: '&2Notification Display'
+        Lore:
+          - ' '
+          - '&7- Message'
+          - '&7- Title'
+          - '&7- Actionbar'
+          - '&f- None'
       Actionbar:
         Material: BOOK
         Name: '&2Notification Display'
@@ -47,6 +57,7 @@ player-settings-option:
           - '&7- Message'
           - '&7- Title'
           - '&f- Actionbar'
+          - '&7- None'
       Title:
         Material: SIGN
         Name: '&2Notification Display'
@@ -55,6 +66,7 @@ player-settings-option:
           - '&7- Message'
           - '&f- Title'
           - '&7- Actionbar'
+          - '&7- None'
       Message:
         Material: PAPER
         Name: '&2Notification Display'
@@ -63,17 +75,8 @@ player-settings-option:
           - '&f- Message'
           - '&7- Title'
           - '&7- Actionbar'
-  notification-display-enable:
-    value:
-      - true
-      - false
-    icon:
-      false:
-        Material: RED_TERRACOTTA
-        Name: '&2Notification&8: &cDisabled'
-      true:
-        Material: GREEN_TERRACOTTA
-        Name: '&2Notification&8: &aEnabled'
+          - '&7- None'
+          
   notification-sound:
     value:
       - true

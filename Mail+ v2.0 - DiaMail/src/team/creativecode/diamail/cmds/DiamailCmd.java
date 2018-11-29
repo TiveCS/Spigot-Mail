@@ -19,13 +19,15 @@ import team.creativecode.diamail.activity.MailManager;
 import team.creativecode.diamail.activity.MailManager.MailType;
 import team.creativecode.diamail.activity.MailSend;
 import team.creativecode.diamail.activity.Mailbox;
+import team.creativecode.diamail.manager.MessageManager;
+import team.creativecode.diamail.manager.MessageManager.MessageType;
 import team.creativecode.diamail.manager.PlayerMail;
 
 public class DiamailCmd implements CommandExecutor, TabCompleter {
 
 	private Main plugin = Main.getPlugin(Main.class);
 	
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation" })
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (sender instanceof Player) {
@@ -45,10 +47,10 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 					if (args[0].equalsIgnoreCase("send")) {
 						if (args[1].length() > 0) {
 							try {
-								MailSend ms = new MailSend(p, Bukkit.getPlayer(args[1]), false);
+								MailSend ms = new MailSend(p, Bukkit.getOfflinePlayer(args[1]), false);
 								MailSend.reg.put(p, ms);
 							}catch(Exception e) {
-								sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &cPlayer not found!"));
+								MessageManager.send(p, MessageType.SET_TARGET_NOT_FOUND);
 							}
 							return true;
 						}
@@ -84,26 +86,7 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 						return true;
 					}
 					if (args[0].equals("?") || args[0].equalsIgnoreCase("help")) {
-						sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&3Help of &bDiaMail"));
-						sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-								"&c<> &f= Required args, &7[] &f= Optional args"));
-						sender.sendMessage(ChatColor.translateAlternateColorCodes('&', " "));
-
-						sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-								"&2/diamail &aaliases &8- &fShow all DiaMail's command aliases"));
-						sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-								"&2/diamail &amailbox &7[Page] [Inbox/Outbox/All] &8- &fShow mailbox contents"));
-						sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-								"&2/diamail &asend &7[Player] [Message] &8- &fSend mail to player"));
-						sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-								"&2/diamail &adelete &7[&c<Inbox/Outbox> <Index>&7] &8- &fDelete a mail"));
-						sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-								"&2/diamail &acheck &8- &fCheck your mailbox size"));
-						sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-								"&2/diamail &aitem &7[Player] [Message] &8- &fSend mail with item on hand"));
-						
-						sender.sendMessage(ChatColor.translateAlternateColorCodes('&', " "));
-						
+						MessageManager.send((Player) sender, MessageType.COMMAND_HELP);
 						return true;
 					}
 					if (args[0].equalsIgnoreCase("check")) {
@@ -148,9 +131,6 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 								item = p.getInventory().getItemInMainHand();
 								clone = item.clone();
 								p.getInventory().remove(item);
-							}else {
-								sender.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " You cannot send &cAIR &fin your mail!"));
-								return true;
 							}
 						}
 						try {

@@ -1,14 +1,43 @@
 package team.creativecode.diamail.util;
 
+import java.util.HashMap;
+
+import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import team.creativecode.diamail.Main;
 import team.creativecode.diamail.activity.MailInfo;
+import team.creativecode.diamail.activity.MailManager.PlaceholderType;
 import team.creativecode.diamail.activity.Mailbox;
 import team.creativecode.diamail.manager.PlayerMail;
 
 public class Placeholder {
+	
+	static Main plugin = Main.getPlugin(Main.class);
+	static String prefix = ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix"));
 
+	public static String generalPlaceholder(String text) {
+		text = text.replace("%prefix%", prefix);
+		text = text.replace("%version%", plugin.getDescription().getVersion());
+		return text;
+	}
+	
+	public static HashMap<PlaceholderType, Object> initDefaultValue(HashMap<PlaceholderType, Object> map, PlayerMail pm){
+		map.put(PlaceholderType.OUTBOX_SIZE, pm.getOutbox().size());
+		map.put(PlaceholderType.INBOX_SIZE, pm.getInbox().size());
+		return map;
+	}
+	
+	public static String mapPlaceholder(HashMap<PlaceholderType, Object> map, String text) {
+		for (PlaceholderType type : map.keySet()) {
+			if (text.contains("%" + type.toString().toLowerCase() + "%")) {
+				text = text.replace("%" + type.toString().toLowerCase() + "%", map.get(type).toString());
+			}
+		}
+		return text;
+	}
+	
 	public static ItemStack playerSettingValuePlaceholder(PlayerMail pm, ItemStack item, String setting) {
 		try {
 			String value = pm.getConfig().get("settings." + setting).toString();

@@ -19,7 +19,9 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import team.creativecode.diamail.ConfigManager;
 import team.creativecode.diamail.Main;
+import team.creativecode.diamail.manager.MessageManager;
 import team.creativecode.diamail.manager.PlayerMail;
+import team.creativecode.diamail.manager.MessageManager.MessageType;
 import team.creativecode.diamail.util.ItemBuilder;
 import team.creativecode.diamail.util.Placeholder;
 import team.creativecode.diamail.util.StringEditor;
@@ -36,6 +38,10 @@ public class MailManager {
 
 	public static enum MailType{
 		INBOX, OUTBOX, ALL;
+	}
+	
+	public static enum PlaceholderType{
+		SENDER, TARGET, SIZE, SUBJECT, LINE, INBOX_SIZE, OUTBOX_SIZE;
 	}
 	
 	public static void openMailInfoMenu(Player user, OfflinePlayer target, MailType mt, String mailUUID) {
@@ -61,7 +67,7 @@ public class MailManager {
 			}
 			lore = m.getMessage();
 			lore.add(" ");
-			lore.add(ChatColor.translateAlternateColorCodes('&', "&7▶ Read on the chat"));
+			lore.add(ChatColor.translateAlternateColorCodes('&', "&7- Read on the chat"));
 			lore = StringEditor.normalizeColor(lore);
 			inv.setItem(11, ItemBuilder.createItem(Material.PAPER, ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Message", lore, false));
 			lore.clear();
@@ -75,9 +81,9 @@ public class MailManager {
 				ms = m.getSender().getName();
 			}
 			if (mt.equals(MailType.INBOX)) {
-				lore.add(ChatColor.translateAlternateColorCodes('&', "&7▶ " + ms));
+				lore.add(ChatColor.translateAlternateColorCodes('&', "&7- " + ms));
 			}else {
-				lore.add(ChatColor.translateAlternateColorCodes('&', "&7▶ " + mr));
+				lore.add(ChatColor.translateAlternateColorCodes('&', "&7- " + mr));
 			}
 			lore = StringEditor.normalizeColor(lore);
 			inv.setItem(15, ItemBuilder.createItem(Material.PLAYER_HEAD, ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "Reply", lore, false));
@@ -92,7 +98,7 @@ public class MailManager {
 					inv.setItem(2*9 - 5, item);
 				}
 			}catch(Exception e) {
-				lore.add(ChatColor.translateAlternateColorCodes('&', "&7▶ No item attached"));
+				lore.add(ChatColor.translateAlternateColorCodes('&', "&7- No item attached"));
 				inv.setItem(2*9 - 5, ItemBuilder.createItem(Material.CHEST, ChatColor.YELLOW + "" + ChatColor.BOLD + "Attached Item", lore, false));
 				lore.clear();
 			}
@@ -113,9 +119,11 @@ public class MailManager {
 			ItemStack item = pm.getConfig().getItemStack(path + ".item");
 			user.getInventory().addItem(item);
 			ConfigManager.inputData(pm.getFile(), path, null);
-			user.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " You've got an item.."));
+			MessageManager.send(user, MessageType.GET_ITEM_MAIL);
+			
 			if (pm.getConfig().getStringList(path + ".message").isEmpty()) {
 				deleteMail(user, target, path);
+				user.closeInventory();
 			}
 		}catch(Exception e) {}
 	}
@@ -124,8 +132,11 @@ public class MailManager {
 		PlayerMail pm = new PlayerMail(p);
 		int size = pm.getInbox().size() + pm.getOutbox().size();
 		if (!user.equals(null)) {
-			String[] args = {"checkmail", size + ""};
-			notificationMail(user, args);
+			HashMap<PlaceholderType, Object> m = new HashMap<PlaceholderType, Object>();;
+			m.put(PlaceholderType.SUBJECT, "check-mail");
+			m.put(PlaceholderType.SIZE, size);
+			
+			notificationMail(user, m);
 		}
 	}
 	
@@ -158,8 +169,9 @@ public class MailManager {
 			giveMailItem(user, target, mailUUID);
 			ConfigManager.inputData(file, "mailbox." + mt.toString().toLowerCase() + "." + mailUUID.toString(), null);
 			
-			String[] args = {"deletemail"};
-			notificationMail(user, args);
+			HashMap<PlaceholderType, Object> m = new HashMap<PlaceholderType, Object>();
+			m.put(PlaceholderType.SUBJECT, "delete-mail");
+			notificationMail(user, m);
 		}catch(Exception e) {}
 	}
 	
@@ -176,8 +188,10 @@ public class MailManager {
 		UUID uuid = UUID.fromString(split[1]);
 		giveMailItem(user, target, uuid);
 		ConfigManager.inputData(file, path, null);
-		String[] args = {"deletemail"};
-		notificationMail(user, args);
+		
+		HashMap<PlaceholderType, Object> m = new HashMap<PlaceholderType, Object>();
+		m.put(PlaceholderType.SUBJECT, "delete-mail");
+		notificationMail(user, m);
 	}
 	
 	public static void sendMail(Player u, OfflinePlayer t) {
@@ -204,11 +218,15 @@ public class MailManager {
 				ConfigManager.inputData(uf, "mailbox.outbox." + mail + ".sender", item);
 			}
 			
-			String[] args = {"getmail", "SENDER", t.getName(), u.getName()};
-			notificationMail(u, args);
-			String[] args2 = {"getmail", "TARGET", t.getName(), u.getName()};
+			HashMap<PlaceholderType, Object> m = new HashMap<PlaceholderType, Object>();
+			m.put(PlaceholderType.SENDER, u.getName());
+			m.put(PlaceholderType.TARGET, t.getName());
+			m.put(PlaceholderType.SUBJECT, "send-mail");
+			
+			notificationMail(u, m);
 			if (t.isOnline()) {
-				notificationMail(t.getPlayer(), args2);
+				m.put(PlaceholderType.SUBJECT, "get-mail");
+				notificationMail(t.getPlayer(),  m);
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
@@ -230,55 +248,87 @@ public class MailManager {
 				ConfigManager.inputData(uf, "mailbox.outbox." + mail + ".sender", item);
 			}
 			
-			String[] args = {"getmail", "SENDER", t.getName(), u.getName()};
-			notificationMail(u, args);
-			String[] args2 = {"getmail", "TARGET", t.getName(), u.getName()};
+			HashMap<PlaceholderType, Object> m = new HashMap<PlaceholderType, Object>();
+			m.put(PlaceholderType.SENDER, u.getName());
+			m.put(PlaceholderType.TARGET, t.getName());
+			m.put(PlaceholderType.SUBJECT, "send-mail");
+			
+			notificationMail(u, m);
 			if (t.isOnline()) {
-				notificationMail(t.getPlayer(), args2);
+				m.put(PlaceholderType.SUBJECT, "get-mail");
+				notificationMail(t.getPlayer(),  m);
 			}
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	@SuppressWarnings("deprecation")
-	public static void notificationMail(Player p, String args[]) {
+	public static void notificationMail(Player p, HashMap<PlaceholderType, Object> map) {
 		PlayerMail pm = new PlayerMail(p);
-		String[] s = plugin.getConfig().getString("activity-sound." + args[0].toLowerCase() + "-notification").split("-");
 		String msg = null;
-		int volume = Integer.parseInt(s[2]), pitch = Integer.parseInt(s[1]);
-		boolean useSound = Boolean.parseBoolean(pm.getSettings().get("notification-sound").toString()), useNotification = Boolean.parseBoolean(pm.getSettings().get("notification-display-enable").toString());
+		List<String> msglist = new ArrayList<String>();
+		boolean useSound = Boolean.parseBoolean(pm.getSettings().get("notification-sound").toString());
+		String type = pm.getSettings().get("notification-display").toString();
+		String subj = map.get(PlaceholderType.SUBJECT).toString(), subj2 = subj.replace("-", ""), path = "action.value." + subj;
+		String[] s = plugin.getConfig().getString("activity-sound." + subj2 + "-notification").split("-");
 		Sound sound = Sound.valueOf(s[0].toUpperCase());
-		String prefix = plugin.getConfig().getString("prefix"), type = pm.getSettings().get("notification-display").toString();
+		int volume = Integer.parseInt(s[2]), pitch = Integer.parseInt(s[1]);
 		
-		if (args[0].equalsIgnoreCase("getmail")) {
-			s = plugin.getConfig().getString("activity-sound.getmail-notification").split("-");
-			if (args[1].equalsIgnoreCase("SENDER")) {
-				msg = ChatColor.translateAlternateColorCodes('&', "Your mail has been sent to &b" + args[2]);
-			}
-			if (args[1].equalsIgnoreCase("TARGET")) {
-				msg = ChatColor.translateAlternateColorCodes('&', "You've got mail from &a" + args[3]);
-			}
-		}
-		if (args[0].equalsIgnoreCase("deletemail")) {
-			s = plugin.getConfig().getString("activity-sound.deletemail-notification").split("-");
-			msg = ChatColor.translateAlternateColorCodes('&', "&cMail has been deleted");
-		}
+		map = Placeholder.initDefaultValue(map, pm);
 		
-		if (args[0].equalsIgnoreCase("checkmail")) {
-			s = plugin.getConfig().getString("activity-sound.checkmail-notification").split("-");
-			msg = ChatColor.translateAlternateColorCodes('&', "You have &a" + args[1] + " &fmail(s)");
+		try {
+			s = plugin.getConfig().getString("activity-sound." + subj2 + "-notification").split("-");
+			if (MessageManager.isList(MessageManager.get(path))) {
+				msglist = MessageManager.getList(path);
+			}else {
+				msg = ChatColor.translateAlternateColorCodes('&', MessageManager.get(path).toString());
+				msglist.add(msg);
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
 		}
 		
-		if (useNotification) {
-			if (type.equalsIgnoreCase("Message")) {
-				p.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + " " + msg));
-			}else if (type.equalsIgnoreCase("Actionbar")) {
-				p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder(msg).create());
-			}else if (type.equalsIgnoreCase("Title")) {
-				p.sendTitle(" ", msg);
+		// use placeholder
+		for (int i = 0; i < msglist.size(); i++) {
+			msglist.set(i, Placeholder.generalPlaceholder(msglist.get(i)));
+			msglist.set(i, Placeholder.mapPlaceholder(map, msglist.get(i)));
+		}
+		
+		if (type.equalsIgnoreCase("Message")) {
+			for (String m : msglist) {
+				p.sendMessage(ChatColor.translateAlternateColorCodes('&', m));
+			}
+		}else if (type.equalsIgnoreCase("Actionbar")) {
+			final List<String> rawmsglist = msglist;
+			int count = 0;
+			for (String m : rawmsglist) {
+				Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
+
+					@Override
+					public void run() {
+						p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new ComponentBuilder(m).create());
+					}
+					
+				}, count*40L);
+				count++;
+			}
+			
+		}else if (type.equalsIgnoreCase("Title")) {
+			final List<String> rawmsglist = msglist;
+			int count = 0;
+			for (String m : rawmsglist) {
+				Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
+
+					@Override
+					public void run() {
+						p.sendTitle(" ", m, 10, 20, 10);
+					}
+					
+				}, count*40L);
+				count++;
 			}
 		}
+			
 		if (useSound) {
 			p.playSound(p.getLocation(), sound, volume, pitch);
 		}

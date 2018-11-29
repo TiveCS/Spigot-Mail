@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,6 +23,8 @@ import team.creativecode.diamail.activity.MailManager;
 import team.creativecode.diamail.activity.MailSend;
 import team.creativecode.diamail.activity.Mailbox;
 import team.creativecode.diamail.manager.DataManager;
+import team.creativecode.diamail.manager.MessageManager;
+import team.creativecode.diamail.manager.MessageManager.MessageType;
 import team.creativecode.diamail.manager.PlayerSetting;
 
 public class BasicActivity implements Listener {
@@ -112,6 +113,7 @@ public class BasicActivity implements Listener {
 	@EventHandler
 	public void onChat(AsyncPlayerChatEvent event) {
 		Player p = event.getPlayer();
+		
 		if (MailManager.mailSendTarget.containsKey(p)) {
 			event.setCancelled(true);
 			MailManager.sendMail(p, MailManager.mailSendTarget.get(p), event.getMessage(), null);
@@ -122,7 +124,7 @@ public class BasicActivity implements Listener {
 			MailSend ms = MailSend.reg.get(p);
 			if (event.getMessage().equalsIgnoreCase("Exit")) {
 				MailSend.reg.remove(p);
-				p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Leaving mail send mode.."));
+				MessageManager.send(p, MessageType.PRE_SEND_MAIL_LEAVE);
 				return;
 			}else if (event.getMessage().equalsIgnoreCase("Set-Item")) {
 				ms.setItem(p);
@@ -132,40 +134,18 @@ public class BasicActivity implements Listener {
 					p.openInventory(ms.getInventory());
 				}catch(Exception e) {}
 			}else if (event.getMessage().equalsIgnoreCase("Check-Mail")) {
-				String target = "None";
-				String item = "";
-				if (ms.hasTarget()) {
-					target = ms.getTarget().getName();
-				}
-				if (ms.hasItem()) {
-					item = ms.getItem().getType().toString() + "(" + ms.getItem().getAmount() + "x)";
-				}
-				p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &6Target &e" + target));
-				p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &8Item &7[" + item + "]"));
-				p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &3Message &b" + ms.getMessage().size() + " line(s)"));
+				ms.info();
+			}else if (event.getMessage().equalsIgnoreCase("Dettach-Item") || event.getMessage().equalsIgnoreCase("Deattach-Item")) {
+				ms.returnItem();
 			}
 			else if (event.getMessage().equalsIgnoreCase("Done")) {
 				if ((ms.hasMessage() || ms.hasItem()) && (ms.hasTarget())) {
-					System.out.println(ms.getPlayer().getName() + " " + ms.getTarget().getName() + " ");
 					MailManager.sendMail(ms.getPlayer(), ms.getTarget(), ms.getMessage(), ms.getItem());
-					p.sendMessage(" ");
-					p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Sending the mail..."));
 					MailSend.reg.remove(p);
 					return;
 				}else {
-					p.sendMessage(" ");
-					p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Could not send the mail! some required field is empty!"));
-					String target = "None";
-					String item = "";
-					if (ms.hasTarget()) {
-						target = ms.getTarget().getName();
-					}
-					if (ms.hasItem()) {
-						item = ms.getItem().getType().toString() + "(" + ms.getItem().getAmount() + "x)";
-					}
-					p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &6Target &e" + target));
-					p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &8Item &7[" + item + "]"));
-					p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &3Message &b" + ms.getMessage().size() + " line(s)"));
+					ms.info();
+					MessageManager.send(p, MessageType.SEND_MAIL_FAILED);
 					return;
 				}
 			}
@@ -180,12 +160,8 @@ public class BasicActivity implements Listener {
 							}
 						}catch(Exception e) {op = Bukkit.getOfflinePlayer(event.getMessage());}
 						ms.setTarget(op);
-						p.sendMessage(" ");
-						p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &6Target &e" + ms.getTarget().getName()));
-						p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &fYou can add your message now.."));
-						p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &fType the message on chat.."));
 					}catch(Exception e) {
-						p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " &cPlayer not found!"));
+						MessageManager.send(p, MessageType.SET_TARGET_NOT_FOUND);
 					}
 				}else {
 					try {

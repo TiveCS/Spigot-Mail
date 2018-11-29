@@ -14,6 +14,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
 import team.creativecode.diamail.Main;
+import team.creativecode.diamail.manager.MessageManager;
+import team.creativecode.diamail.manager.MessageManager.MessageType;
 import team.creativecode.diamail.manager.PlayerMail;
 import team.creativecode.diamail.util.ItemBuilder;
 import team.creativecode.diamail.util.StringEditor;
@@ -35,21 +37,8 @@ public class MailSend {
 		this.target = target;
 		this.pm = new PlayerMail(user);
 		if (usegui == false) {
-			user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Preparing to send mail..."));
 			if (Boolean.parseBoolean(this.pm.getSettings().get("show-tips").toString())) {
-				user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &cExit &fto cancel send mail"));
-				user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &eSet-Item &fto attach item using item on hand"));
-				user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &9Check-Mail &fto check mail info"));
-				user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &aDone &fto finish the mail"));
-			}
-			user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " "));
-			try {
-				if (!this.target.equals(null)) {
-					user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Please type the message on chat!"));
-				}
-			}catch(Exception e) {
-				user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Please type the &etarget player's name&f on chat!"));
-				user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Be careful! player's name is &6case sensitive!"));
+				MessageManager.send(user, MessageType.PRE_SEND_MAIL);
 			}
 		}else if (usegui) {
 			newInv();
@@ -57,9 +46,72 @@ public class MailSend {
 		}
 	}
 	
+	public String placeholder(String text) {
+		text = text.replace("%sender%", this.user.getName());
+		try {
+			text = text.replace("%target%", this.target.getName());
+		}catch(Exception e) {
+			text = text.replace("%target%", "[]");
+		}
+		try {
+			text = text.replace("%item%", ChatColor.translateAlternateColorCodes('&', (this.item.getItemMeta().hasDisplayName() ? this.item.getItemMeta().getDisplayName() : this.item.getType().toString()) + " (" + this.item.getAmount() + "x)"));
+		}catch(Exception e) {
+			text = text.replace("%item%", "[]");
+		}
+		text = text.replace("%line%", this.msg.size() + "");
+		return ChatColor.translateAlternateColorCodes('&', text);
+	}
+	
+	public List<String> placeholder(List<String> list){
+		for (int i = 0; i < list.size(); i++) {
+			list.set(i, placeholder(list.get(i)));
+		}
+		return list;
+	}
+	
 	public void addMessage(String s) {
 		this.msg.add(ChatColor.translateAlternateColorCodes('&', s));
-		this.user.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Message added on line &a" + this.msg.size()));
+		
+		List<String> list = new ArrayList<String>();
+		MessageType[] t = {MessageType.ADD_MESSAGE};
+		for (MessageType type : t) {
+			if (MessageManager.isList(MessageManager.get(type))) {
+				if (list.size() <= 0) {
+					for (String m : placeholder(MessageManager.getList(type))) {
+						list.add(m);
+					}
+				}else {
+					list = placeholder(MessageManager.getList(type));
+				}
+			}else {
+				list.add(placeholder(MessageManager.getMsg(type)));
+			}
+		}
+		for (String m : list ) {
+			this.user.sendMessage(m);
+		}
+		
+	}
+	
+	public void info() {
+		List<String> list = new ArrayList<String>();
+		MessageType[] t = {MessageType.PRE_SEND_MAIL_INFO};
+		for (MessageType type : t) {
+			if (MessageManager.useList(MessageManager.getPath(type))) {
+				if (list.size() <= 0) {
+					for (String m : placeholder(MessageManager.getList(type))) {
+						list.add(m);
+					}
+				}else {
+					list = placeholder(MessageManager.getList(type));
+				}
+			}else {
+				list.add(placeholder(MessageManager.getMsg(type)));
+			}
+		}
+		for (String m : list ) {
+			this.user.sendMessage(m);
+		}
 	}
 	
 	public void sendMail() {
@@ -73,23 +125,90 @@ public class MailSend {
 		this.item = item;
 	}
 	
+	public void returnItem() {
+		
+		if (hasItem()) {
+			this.user.getInventory().addItem(this.getItem().clone());
+			this.item = null;
+		}
+		
+		List<String> list = new ArrayList<String>();
+		MessageType[] t = {MessageType.RETURN_ITEM};
+		for (MessageType type : t) {
+			if (MessageManager.isList(MessageManager.get(type))) {
+				if (list.size() <= 0) {
+					for (String m : placeholder(MessageManager.getList(type))) {
+						list.add(m);
+					}
+				}else {
+					list = placeholder(MessageManager.getList(type));
+				}
+			}else {
+				list.add(placeholder(MessageManager.getMsg(type)));
+			}
+		}
+		for (String m : list ) {
+			this.user.sendMessage(m);
+		}
+	}
+	
 	public void setItem(Player p) {
 		ItemStack item = p.getInventory().getItemInMainHand(), cl = item.clone();
 		if (hasItem()) {
 			p.getInventory().addItem(this.getItem().clone());
 			this.item = null;
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Returning previous items.."));
 		}
 		
 		if (!item.getType().toString().equalsIgnoreCase("AIR")) {
 			setItem(cl);
 			p.getInventory().remove(item);
-			p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Item has been attached!"));
 		}
+		
+		List<String> list = new ArrayList<String>();
+		MessageType[] t = {MessageType.RETURN_ITEM, MessageType.SET_ITEM};
+		for (MessageType type : t) {
+			if ((hasItem() == false || !this.item.getType().toString().equals("AIR")) && type.equals(MessageType.RETURN_ITEM)) {
+				continue;
+			}
+			if (MessageManager.isList(MessageManager.get(type))) {
+				if (list.size() <= 0) {
+					for (String m : placeholder(MessageManager.getList(type))) {
+						list.add(m);
+					}
+				}else {
+					list = placeholder(MessageManager.getList(type));
+				}
+			}else {
+				list.add(placeholder(MessageManager.getMsg(type)));
+			}
+		}
+		for (String m : list ) {
+			this.user.sendMessage(m);
+		}
+		
 	}
 	
 	public void setTarget(OfflinePlayer op) {
 		this.target = op;
+		
+		List<String> list = new ArrayList<String>();
+		MessageType[] t = {MessageType.SET_TARGET};
+		for (MessageType type : t) {
+			if (MessageManager.isList(MessageManager.get(type))) {
+				if (list.size() <= 0) {
+					for (String m : placeholder(MessageManager.getList(type))) {
+						list.add(m);
+					}
+				}else {
+					list = placeholder(MessageManager.getList(type));
+				}
+			}else {
+				list.add(placeholder(MessageManager.getMsg(type)));
+			}
+		}
+		for (String m : list ) {
+			this.user.sendMessage(m);
+		}
 	}
 	
 	public void action(Player clicker, int slot) {
@@ -104,9 +223,7 @@ public class MailSend {
 		else if (slot == 2*9 - 4) {
 			reg.put(clicker, Mailbox.mailsend.get(clicker));
 			if (Boolean.parseBoolean(this.pm.getSettings().get("show-tips").toString())) {
-				clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &dGUI &fto use gui mode"));
-				clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &cExit &fto cancel the mail"));
-				clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Please type player's name &6(case sensitive)"));
+				MessageManager.send(clicker, MessageType.PRE_SEND_MAIL_GUI);
 			}
 			clicker.closeInventory();
 		}
@@ -114,15 +231,9 @@ public class MailSend {
 			if (hasTarget()) {
 				reg.put(clicker, Mailbox.mailsend.get(clicker));
 				if (Boolean.parseBoolean(this.pm.getSettings().get("show-tips").toString())) {
-					clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &dGUI &fto use gui mode"));
-					clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &cExit &fto cancel the mail"));
-					clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &aDone &fto finish the mail"));
+					MessageManager.send(clicker, MessageType.PRE_SEND_MAIL_GUI);
 				}
-				clicker.sendMessage(" ");
-				clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " You can add your message.."));
 				clicker.closeInventory();
-			}else {
-				clicker.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " You can add message after select target.."));
 			}
 		}
 		else if (slot == 2*9 - 8) {
@@ -143,7 +254,7 @@ public class MailSend {
 		for (int i = 0; i < 3*9; i++) {
 			this.inv.setItem(i, ItemBuilder.createItem(Material.BLACK_STAINED_GLASS_PANE, " ", null, false));
 		}
-		lore.add("&7▶ Click here");
+		lore.add("&7- Click here");
 		this.inv.setItem(2*9 - 2, ItemBuilder.createItem(Material.GREEN_TERRACOTTA, "&2Send mail to player", lore, false));
 		lore.clear();
 		
@@ -152,12 +263,12 @@ public class MailSend {
 		meta.setDisplayName("&dTarget Player");
 		if (this.hasTarget()) {
 			meta.setOwningPlayer(this.getTarget());
-			lore.add("&7▶ &f" + this.getTarget().getName());
+			lore.add("&7- &f" + this.getTarget().getName());
 		}else {
-			lore.add("&7▶ No target selected");
+			lore.add("&7- No target selected");
 		}
 		lore.add(" ");
-		lore.add("&7▶ Click to select target player");
+		lore.add("&7- Click to select target player");
 		meta.setLore(lore);
 		skull.setItemMeta(meta);
 		this.inv.setItem(2*9 - 4, ItemBuilder.rebuildItem(skull));
@@ -170,7 +281,7 @@ public class MailSend {
 			lore = StringEditor.normalizeColor(lore);
 		}
 		lore.add(" ");
-		lore.add("&b▶ Add new line message");
+		lore.add("&b- Add new line message");
 		if (hasTarget()) {
 			this.inv.setItem(2*9 - 6, ItemBuilder.createItem(Material.KNOWLEDGE_BOOK, "&3&lMessage&f&l:", lore, false));
 		}else {
@@ -179,7 +290,7 @@ public class MailSend {
 		lore.clear();
 		
 		if (!this.hasItem()) {
-			lore.add("&7▶ Click to set item");
+			lore.add("&7- Click to set item");
 			this.inv.setItem(2*9 - 8, ItemBuilder.createItem(Material.CHEST, "&6Attached Item", lore, false));
 			lore.clear();
 		}else {
