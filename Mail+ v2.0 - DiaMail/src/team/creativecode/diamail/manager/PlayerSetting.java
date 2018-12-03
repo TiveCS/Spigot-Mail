@@ -80,7 +80,9 @@ public class PlayerSetting {
 								icon = Placeholder.playerSettingValuePlaceholder(this.pm, icon, this.listSetting.get(num));
 								this.inv.setItem(rs, icon);
 							}
-						}catch(Exception e) {}
+						}catch(Exception e) {
+							this.pm.getConfig().set(path, null);
+						}
 						
 						// Setup the icon setting
 						try {

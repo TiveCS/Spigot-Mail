@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import team.creativecode.diamail.cmds.DiamailAdminCmd;
 import team.creativecode.diamail.cmds.DiamailCmd;
 import team.creativecode.diamail.event.BasicActivity;
 
@@ -24,6 +26,7 @@ public class Main extends JavaPlugin {
 		ConfigManager.createFolder(this.getDataFolder().toString() + "/PlayerData");
 
 		this.getCommand("diamail").setExecutor(new DiamailCmd());
+		this.getCommand("diamailadmin").setExecutor(new DiamailAdminCmd());
 		this.getServer().getPluginManager().registerEvents(new BasicActivity(), this);
 		
 	}
@@ -32,6 +35,13 @@ public class Main extends JavaPlugin {
 		File msg = new File(this.getDataFolder(), "message.yml");
 		if (!msg.exists()) {
 			this.saveResource("message.yml", false);
+		}
+		msgConfig = YamlConfiguration.loadConfiguration(msg);
+		msgConfig.options().copyDefaults(true);
+		try {
+			msgConfig.save(msg);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	

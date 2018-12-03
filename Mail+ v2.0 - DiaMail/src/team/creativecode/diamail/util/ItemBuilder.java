@@ -86,7 +86,7 @@ public class ItemBuilder {
 			meta.setLore(lore);
 			item.setItemMeta(meta);
 		}catch(Exception e) {
-			e.printStackTrace();
+			System.out.println("Item or setting path is not found! [" + path + "]");
 		}
 		return item;
 	}

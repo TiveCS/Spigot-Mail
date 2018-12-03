@@ -15,6 +15,7 @@ help:
             - '&2/diamail &asend &7[Player] [Message] &8- &fSend mail to player'
             - '&2/diamail &adelete &7[&c<Inbox/Outbox> <Index>&7] &8- &fDelete a mail'
             - '&2/diamail &acheck &8- &fCheck your mailbox size'
+            - '&2/diamail &asendall &8- &fSend item to all players'
             - '&2/diamail &aitem &7[Player] [Message] &8- &fSend mail with item on hand'
 action:
     header: ' '
@@ -33,10 +34,19 @@ action:
         unset-item: 'Attached item has been removed'
         return-item: 'Previous item has been returned!'
         pre-send-mail-leave: 'You have leaving mail send mode...'
+        pre-send-mail-all:
+            - 'Type &cExit &fto cancel action'
+            - 'Type &3Check-Mail &fto check mail info'
+            - 'Type &aDone &fto finish the mail'
+            - 'Type &6(Un)&eSet-Item &fto (de)attach item'
+            - ' '
+            - 'Please type in the chat to input message'
+            - '&7[ &6You are in sendall mode... &7]'
         pre-send-mail-info:
             - '&6Target &e%target%'
             - '&8Item&f &7%item%'
             - '&3Message &b%line% line(s)'
+            - '&2Sendall &a%sendall%'
         pre-send-mail-gui:
             - 'Type &dGUI &fto open the GUI menu'
             - 'Type &cExit &fto cancel action'
@@ -59,6 +69,7 @@ error:
     header: ''
     footer: ''
     value:
+        no-permission: '&cNot enough permission!'
         set-target-not-found: 'Player not found!'
         send-mail-failed: '&cCould not send the mail! required field is empty!'
         internal-error: '&4Internal error occured! please check console and report!'

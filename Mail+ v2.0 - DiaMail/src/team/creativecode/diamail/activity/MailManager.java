@@ -77,9 +77,11 @@ public class MailManager {
 				if (!m.getTarget().equals(null)) {
 					mr = m.getTarget().getName();
 				}
-			}catch(Exception e) {
-				ms = m.getSender().getName();
-			}
+				else if (!m.getSender().equals(null)) {
+					ms = m.getSender().getName();
+				}
+			}catch(Exception e) {}
+			
 			if (mt.equals(MailType.INBOX)) {
 				lore.add(ChatColor.translateAlternateColorCodes('&', "&7- " + ms));
 			}else {
@@ -194,13 +196,42 @@ public class MailManager {
 		notificationMail(user, m);
 	}
 	
+	public static void sendallMail(Player u, List<String> msg, ItemStack item) {
+		UUID mail = UUID.randomUUID();
+		File playerFile = new File(folder, u.getUniqueId().toString() + ".yml");
+		File[] playerFiles = new File(folder).listFiles();
+		HashMap<PlaceholderType, Object> m = new HashMap<PlaceholderType, Object>();
+		m.put(PlaceholderType.SENDER, u.getName());
+		m.put(PlaceholderType.SUBJECT, "sendall-mail");
+		
+		notificationMail(u, m);
+		
+		for (File file : playerFiles) {
+			try {
+				String name = file.getName().replace(".yml", "");
+				OfflinePlayer op = Bukkit.getOfflinePlayer(UUID.fromString(name));
+				if (!op.equals(u)) {
+					ConfigManager.inputData(file, "mailbox.inbox." + mail + ".sender", u.getUniqueId().toString());
+					ConfigManager.inputData(file, "mailbox.inbox." + mail + ".message", msg);
+					ConfigManager.inputData(file, "mailbox.inbox." + mail + ".item", item);
+					
+					if (op.isOnline()) {
+						m.put(PlaceholderType.SUBJECT, "get-mail");
+						notificationMail(op.getPlayer(),  m);
+					}
+				}
+			}catch(Exception e) {}
+		}
+		
+		ConfigManager.inputData(playerFile, "mailbox.outbox." + mail + ".target", "All Players");
+		ConfigManager.inputData(playerFile, "mailbox.outbox." + mail + ".message", msg);
+		ConfigManager.inputData(playerFile, "mailbox.outbox." + mail + ".item", item);
+	}
+	
 	public static void sendMail(Player u, OfflinePlayer t) {
 		mailSendTarget.remove(u);
 		mailSendTarget.put(u,t);
-		u.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Preparing to send mail for &b" + t.getName()));
-		u.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &cExit &fto cancel send mail"));
-		u.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Type &aDone &fto finish the mail"));
-		u.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getConfig().getString("prefix") + " Please type the message on chat!"));
+		MessageManager.send(u, MessageType.PRE_SEND_MAIL);
 	}
 	
 	public static void sendMail(Player u, OfflinePlayer t, List<String> msg, ItemStack item) {
@@ -267,17 +298,27 @@ public class MailManager {
 		PlayerMail pm = new PlayerMail(p);
 		String msg = null;
 		List<String> msglist = new ArrayList<String>();
-		boolean useSound = Boolean.parseBoolean(pm.getSettings().get("notification-sound").toString());
 		String type = pm.getSettings().get("notification-display").toString();
-		String subj = map.get(PlaceholderType.SUBJECT).toString(), subj2 = subj.replace("-", ""), path = "action.value." + subj;
-		String[] s = plugin.getConfig().getString("activity-sound." + subj2 + "-notification").split("-");
+		
+		// Sound handler
+		boolean useSound = Boolean.parseBoolean(pm.getSettings().get("notification-sound").toString());
+		String subj, subj2, path;
+		String[] s;
+		subj = map.get(PlaceholderType.SUBJECT).toString();
+		subj2 = subj.replace("-", "");
+		path = "action.value." + subj;
+		try {
+			s = plugin.getConfig().getString("activity-sound." + subj2 + "-notification").split("-");
+		}catch(Exception e) {
+			s = plugin.getConfig().getString("activity-sound.default").split("-");
+		}
+		
 		Sound sound = Sound.valueOf(s[0].toUpperCase());
 		int volume = Integer.parseInt(s[2]), pitch = Integer.parseInt(s[1]);
 		
 		map = Placeholder.initDefaultValue(map, pm);
 		
 		try {
-			s = plugin.getConfig().getString("activity-sound." + subj2 + "-notification").split("-");
 			if (MessageManager.isList(MessageManager.get(path))) {
 				msglist = MessageManager.getList(path);
 			}else {

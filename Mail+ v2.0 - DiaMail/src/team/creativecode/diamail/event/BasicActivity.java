@@ -33,7 +33,7 @@ public class BasicActivity implements Listener {
 	private final String path = plugin.getDataFolder().toString() + "/PlayerData";
 	
 	public static List<Player> onlinePlayer = new ArrayList<Player>();
-
+	
 	@EventHandler
 	public void onLeave(PlayerQuitEvent event) {
 		onlinePlayer.remove(event.getPlayer());
@@ -139,8 +139,8 @@ public class BasicActivity implements Listener {
 				ms.returnItem();
 			}
 			else if (event.getMessage().equalsIgnoreCase("Done")) {
-				if ((ms.hasMessage() || ms.hasItem()) && (ms.hasTarget())) {
-					MailManager.sendMail(ms.getPlayer(), ms.getTarget(), ms.getMessage(), ms.getItem());
+				if ((ms.hasMessage() || ms.hasItem())) {
+					ms.sendMail();
 					MailSend.reg.remove(p);
 					return;
 				}else {
@@ -150,7 +150,7 @@ public class BasicActivity implements Listener {
 				}
 			}
 			else {
-				if (ms.hasTarget() == false) {
+				if (ms.hasTarget() == false && ms.isSendall() == false) {
 					try {
 						OfflinePlayer op = null;
 						try {

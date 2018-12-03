@@ -1,10 +1,29 @@
 name: DiaMail
-version: 2.0
+version: 2.2
 api-version: 1.13
 main: team.creativecode.diamail.Main
 description: The second generation of Mail+
 authors: [TiveCS, CreativeCodes_Team]
 commands:
+  diamailadmin:
+    aliases: [mailadmin, madmin, dmadmin]
+    permission: diamail.admin
+    description: Allow player to do admin stuff
   diamail:
+    aliases: [mailplus]
     permission: diamail.command
     description: Main command for diamail
+permissions:
+    diamail.admin:
+        description: Admin permission
+        default: op
+    diamail.command:
+        description: Basic permission
+        default: true
+    diamail.*:
+        description: Allow all permission
+        default: op
+        children:
+            diamail.command: true
+            diamail.admin: true
+            diamail.sendall: true

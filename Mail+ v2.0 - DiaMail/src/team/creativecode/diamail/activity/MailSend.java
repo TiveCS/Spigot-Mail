@@ -27,6 +27,7 @@ public class MailSend {
 	
 	PlayerMail pm;
 	Inventory inv;
+	boolean sendall = false;
 	Player user;
 	OfflinePlayer target;
 	List<String> msg = new ArrayList<String>();
@@ -46,6 +47,20 @@ public class MailSend {
 		}
 	}
 	
+	public MailSend(Player user, boolean usegui, boolean sendall) {
+		this.user = user;
+		this.sendall = sendall;
+		this.pm = new PlayerMail(user);
+		if (usegui) {
+			newInv();
+			initMenu();
+		}else {
+			if (Boolean.parseBoolean(this.pm.getSettings().get("show-tips").toString())) {
+				MessageManager.send(user, MessageType.PRE_SEND_MAIL_ALL);
+			}
+		}
+	}
+	
 	public String placeholder(String text) {
 		text = text.replace("%sender%", this.user.getName());
 		try {
@@ -58,6 +73,7 @@ public class MailSend {
 		}catch(Exception e) {
 			text = text.replace("%item%", "[]");
 		}
+		text = text.replace("%sendall%", this.sendall + "");
 		text = text.replace("%line%", this.msg.size() + "");
 		return ChatColor.translateAlternateColorCodes('&', text);
 	}
@@ -115,7 +131,11 @@ public class MailSend {
 	}
 	
 	public void sendMail() {
-		MailManager.sendMail(this.user, this.target, this.msg, this.item);
+		if (sendall == true) {
+			MailManager.sendallMail(this.user, this.msg, this.item);
+		}else {
+			MailManager.sendMail(this.user, this.target, this.msg, this.item);
+		}
 	}
 	
 	public void setItem(ItemStack item) {
@@ -326,6 +346,10 @@ public class MailSend {
 	
 	public boolean hasMessage() {
 		return !this.msg.isEmpty();
+	}
+	
+	public boolean isSendall() {
+		return this.sendall;
 	}
 	
 	public Inventory getInventory() {

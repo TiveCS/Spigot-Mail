@@ -13,6 +13,7 @@ player-settings:
   show-tips: true
   delete-mail-after-read: false
 activity-sound:
+  default: BLOCK_NOTE_BLOCK_PLING-3-1
   sendmail-notification: ENTITY_EXPERIENCE_ORB_PICKUP-1-1
   getmail-notification: BLOCK_NOTE_BLOCK_PLING-1-1
   checkmail-notification: BLOCK_ENCHANTMENT_TABLE_USE-1-1
@@ -35,13 +36,13 @@ player-settings-option:
         Name: '&2Show Tips&8: &cDisabled'
   notification-display:
     value:
-      - Message
-      - Title
-      - Actionbar
-      - None
+        - Message
+        - Title
+        - Actionbar
+        - None
     icon:
       None:
-        Material: BUCKET
+        Material: BOWL
         Name: '&2Notification Display'
         Lore:
           - ' '

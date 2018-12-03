@@ -15,6 +15,9 @@ public class DataManager {
 	public static void initSetting(OfflinePlayer p) {
 		File f = new File(plugin.getDataFolder() + "/PlayerData", p.getUniqueId().toString() + ".yml");
 		Set<String> s = plugin.getConfig().getConfigurationSection("player-settings").getKeys(false);
+		try {
+			ConfigManager.inputData(f, "player-name", p.getName());
+		}catch(Exception e) {}
 		for (String st : s) {
 			try {
 				if (ConfigManager.getConfig(f).get("settings." + st).equals(null)) {

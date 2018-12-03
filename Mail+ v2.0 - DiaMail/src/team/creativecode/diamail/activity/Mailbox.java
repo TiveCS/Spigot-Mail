@@ -28,6 +28,7 @@ public class Mailbox {
 	public static HashMap<Player, MailSend> mailsend = new HashMap<Player, MailSend>();
 	
 	private static Main plugin = Main.getPlugin(Main.class);
+	public static String folder = plugin.getDataFolder() + "/PlayerData";
 	
 	Inventory inv;
 	OfflinePlayer op;
@@ -98,12 +99,17 @@ public class Mailbox {
 				ItemMeta meta = item.getItemMeta();
 				List<String> lore = new ArrayList<String>();
 				OfflinePlayer object = null;
+				boolean sendall = false;
 				
 				UUID player = null;
-				if (path.contains("inbox.")) {
-					player = UUID.fromString(this.pm.getConfig().getString(path + ".sender"));
-				}else {
-					player = UUID.fromString(this.pm.getConfig().getString(path + ".target"));
+				try{
+					if (path.contains("inbox.")) {
+						player = UUID.fromString(this.pm.getConfig().getString(path + ".sender"));
+					}else {
+						player = UUID.fromString(this.pm.getConfig().getString(path + ".target"));
+					}
+				}catch(Exception e) {
+					sendall = true;
 				}
 				List<String> msg = new ArrayList<String>(this.pm.getMessage(mailtype, uuid));
 				try {
@@ -116,19 +122,27 @@ public class Mailbox {
 					}
 				}catch(Exception e) {}
 				
-				try {
-					object = Bukkit.getPlayer(player);
-					if (object.equals(null)) {
+				String name = null;
+				if (sendall == false) {
+					try {
+						object = Bukkit.getPlayer(player);
+						if (object.equals(null)) {
+							object = Bukkit.getOfflinePlayer(player);
+						}
+					}catch(Exception e) {
 						object = Bukkit.getOfflinePlayer(player);
 					}
-				}catch(Exception e) {
-					object = Bukkit.getOfflinePlayer(player);
+					
+					name = "" + object.getName();
+				}else {
+					name = path.contains("inbox.") ? this.pm.getConfig().getString(path + ".sender") : this.pm.getConfig().getString(path + ".target");
 				}
+				
 				try {
 					if (path.contains("inbox.")) {
-						lore.add(ChatColor.translateAlternateColorCodes('&', "&2&lFrom &f" + object.getName()));
+						lore.add(ChatColor.translateAlternateColorCodes('&', "&2&lFrom &f" + name));
 					}else {
-						lore.add(ChatColor.translateAlternateColorCodes('&', "&2&lTo &f" + object.getName()));
+						lore.add(ChatColor.translateAlternateColorCodes('&', "&2&lTo &f" + name));
 					}
 				}catch(Exception e) {e.printStackTrace();}
 				lore.add(" ");

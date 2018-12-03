@@ -70,6 +70,16 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 					}
 				}
 				if (args.length == 1) {
+					if (args[0].equalsIgnoreCase("sendall")) {
+						if (sender.hasPermission("diamail.command.sendall") || sender.isOp()) {
+							MailSend ms = new MailSend(p, false, true);
+							MailSend.reg.put(p, ms);
+							return true;
+						}else {
+							MessageManager.send((Player) sender, MessageType.NO_PERMISSION);
+							return true;
+						}
+					}
 					if (args[0].equalsIgnoreCase("aliases") || args[0].equalsIgnoreCase("alias")) {
 						List<String> aliases = new ArrayList<String>(plugin.getConfig().getConfigurationSection("command-aliases").getKeys(false));
 						sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&2Aliases &8- &7Executed command"));
@@ -178,9 +188,16 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 				list.add("item");
 				list.add("mailbox");
 				list.add("aliases");
+				list.add("sendall");
 				return list;
 			}
 			else if (args.length == args.length) {
+				if ((args[0].equalsIgnoreCase("send") || args[0].equalsIgnoreCase("item")) && args.length == 2) {
+					for (Player op : Bukkit.getServer().getOnlinePlayers()) {
+						list.add(op.getName());
+					}
+					return list;
+				}
 				if (args[0].equalsIgnoreCase("mailbox") && args.length == 3){
 					list.add("Inbox");
 					list.add("Outbox");
