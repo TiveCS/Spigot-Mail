@@ -1,0 +1,11 @@
+prefix: '&8( &aDiaMail &8)'
+mail-perline-length: 20
+global-language: 'en-US.yml'
+
+#Player settings
+player-setting:
+   language: 'en-US.yml'
+   notification-display: Message
+   notification-sound: true
+   checking-mailbox-interval: 600
+    

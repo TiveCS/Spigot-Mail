@@ -1,0 +1,66 @@
+# MENU PARAMETER
+#
+# Title - Apply menu title
+# Rows - Apply amount of rows (default is 3)
+# 
+menu-config:
+   Title: '&0&lMAILBOX &l> &0Page %page%'
+   Rows: 6
+
+# LIST OF SLOT PARAMETER
+# 
+# Material - Item type that will be shown [ REQUIRED ]
+# Name - Item name that will be shown
+# Amount - Item amount that will be shown (default is 1)
+# Lore - Lore of item name
+# Page - Will be show when on specify page (default is page 1) [ if min and max is determined, this will be ignored ]
+# Minimum-Page - Will be show when on minimum page (default is page 1)
+# Maximum-Page - Will be show when on maximum page (default is page 0) [ 0 means unlimited page ]
+# Slot - Set slot of item (allow multiple) [ REQUIRED ]
+# 
+# ON CLICK TYPE
+# 
+# RIGHT
+# LEFT
+# MIDDLE
+# ANY - This will be override all type of click
+# 
+# ON CLICK EXECUTE
+# 
+# COMMAND - Execute player command on click
+# NEXT_PAGE - Show next page of menu after click
+# PREVIOUS_PAGE - Show previous page of menu after click
+# CLOSE - Close menu after click
+# CONSOLE_COMMAND - Execute console command on click
+# MENU - Show other menu after click
+#
+menu-data:
+   previous:
+      Minimum-Page: 2
+      Maxmimum-Page: 0
+      Material: RED_STAINED_GLASS_PANE
+      Name: '&cPrevious Page'
+      Slot: '9,18,27'
+      Click-Type:
+         ANY:
+            - PREVIOUS_PAGE
+   next:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Material: LIME_STAINED_GLASS_PANE
+      Name: '&aNext Page'
+      Slot: '17,26,35'
+      Click-Type:
+         ANY:
+            - NEXT_PAGE
+   border-previous:
+      Page: 1
+      Material: BLACK_STAINED_GLASS_PANE
+      Name: ' '
+      Slot: '9,18,27'
+   border:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Material: BLACK_STAINED_GLASS_PANE
+      Name: ' '
+      Slot: '0,1,2,3,4,5,6,7,8,36,37,38,39,40,41,42,43,44,45,49,53'

@@ -1,0 +1,29 @@
+
+# DO NOT TOUCH
+file-version: 1.0
+
+# EDITABLE
+help:
+   send:
+      - '&8- &3/diamail &bsend &7[Receiver]'
+      - '&fSend mail with or without specify receiver'
+   sendall:
+      - '&8- &3/diamail &bsendall'
+      - '&fSend mail to all registered player'
+   check:
+      - '&8- &3/diamail &bcheck &7[Mailbox Type]'
+      - '&fCheck player mailbox size'
+   aliases:
+      - '&8- &3/diamail &baliases'
+      - '&fShow all registered command aliases'
+   block:
+      - '&8- &3/diamail &bblock &7<Player>'
+      - '&fBlock player to send mail to you'
+
+command:
+   check:
+      - '%prefix% &7You have &b%mailbox% &7mail(s)'
+   check-hovertext:
+      - '&7&m---------------------'
+      - '&6Inbox &e%inbox%   &7|   &3Outbox &b%outbox%'
+      - '&7&m---------------------'
