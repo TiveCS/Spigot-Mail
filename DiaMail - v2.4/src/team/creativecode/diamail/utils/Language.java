@@ -69,6 +69,10 @@ public class Language {
 		}
 	}
 	
+	public void sendDirectMessage(Player p, String msg) {
+		p.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
+	}
+	
 	public void sendMessage(Player p, String path) {
 		for (String s : getMessages().get(path)) {
 			p.sendMessage(s);

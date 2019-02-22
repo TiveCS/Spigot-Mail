@@ -13,8 +13,12 @@ public class Main extends JavaPlugin {
 	
 	public static Language lang;
 	public static Placeholder placeholder;
+	public static String version = "";
+	public static int rsid = 58869;
 	
 	public void onEnable() {
+		version = this.getDescription().getVersion();
+		
 		loadFile();
 		loadCmds();
 		loadEvents();

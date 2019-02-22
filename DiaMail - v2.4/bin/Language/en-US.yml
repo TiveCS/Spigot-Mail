@@ -5,8 +5,8 @@ file-version: 1.0
 # EDITABLE
 help:
    send:
-      - '&8- &3/diamail &bsend &7[Receiver]'
-      - '&fSend mail with or without specify receiver'
+      - '&8- &3/diamail &bsend &7[Receiver]' # Display message
+      - '&fSend mail with or without specify receiver' # Hover message
    sendall:
       - '&8- &3/diamail &bsendall'
       - '&fSend mail to all registered player'
@@ -19,6 +19,18 @@ help:
    block:
       - '&8- &3/diamail &bblock &7<Player>'
       - '&fBlock player to send mail to you'
+   open:
+      - '&8- &3/diamail &bopen &7<Index of Mail> [Inbox/Outbox]'
+      - '&fOpen mail based on index'
+   mailbox:
+      - '&8- &3/diamail &bmailbox &7[Page] [Inbox/Outbox/All]'
+      - '&fOpen mailbox based on type and page'
+   delete:
+      - '&8- &3/diamail &bdelete &7<Index> <Inbox/Outbox>'
+      - '&fDelete mail based on inbox or outbox'
+   update:
+      - '&8- &3/diamail &bupdate'
+      - '&fCheck update for DiaMail'
 
 command:
    check:
@@ -27,3 +39,51 @@ command:
       - '&7&m---------------------'
       - '&6Inbox &e%inbox%   &7|   &3Outbox &b%outbox%'
       - '&7&m---------------------'
+
+alert:
+   notification-send-exit:
+      - '%prefix% &fMail sending has been &ccancelled!'
+   notification-send-failed:
+      - '%prefix% &cMail sending failed!'
+      - '%prefix% &cMaybe required field is empty..'
+   notification-send-receive:
+      - '%prefix% &7You have got a Mail!'
+   notification-send-try:
+      - '%prefix% &7Mail has been sent!'
+   notification-send-button:
+      - '&8[&a&lSend&8]' #Button for sending mail
+      - ' &8[&c&lExit&8]' #Button for cancel mail
+      - ' &8[&e&lItem&8]' #Button for set item on hand
+      - ' &8[&b&lSend All&8]' #Button to toggle sendall status
+   notification-send-pre:
+      - '%prefix% &fWrite receiver name..'
+      - '%prefix% &fYou can input message now..'
+   notification-send-input:
+      - '%prefix% &eSend All &fstatus &b%mail_sendall%'
+      - '%prefix% &6Receiver &a%mail_receiver%'
+      - '%prefix% &bItem &7[%mail_item%]'
+      - '%prefix% &fAdded message to line &b%mail_message_size%'
+   notification-send-button-send:
+      - '&6Receiver &e%mail_receiver%'
+      - '&3Message &b%mail_message_size% &fLine(s)'
+   notification-send-button-exit:
+      - '&cClick here to cancel'
+   notification-send-button-item:
+      - '&7[ &f%mail_item% &7]'
+   notification-send-button-sendall:
+      - '&eStatus &b%mail_sendall_symbol%'
+   updater-latest:
+      - ' '
+      - '%prefix% &fYou are on latest version of &bDiaMail'
+      - ' '
+   updater-failed:
+      - ' '
+      - '%prefix% &cFailed to connect with the server'
+      - ' '
+   updater:
+      - ' '
+      - '%prefix% &fYou are on &e%version%&f, version &6%version_new% &fhas released!'
+      - '%prefix% &fhttps://www.spigotmc.org/resources/58869/'
+      - ' '
+   no-permission:
+      - '%prefix% &cInsufficient Permission!'

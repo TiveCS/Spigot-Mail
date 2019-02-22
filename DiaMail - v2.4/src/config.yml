@@ -1,11 +1,21 @@
 prefix: '&8( &aDiaMail &8)'
 mail-perline-length: 20
 global-language: 'en-US.yml'
+check-update: true
 
 #Player settings
 player-setting:
    language: 'en-US.yml'
    notification-display: Message
    notification-sound: true
+   inventory-interact-sound: true
    checking-mailbox-interval: 600
+
+settings:
+   notification-default: BLOCK_NOTE_BLOCK_PLING-1-1
+   notification-check: BLOCK_ENCHANTMENT_TABLE_USE-1-1
+   notification-mail-delete: BLOCK_NOTE_BLOCK_BASS-1-1
+   notification-mail-send: ENTITY_EXPERIENCE_ORB_PICKUP-1-1
+   notification-mail-block: UI_BUTTON_CLICK-1-1
+   inventory-interact-sound: BLOCK_TRIPWIRE_CLICK_ON-1-1
     

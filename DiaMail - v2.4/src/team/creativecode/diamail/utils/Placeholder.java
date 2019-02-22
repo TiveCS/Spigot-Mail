@@ -12,10 +12,30 @@ public class Placeholder {
 	Main plugin = Main.getPlugin(Main.class);
 	
 	//Values
-	private HashMap<String, String> replacer = new HashMap<String, String>(); 
+	private HashMap<String, String> replacer = new HashMap<String, String>();
+	private HashMap<String, List<String>> replacerList = new HashMap<String, List<String>>();
 	
 	public Placeholder() {
 		loadDefaultData();
+	}
+	
+	public List<String> listUse(List<String> list){
+		for (int line = 0; line < list.size(); line++) {
+			String msg = list.get(line);
+			for (String path : this.replacerList.keySet()) {
+				if (msg.contains("%" + path + "%")) {
+					msg = msg.replace("%" + path + "%","");
+					String c = "";
+					for (String s : this.replacerList.get(path)) {
+						c = c.concat(s);
+					}
+					msg = msg.concat(c);
+					break;
+				}
+			}
+			list.set(line, msg);
+		}
+		return list;
 	}
 	
 	public String use(String text) {
@@ -36,10 +56,18 @@ public class Placeholder {
 		replacer.put(path, obj);
 	}
 	
+	public void inputListData(String path, List<String> list) {
+		this.replacerList.put(path, list);
+	}
+	
 	public void insertMapData(HashMap<String, String> map) {
 		for (String key : map.keySet()) {
 			replacer.put(key, map.get(key));
 		}
+	}
+	
+	public HashMap<String, List<String>> getReplacerList(){
+		return this.replacerList;
 	}
 	
 	private void loadDefaultData() {

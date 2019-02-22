@@ -8,8 +8,30 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Sound;
+
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class DataConverter {
+	
+	public static void playSoundByString(Location loc, String text) {
+		String[] split = text.split("-");
+		loc.getWorld().playSound(loc, Sound.valueOf(split[0].toUpperCase()), Float.parseFloat(split[1]), Float.parseFloat(split[2]));
+	}
+	
+	public static TextComponent addMultipleLineComponent(List<String> list) {
+		TextComponent com = new TextComponent("");
+		for (String s : list) {
+			if (com.getText().equals("")) {
+				com.addExtra(s);
+			}else {
+				com.addExtra("\n");
+				com.addExtra(s);
+			}
+		}
+		return com;
+	}
 
 	public static int convertStringToInt(String text) {
 		ScriptEngineManager sem = new ScriptEngineManager();
@@ -25,6 +47,7 @@ public class DataConverter {
 		}
 		return result;
 	}
+	
 	
 	public static double convertStringToDouble(String text) {
 		ScriptEngineManager sem = new ScriptEngineManager();
@@ -78,6 +101,13 @@ public class DataConverter {
     	}catch(Exception e) {}
     	
     	return str;
+    }
+    
+    public static List<String> combineList(List<String> first, List<String> second){
+    	for (String s : second) {
+    		first.add(s);
+    	}
+    	return first;
     }
 
 }

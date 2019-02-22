@@ -33,11 +33,55 @@ menu-config:
 # CLOSE - Close menu after click
 # CONSOLE_COMMAND - Execute console command on click
 # MENU - Show other menu after click
+# CUSTOM - Apply custom event after click using Java Hardcoded method [ Developer Only ]
 #
 menu-data:
+   profile:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Material: SIGN
+      Name: '&aProfile'
+      Slot: '4'
+      Lore:
+         - ' '
+         - '&3Name &b%player%'
+   mail-inbox: # Please keep this code name still mail-inbox! if you change this, it will be error
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Material: KNOWLEDGE_BOOK
+      Name: '%mail_date%'
+      Slot: '10,11,12,13,14,15,16,19,20,21,22,23,24,25,28,29,30,31,32,33,34'
+      Click-Type:
+         ANY:
+            - CUSTOM
+      Lore:
+         - ' '
+         - '&2&lSender &a%mail_sender%'
+         - '&e&lItem &7%mail_item%'
+         - ' '
+         - '&3&lMessage'
+         - '&f%mail_message%'
+         - ' '
+   mail-outbox: # Please keep this code name still mail-outbox1 if you change this, it will be error
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Material: BOOK
+      Name: '%mail_date%'
+      Slot: '10,11,12,13,14,15,16,19,20,21,22,23,24,25,28,29,30,31,32,33,34'
+      Click-Type:
+         ANY:
+            - CUSTOM
+      Lore:
+         - ' '
+         - '&6&lReceiver &e%mail_receiver%'
+         - '&e&lItem &7%mail_item%'
+         - ' '
+         - '&3&lMessage'
+         - '&f%mail_message%'
+         - ' '
    previous:
       Minimum-Page: 2
-      Maxmimum-Page: 0
+      Maximum-Page: 0
       Material: RED_STAINED_GLASS_PANE
       Name: '&cPrevious Page'
       Slot: '9,18,27'
@@ -63,4 +107,4 @@ menu-data:
       Maximum-Page: 0
       Material: BLACK_STAINED_GLASS_PANE
       Name: ' '
-      Slot: '0,1,2,3,4,5,6,7,8,36,37,38,39,40,41,42,43,44,45,49,53'
+      Slot: '0,1,2,3,5,6,7,8,36,37,38,39,40,41,42,43,44,45,49,53'

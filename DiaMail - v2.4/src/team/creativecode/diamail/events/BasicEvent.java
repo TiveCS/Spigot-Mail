@@ -3,9 +3,7 @@ package team.creativecode.diamail.events;
 import java.io.File;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,7 +16,8 @@ import team.creativecode.diamail.Main;
 import team.creativecode.diamail.manager.Menu;
 import team.creativecode.diamail.manager.PlayerData;
 import team.creativecode.diamail.manager.mail.Mail;
-import team.creativecode.diamail.manager.mail.Mail.MailMode;
+import team.creativecode.diamail.utils.DataConverter;
+import team.creativecode.diamail.utils.Updater;
 
 public class BasicEvent implements Listener {
 
@@ -27,7 +26,21 @@ public class BasicEvent implements Listener {
 	
 	@EventHandler
 	public void join(PlayerJoinEvent event) {
+		Player p = event.getPlayer();
 		new PlayerData(event.getPlayer());
+		
+		if (event.getPlayer().hasPermission("diamail.admin")) {
+			String newversion = Updater.getUpdateCheck(Main.rsid);
+			Main.placeholder.inputData("version_new", newversion);
+			if (newversion.equals("")) {
+				Main.lang.sendMessage(p, Main.placeholder.useAsList(Main.lang.getMessages().get("alert.updater-failed")));
+			}
+			else if (Updater.isNewVersion()) {
+				Main.lang.sendMessage(p, Main.placeholder.useAsList(Main.lang.getMessages().get("alert.updater")));
+			}else{
+				Main.lang.sendMessage(p,  Main.placeholder.useAsList(Main.lang.getMessages().get("alert.updater-latest")));
+			}
+		}
 	}
 	
 	@EventHandler
@@ -37,7 +50,8 @@ public class BasicEvent implements Listener {
 			Menu m = Menu.singleMenu.get(p);
 			if (event.getClickedInventory().equals(m.getMenu())) {
 				event.setCancelled(true);
-				m.action(p, event.getSlot());
+				DataConverter.playSoundByString(p.getLocation(), plugin.getConfig().getString("settings.inventory-interact-sound"));
+				m.action(p, event.getSlot(), event.getClick());
 			}
 		}
 	}
@@ -51,57 +65,44 @@ public class BasicEvent implements Listener {
 		if (Mail.sending.containsKey(p)) {
 			Mail m = Mail.sending.get(p);
 			String msg = event.getMessage();
-			switch(m.getMailMode()) {
-			case ITEM:
-				if (msg.equalsIgnoreCase("none")) {
-					m.setItem(new ItemStack(Material.AIR));
-				}else if (msg.equalsIgnoreCase("helmet")) {
-					m.setItem(p.getInventory().getHelmet());
-				}else if (msg.equalsIgnoreCase("chestplate")) {
-					m.setItem(p.getInventory().getChestplate());
-				}else if (msg.equalsIgnoreCase("leggings")) {
-					m.setItem(p.getInventory().getLeggings());
-				}else if (msg.equalsIgnoreCase("boots")) {
-					m.setItem(p.getInventory().getBoots());
-				}else if (msg.equalsIgnoreCase("offhand")) {
-					m.setItem(p.getInventory().getItemInOffHand());
+			event.setCancelled(true);
+			
+			if (msg.equalsIgnoreCase("SENDALL")) {
+				if (p.hasPermission("diamail.access.sendall") || p.isOp()) {
+					m.setSendAll(!m.isSendAll());
 				}else {
-					m.setItem(p.getInventory().getItemInMainHand());
+					m.getPlayerData().getLanguage().sendMessage(p, m.getPlayerData().getLanguage().getMessages().get("alert.no-permission"));
 				}
-				p.sendMessage("Item has been set to " + m.getItem().getType().toString());
-				p.sendMessage("You can add message now");
-				m.setMode(MailMode.MESSAGE);
-				break;
-			case MESSAGE:
-				m.addMessage(ChatColor.translateAlternateColorCodes('&', msg));
-				p.sendMessage("Added new message");
-				break;
-			case RECEIVER:
+			}else if (msg.equalsIgnoreCase("SETITEM")) {
+				m.setItem(p.getInventory().getItemInMainHand());
+			}else if (msg.equalsIgnoreCase("SEND")) {
+				m.send();
+				return;
+			}else if (msg.equalsIgnoreCase("EXIT")) {
+				m.delete(true);
+				return;
+			}else {
 				try {
-					OfflinePlayer target = Bukkit.getOfflinePlayer(msg);
-					File[] files = folder.listFiles();
-					for (File f : files) {
-						if (f.getName().startsWith(target.getUniqueId().toString())) {
-							m.setTarget(target);
-							p.sendMessage("Target " + m.getReceiver().getName());
-							m.setMode(MailMode.ITEM);
-							p.sendMessage("Switching to mode set item");
-							break;
+					if (!m.getReceiver().equals(null)) {
+						if (m.getReceiver().hasPlayedBefore()) {
+							m.addMessage(msg);
 						}else {
-							continue;
+							m.setReceiver(null);
 						}
 					}
 				}catch(Exception e) {
-					p.sendMessage("Player is not found");
+					m.setReceiver(Bukkit.getOfflinePlayer(msg));
 				}
-				break;
-			case SENDALL:
-				m.setSendAll(Boolean.parseBoolean(msg));
-				p.sendMessage("Mail sendall mode is " + m.isSendAll());
-				p.sendMessage("Switching to set receiver");
-				m.setMode(MailMode.RECEIVER);
-				break;
 			}
+			if (m.isSendAll() && !m.getItem().getType().equals(Material.AIR)) {
+				if (!p.hasPermission("diamail.access.sendall") || !p.isOp()) {
+					p.getInventory().addItem(m.getItem());
+					m.setItem(new ItemStack(Material.AIR));
+					m.getPlayerData().getLanguage().sendMessage(p, m.getPlayerData().getLanguage().getMessages().get("alert.no-permission"));
+				}
+			}
+			
+			m.showButton();
 		}
 		
 	}

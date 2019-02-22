@@ -3,9 +3,33 @@ version: 2.4-R1
 api-version: 1.13
 description: An E-Mail inside minecraft
 main: team.creativecode.diamail.Main
+website: https://www.spigotmc.org/resources/58869/
 author: TiveCS
 commands:
    diamail:
       aliases: [ mail, dm, dmail]
       description: DiaMail main command
       permission: diamail.command
+permissions:
+   diamail.*:
+      description: Allow player access all DiaMail permission
+      default: op
+      children:
+         diamail.access.admin: true
+         diamail.access.player: true
+   diamail.command:
+      description: Allow player access basic command
+      default: true
+   diamail.access.admin:
+      default: op
+      description: Allow access player use admin DiaMail permission
+      children:
+         diamail.access.sendall: true
+   diamail.access.player:
+      description: Allow player use default DiaMail permission
+      default: true
+      children:
+         diamail.command: true
+   diamail.access.sendall:
+      description: Allow player use sendall effect
+      default: false
