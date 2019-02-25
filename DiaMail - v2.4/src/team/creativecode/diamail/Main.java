@@ -4,7 +4,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import team.creativecode.diamail.cmds.DiamailCmd;
 import team.creativecode.diamail.events.BasicEvent;
+import team.creativecode.diamail.manager.menu.MailShow;
 import team.creativecode.diamail.manager.menu.Mailbox;
+import team.creativecode.diamail.manager.menu.Setting;
 import team.creativecode.diamail.utils.ConfigManager;
 import team.creativecode.diamail.utils.Language;
 import team.creativecode.diamail.utils.Placeholder;
@@ -27,7 +29,8 @@ public class Main extends JavaPlugin {
 
 	private void loadMenus() {
 		new Mailbox().createFile();
-		
+		new MailShow().createFile();
+		new Setting().createFile();
 	}
 
 	private void loadEvents() {
@@ -36,6 +39,7 @@ public class Main extends JavaPlugin {
 
 	private void loadCmds() {
 		this.getCommand("diamail").setExecutor(new DiamailCmd());
+		this.getCommand("diamail").setTabCompleter(new DiamailCmd());
 	}
 
 	public void loadFile() {

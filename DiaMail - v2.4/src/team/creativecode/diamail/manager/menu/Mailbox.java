@@ -24,7 +24,7 @@ public class Mailbox extends Menu{
 		super();
 	}
 	
-	public void load() {
+	public void loadMail() {
 		// Remove slot that are not mail slot
 		List<Integer> inbox = new ArrayList<Integer>(this.getInvDataSlot("menu-data.mail-inbox")),
 				outbox = new ArrayList<Integer>(this.getInvDataSlot("menu-data.mail-outbox")),
@@ -53,11 +53,10 @@ public class Mailbox extends Menu{
 		total.addAll(outbox);
 		
 		int num = total.size()*(this.getPage() - 1);
-		
 		for (int a = 0; a < total.size(); a++) {
 			int i = total.get(a);
 			if (this.getInventoryData().containsKey(i)) {
-				if (num < total.size() && num < ab.size()) {
+				if (num < ab.size()) {
 					try {
 						Mail m = ab.get(num);
 						ItemStack item = new ItemStack(Material.AIR);
@@ -95,7 +94,7 @@ public class Mailbox extends Menu{
 	public void open(Player p) {
 		initItemFromConfig();
 		
-		load();
+		loadMail();
 		
 		update();
 		Menu.singleMenu.put(p, this);
@@ -106,7 +105,7 @@ public class Mailbox extends Menu{
 	public void nextPage() {
 		this.setPage(this.getPage() + 1);
 		initItemFromConfig();
-		load();
+		loadMail();
 		update();
 		getPlaceholder().inputData("page", this.getPage() + "");
 	}
@@ -119,14 +118,46 @@ public class Mailbox extends Menu{
 			this.setPage(1);
 		}
 		initItemFromConfig();
-		load();
+		loadMail();
 		update();
 		getPlaceholder().inputData("page", this.getPage() + "");
 	}
 
 	@Override
-	public void actionCustom(Player clicker, int slot, ClickType click) {
+	public void actionCustom(Player clicker, int slot, ClickType click, Object... args) {
+		List<Integer> inbox = new ArrayList<Integer>(this.getInvDataSlot("menu-data.mail-inbox")),
+				outbox = new ArrayList<Integer>(this.getInvDataSlot("menu-data.mail-outbox")),
+				total = new ArrayList<Integer>(inbox);
 		
+		PlayerData pd = (PlayerData) this.getCustomObject().get("playerdata");
+		List<Mail> ab = new ArrayList<Mail>(), ib = pd.getInbox(), ob = pd.getOutbox();
+		ab.addAll(ib);
+		// Filtering
+		for (Mail m : ib) {
+			for (Mail mb : ob) {
+				if (m.getMailUUID().equals(mb.getMailUUID())) {
+					ob.remove(mb);
+					break;
+				}
+			}
+		}
+		ab.addAll(ob);
+		
+		for (int i = 0; i < total.size();i++) {
+			int a = total.get(i);
+			if (outbox.contains(a)) {
+				outbox.remove(outbox.indexOf(a));
+			}
+		}
+		total.addAll(outbox);
+
+		int num = total.size()*(this.getPage() - 1);
+		
+		try {
+			num += total.indexOf(slot);
+			Mail mail = ab.get(num);
+			mail.showInGui(clicker);
+		}catch(Exception e) {}
 	}
 
 }

@@ -31,6 +31,7 @@ public class PlayerData {
 	private List<String> block = new ArrayList<String>();
 	private File file;
 	private FileConfiguration config;
+	private PlayerSetting ps;
 	
 	//Data
 	private List<Mail> inbox = new ArrayList<Mail>(); 
@@ -50,6 +51,7 @@ public class PlayerData {
 		if (this.file.exists()) {
 			loadBasicDataFile();
 			loadMails();
+			this.ps = new PlayerSetting(this);
 		}
 	}
 	
@@ -125,6 +127,10 @@ public class PlayerData {
 	
 	public Language getLanguage() {
 		return this.language;
+	}
+	
+	public PlayerSetting getPlayerSetting() {
+		return this.ps;
 	}
 	
 	public Placeholder getPlaceholder() {

@@ -1,3 +1,12 @@
+# Variables
+# Used for built in conditioning
+# The value can only integer number
+#
+# format
+# name: <value>
+variables:
+   mailbox: 0 
+
 # MENU PARAMETER
 #
 # Title - Apply menu title
@@ -29,13 +38,109 @@ menu-config:
 # 
 # COMMAND - Execute player command on click
 # NEXT_PAGE - Show next page of menu after click
+# RELOAD_PAGE - Reload current page menu after click
 # PREVIOUS_PAGE - Show previous page of menu after click
 # CLOSE - Close menu after click
 # CONSOLE_COMMAND - Execute console command on click
-# MENU - Show other menu after click
+# CHANGE - Set built in variable value by number only (this can be used for conditioning)
 # CUSTOM - Apply custom event after click using Java Hardcoded method [ Developer Only ]
 #
 menu-data:
+
+   mailbox-inbox:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Slot: '47'
+      Name: '&b&l&nINBOX'
+      Material: ENDER_CHEST
+      Conditions:
+         - VARIABLE:mailbox=1
+      Click-Type:
+         ANY:
+            - CHANGE:mailbox=2
+            - RELOAD_PAGE
+   
+   mailbox-outbox:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Slot: '47'
+      Name: '&6&l&nOUTBOX'
+      Material: CHEST
+      Conditions:
+         - VARIABLE:mailbox=2
+      Click-Type:
+         ANY:
+            - CHANGE:mailbox=0
+            - RELOAD_PAGE
+   
+   mailbox-all:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Slot: '47'
+      Material: DROPPER
+      Name: '&d&l&nALL'
+      Conditions:
+         - VARIABLE:mailbox=0
+      Click-Type:
+         ANY:
+            - CHANGE:mailbox=1
+            - RELOAD_PAGE
+
+   calendar:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Slot: '46'
+      Name: '&c&l&nCalendar'
+      Material: CLOCK
+      Lore:
+         - ' '
+         - '&fCheck out your calendar'
+         - '&for setup your schedule here!'
+         - '&flike auto send mail on'
+         - '&fspecify date or hours.'
+
+   setting:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Slot: '48'
+      Name: '&b&l&nSettings'
+      Material: COMPASS
+      Lore:
+         - ' '
+         - '&fChange your individual settings'
+         - '&fincluding sounds, notification'
+         - '&fand more'
+   
+   send-mail:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Material: WRITABLE_BOOK
+      Name: '&a&l&nSend Mail'
+      Slot: '52'
+      Lore:
+         - ' '
+         - '&fClick here to send mail'
+      Click-Type:
+         ANY:
+            - COMMAND:diamail send
+            - CLOSE
+   
+   help:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Material: COMMAND_BLOCK
+      Name: '&e&l&nHelp'
+      Slot: '51'
+      Lore:
+         - ' '
+         - '&fFeel confused to use DiaMail?'
+         - '&fclick here to get some'
+         - '&flisted commands for DiaMail'
+      Click-Type:
+         ANY:
+            - COMMAND:diamail help
+            - CLOSE
+   
    profile:
       Minimum-Page: 1
       Maximum-Page: 0
@@ -82,7 +187,7 @@ menu-data:
    previous:
       Minimum-Page: 2
       Maximum-Page: 0
-      Material: RED_STAINED_GLASS_PANE
+      Material: IRON_BARS
       Name: '&cPrevious Page'
       Slot: '9,18,27'
       Click-Type:
@@ -91,20 +196,10 @@ menu-data:
    next:
       Minimum-Page: 1
       Maximum-Page: 0
-      Material: LIME_STAINED_GLASS_PANE
+      Material: IRON_BARS
       Name: '&aNext Page'
       Slot: '17,26,35'
       Click-Type:
          ANY:
             - NEXT_PAGE
-   border-previous:
-      Page: 1
-      Material: BLACK_STAINED_GLASS_PANE
-      Name: ' '
-      Slot: '9,18,27'
-   border:
-      Minimum-Page: 1
-      Maximum-Page: 0
-      Material: BLACK_STAINED_GLASS_PANE
-      Name: ' '
-      Slot: '0,1,2,3,5,6,7,8,36,37,38,39,40,41,42,43,44,45,49,53'
+   

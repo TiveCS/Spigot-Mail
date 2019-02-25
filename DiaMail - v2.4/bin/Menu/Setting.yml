@@ -1,0 +1,47 @@
+# MENU PARAMETER
+#
+# Title - Apply menu title
+# Rows - Apply amount of rows (default is 3)
+# 
+menu-config:
+   Title: '&4&lSetting > %player%'
+   Rows: 4
+
+# LIST OF SLOT PARAMETER
+# 
+# Material - Item type that will be shown [ REQUIRED ]
+# Name - Item name that will be shown
+# Amount - Item amount that will be shown (default is 1)
+# Lore - Lore of item name
+# Page - Will be show when on specify page (default is page 1) [ if min and max is determined, this will be ignored ]
+# Minimum-Page - Will be show when on minimum page (default is page 1)
+# Maximum-Page - Will be show when on maximum page (default is page 0) [ 0 means unlimited page ]
+# Slot - Set slot of item (allow multiple) [ REQUIRED ]
+# 
+# ON CLICK TYPE
+# 
+# RIGHT
+# LEFT
+# MIDDLE
+# ANY - This will be override all type of click
+# 
+# ON CLICK EXECUTE
+# 
+# COMMAND - Execute player command on click
+# NEXT_PAGE - Show next page of menu after click
+# PREVIOUS_PAGE - Show previous page of menu after click
+# CLOSE - Close menu after click
+# CONSOLE_COMMAND - Execute console command on click
+# CUSTOM - Apply custom event after click using Java Hardcoded method [ Developer Only ]
+#
+menu-data:
+   
+   border:
+      Slot: '0,1,2,3,4,5,6,7,8,9,35,34,33,32,31,30,29,28,27'
+      Name: ' '
+      Material: BLACK_STAINED_GLASS_PANE
+      Minimum-Page: 1
+      Maximum-Page: 0
+   
+   
+   

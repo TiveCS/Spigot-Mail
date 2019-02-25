@@ -1,0 +1,90 @@
+# Variables
+# Used for built in conditioning
+# The value can only integer number
+#
+# format
+# name: <value>
+
+# MENU PARAMETER
+#
+# Title - Apply menu title
+# Rows - Apply amount of rows (default is 3)
+# 
+menu-config:
+   Title: '&0&lSHOW MAIL'
+   Rows: 3
+
+# LIST OF SLOT PARAMETER
+# 
+# Material - Item type that will be shown [ REQUIRED ]
+# Name - Item name that will be shown
+# Amount - Item amount that will be shown (default is 1)
+# Lore - Lore of item name
+# Page - Will be show when on specify page (default is page 1) [ if min and max is determined, this will be ignored ]
+# Minimum-Page - Will be show when on minimum page (default is page 1)
+# Maximum-Page - Will be show when on maximum page (default is page 0) [ 0 means unlimited page ]
+# Slot - Set slot of item (allow multiple) [ REQUIRED ]
+# 
+# ON CLICK TYPE
+# 
+# RIGHT
+# LEFT
+# MIDDLE
+# ANY - This will be override all type of click
+# 
+# ON CLICK EXECUTE
+# 
+# COMMAND - Execute player command on click
+# NEXT_PAGE - Show next page of menu after click
+# RELOAD_PAGE - Reload current page menu after click
+# PREVIOUS_PAGE - Show previous page of menu after click
+# CLOSE - Close menu after click
+# CONSOLE_COMMAND - Execute console command on click
+# CHANGE - Set built in variable value by number only (this can be used for conditioning)
+# CUSTOM - Apply custom event after click using Java Hardcoded method [ Developer Only ]
+#
+menu-data:
+
+   to-mailbox:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Material: RED_TERRACOTTA
+      Name: '&cBack to Mailbox'
+      Slot: '22'
+      Click-Type:
+         ANY:
+            - COMMAND:diamail mailbox
+   
+   item:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Material: BARRIER
+      Name: '&cNo Item Attached'
+      Slot: '14'
+   
+   message:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Material: PAPER
+      Slot: '10'
+      Name: '&3&lMessage'
+      Lore:
+         - '&f%mail_message%'
+         
+   
+   delete:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Material: TNT
+      Name: '&4Delete Mail'
+      Slot: '16'
+      Click-Type:
+         ANY:
+            - COMMAND:diamail delete %mail_uuid%
+   
+   read:
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Material: BOOK
+      Name: '&aRead Message'
+      Slot: '12'

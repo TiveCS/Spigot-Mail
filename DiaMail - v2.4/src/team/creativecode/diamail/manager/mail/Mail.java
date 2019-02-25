@@ -22,10 +22,11 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import team.creativecode.diamail.Main;
 import team.creativecode.diamail.manager.PlayerData;
+import team.creativecode.diamail.manager.menu.MailShow;
 import team.creativecode.diamail.utils.ConfigManager;
 import team.creativecode.diamail.utils.Placeholder;
 
-public class Mail {
+public class Mail{
 	
 	public enum MailType{
 		INBOX, OUTBOX;
@@ -43,7 +44,7 @@ public class Mail {
 	private MailMode mailmode = MailMode.SENDALL;
 	
 	private Calendar date;
-	private String displayDate = "?/?/????";
+	private String displayDate = "00:00 - ?/?/????";
 	private PlayerData pd = null;
 	private String uuid = null;
 	private OfflinePlayer sender, receiver = null;
@@ -58,7 +59,8 @@ public class Mail {
 		this.isSendAll = isSendAll;
 		this.pd = pd;
 		this.date = Calendar.getInstance();
-		this.displayDate = date.get(Calendar.DATE) + "/" + date.get(Calendar.MONTH) + "/" + date.get(Calendar.YEAR);
+		this.displayDate = date.get(Calendar.HOUR_OF_DAY) + ":" + date.get(Calendar.MINUTE) + " - " + date.get(Calendar.DATE) + "/" + date.get(Calendar.MONTH) + "/" + date.get(Calendar.YEAR);
+		
 	 	
 		sending.put(pd.getPlayer().getPlayer(), this);
 		String n = pd.getLanguage().getMessages().get("alert.notification-send-pre").get(0);
@@ -132,6 +134,11 @@ public class Mail {
 				pd.getPlayer().getPlayer().sendMessage(" ");
 			}
 		}catch(Exception e) {e.printStackTrace();}
+	}
+	
+	public void showInGui(Player targetplayer) {
+		MailShow show = new MailShow();
+		show.open(targetplayer);
 	}
 	
 	public void send() {

@@ -33,6 +33,7 @@ public abstract class Menu {
 
 	private HashMap<String, Object> customObject = new HashMap<String, Object>();
 	
+	private HashMap<String, Object> variables = new HashMap<String, Object>();
 	private String title = "CUSTOM MENU";
 	private int rows = 3;
 	private Placeholder plc = new Placeholder();
@@ -54,6 +55,7 @@ public abstract class Menu {
 		this.config = YamlConfiguration.loadConfiguration(this.file);
 		plc.inputData("page", this.getPage() + "");
 		
+		loadVariables();
 		this.title = ConfigManager.contains(getFile(), "menu-config.Title") ? ChatColor.translateAlternateColorCodes('&', this.config.getString("menu-config.Title")) : "CUSTOM MENU";
 		this.rows = ConfigManager.contains(getFile(), "menu-config.Rows") ? this.config.getInt("menu-config.Rows") : 3;
 		
@@ -62,9 +64,18 @@ public abstract class Menu {
 		this.menu = Bukkit.createInventory(null, this.rows*9, this.title);
 	}
 	
-	public abstract void actionCustom(Player clicker, int slot, ClickType click);
+	public abstract void actionCustom(Player clicker, int slot, ClickType click, Object... args);
 	
-	public void action(Player clicker, int slot, ClickType click) {
+	public void loadVariables() {
+		this.variables.clear();
+		if (ConfigManager.contains(getFile(), "variables")) {
+			for (String key : this.config.getConfigurationSection("variables").getKeys(false)) {
+				this.variables.put(key, this.config.get("variables." + key));
+			}
+		}
+	}
+	
+	public void action(Player clicker, int slot, ClickType click, Object... args) {
 		ClickDataType cdt = ClickDataType.ANY;
 		
 		if (this.getClickData().containsKey(slot)) {
@@ -79,23 +90,40 @@ public abstract class Menu {
 			}
 			
 			List<String> input = new ArrayList<String>(this.getClickData().get(slot).get(cdt));
-			
 			for (String s : input) {
 				if (s.equalsIgnoreCase("NEXT_PAGE")) {
 					this.nextPage();
-				}else if (s.equalsIgnoreCase("PREVIOUS_PAGE")) {
+				}else if (s.equalsIgnoreCase("RELOAD_PAGE")) {
+					this.setPage(this.getPage() - 1);
+					nextPage();
+				}
+				else if (s.equalsIgnoreCase("PREVIOUS_PAGE")) {
 					this.previousPage();
 				}else if (s.startsWith("COMMAND:")) {
 					s = s.replace("COMMAND:", "");
+					s = plc.use(s);
 					clicker.performCommand(s);
 				}else if (s.startsWith("CONSOLE_COMMAND:")) {
 					s = s.replace("CONSOLE_COMMAND:", "");
+					s = plc.use(s);
 					Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), s);
 				}else if (s.startsWith("CLOSE")) {
 					clicker.closeInventory();
 					singleMenu.remove(clicker);
-				}else if (s.equalsIgnoreCase("CUSTOM")) {
-					actionCustom(clicker, slot, click);
+				}else if (s.startsWith("CHANGE:")) {
+					s = s.replace("CHANGE:", "");
+					String[] split = s.split("=");
+					String v = "";
+					int i = -1;
+					try {
+						i = Integer.parseInt(split[1]);
+					}catch(Exception e) {
+						v = split[1];
+					}
+					this.variables.put(split[0], i >= 0 ? i : v);
+				}
+				else if (s.startsWith("CUSTOM")) {
+					actionCustom(clicker, slot, click, args);
 				}
 			}
 		}
@@ -122,6 +150,7 @@ public abstract class Menu {
 		for (int key : this.getInventoryData().keySet()) {
 			this.getMenu().setItem(key, this.getInventoryData().get(key));
 		}
+		
 	}
 	
 	public void open(Player p) {
@@ -201,6 +230,21 @@ public abstract class Menu {
 		return ConfigManager.contains(getFile(), p + ".Maximum-Page") ? this.getConfig().getInt(p + ".Maximum-Page") : 0;
 	}
 	
+	public HashMap<String, Object> getConditionsFromFile(String p) {
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		for (String s : this.config.getStringList(p + ".Conditions")) {
+			if (s.startsWith("VARIABLE:")) {
+				s = s.replace("VARIABLE:", "");
+				int i = -1;
+				try {
+					i = Integer.parseInt(s.split("=")[1]);
+				}catch(Exception e) {}
+				map.put(s.split("=")[0], i >= 0 ? i : s.split("=")[1]);
+			}
+		}
+		return map; 
+	}
+	
 	public List<Integer> getInvDataSlot(String p) {
 		List<Integer> slot = new ArrayList<Integer>();
 		String[] split = this.getConfig().getString(p + ".Slot").split(",");
@@ -227,11 +271,14 @@ public abstract class Menu {
 			
 			// Prepare
 			int page = 1, minpage = 0, maxpage = 0;
+			HashMap<String, Object> conditions = new HashMap<String, Object>();
 			List<String> click = new ArrayList<String>();
 			List<Integer> slot = new ArrayList<Integer>();
 			ItemStack item;
+			boolean stopped = false;
 			
 			// Input
+			conditions = getConditionsFromFile(p);
 			page = getPageFromFile(p);
 			minpage = getMinPageFromFile(p);
 			maxpage = getMaxPageFromFile(p);
@@ -245,6 +292,19 @@ public abstract class Menu {
 				if (!(this.getPage() >= minpage && (maxpage == 0 || this.getPage() <= maxpage))) {
 					continue;
 				}
+			}
+			
+			for (String key : conditions.keySet()) {
+				Object v = conditions.get(key);
+				Object var = this.getVariables().get(key);
+				
+				if (!v.equals(var)) {
+					stopped = true;
+					break;
+				}
+			}
+			if (stopped) {
+				continue;
 			}
 			
 			for (int i : getInvDataSlot(p)) {
@@ -286,6 +346,10 @@ public abstract class Menu {
 
 	public Placeholder getPlaceholder() {
 		return this.plc;
+	}
+	
+	public HashMap<String, Object> getVariables(){
+		return this.variables;
 	}
 	
 	public int getPage() {

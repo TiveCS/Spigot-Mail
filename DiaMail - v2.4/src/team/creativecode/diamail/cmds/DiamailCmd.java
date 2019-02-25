@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -20,7 +21,7 @@ import team.creativecode.diamail.manager.mail.Mail;
 import team.creativecode.diamail.utils.Placeholder;
 import team.creativecode.diamail.utils.Updater;
 
-public class DiamailCmd implements CommandExecutor {
+public class DiamailCmd implements CommandExecutor, TabCompleter {
 
 	Main plugin = Main.getPlugin(Main.class);
 	
@@ -90,6 +91,10 @@ public class DiamailCmd implements CommandExecutor {
 						new Mail(pd, false);
 						return true;
 					}
+					if (strings[0].equalsIgnoreCase("sendall")) {
+						new Mail(pd, true);
+						return true;
+					}
 					if (strings[0].equalsIgnoreCase("check")) {
 						List<String> msg = new ArrayList<String>(Main.placeholder.useAsList(Main.lang.getMessages().get("command.check")))
 								, hmsg = new ArrayList<String>(Main.placeholder.useAsList(Main.lang.getMessages().get("command.check-hovertext")));
@@ -119,6 +124,17 @@ public class DiamailCmd implements CommandExecutor {
 						return true;
 					}
 				}if (strings.length == 2) {
+					if (strings[0].equalsIgnoreCase("delete")) {
+						List<Mail> mailbox = pd.getInbox();
+						mailbox.addAll(pd.getOutbox());
+						Mail m = mailbox.get(Integer.parseInt(strings[1]));
+						if (m.getSender().equals(p)){
+							m.delete(true);
+						}else {
+							m.delete(false);
+						}
+						return true;
+					}
 					if (strings[0].equalsIgnoreCase("?") || strings[0].equalsIgnoreCase("help")) {
 						help(p, Integer.parseInt(strings[1]));
 						return true;
@@ -136,6 +152,30 @@ public class DiamailCmd implements CommandExecutor {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command cmd, String arg2, String[] args) {
+		List<String> tab = new ArrayList<String>();
+		if (cmd.getName().equalsIgnoreCase("diamail")) {
+			Player p = (Player) sender;
+			PlayerData pd = new PlayerData(p);
+			List<Mail> mailbox = pd.getInbox();
+			mailbox.addAll(pd.getOutbox());
+			if (args.length == 1) {
+				for (String s : Main.lang.getConfig().getConfigurationSection("help").getKeys(false)) {
+					tab.add(s);
+				}
+			}
+			if (args.length == 2) {
+				if (args[0].equalsIgnoreCase("delete")) {
+					for (int i = 0; i < mailbox.size(); i++) {
+						tab.add(i + "");
+					}
+				}
+			}
+		}
+		return tab;
 	}
 
 }
