@@ -110,6 +110,10 @@ menu-data:
          - '&fChange your individual settings'
          - '&fincluding sounds, notification'
          - '&fand more'
+      Click-Type:
+         ANY:
+            - CLOSE
+            - COMMAND:diamail settings
    
    send-mail:
       Minimum-Page: 1
@@ -166,8 +170,7 @@ menu-data:
          - ' '
          - '&3&lMessage'
          - '&f%mail_message%'
-         - ' '
-   mail-outbox: # Please keep this code name still mail-outbox1 if you change this, it will be error
+   mail-outbox: # Please keep this code name still mail-outbox! if you change this, it will be error
       Minimum-Page: 1
       Maximum-Page: 0
       Material: BOOK
@@ -183,7 +186,6 @@ menu-data:
          - ' '
          - '&3&lMessage'
          - '&f%mail_message%'
-         - ' '
    previous:
       Minimum-Page: 2
       Maximum-Page: 0

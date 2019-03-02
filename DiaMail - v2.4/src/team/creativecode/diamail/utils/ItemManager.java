@@ -8,11 +8,30 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class ItemManager {
 
+	public static boolean hasAvaliableSlot(Player player, int howmanyclear){
+		Inventory inv = player.getInventory();
+		int check=0;
+		
+		for (ItemStack item: inv.getContents()) {
+			if(item == null) {
+				check++;
+			}
+		}
+		
+		if(check>=howmanyclear){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
     public static ItemStack generateItem(Material material, String displayname, List<String> lore){
 
         ItemStack item = new ItemStack(material);

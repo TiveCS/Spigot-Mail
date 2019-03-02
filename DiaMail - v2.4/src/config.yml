@@ -11,6 +11,22 @@ player-setting:
    inventory-interact-sound: true
    checking-mailbox-interval: 600
 
+player-setting-values:
+   language: TEXT
+   notification-display:
+      - Message
+      - Actionbar
+      - Title
+      - None
+   notification-sound:
+      - true
+      - false
+   inventory-interact-sound:
+      - true
+      - false
+   checking-mailbox-interval: NUMBER
+   
+
 settings:
    notification-default: BLOCK_NOTE_BLOCK_PLING-1-1
    notification-check: BLOCK_ENCHANTMENT_TABLE_USE-1-1

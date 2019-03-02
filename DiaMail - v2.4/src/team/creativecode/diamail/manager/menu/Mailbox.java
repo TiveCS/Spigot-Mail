@@ -20,29 +20,39 @@ public class Mailbox extends Menu{
 		INBOX, OUTBOX, ALL;
 	}
 	
-	public Mailbox() {
-		super();
-	}
-	
 	public void loadMail() {
 		// Remove slot that are not mail slot
+		int mailbox = (int) this.getVariables().get("mailbox");
 		List<Integer> inbox = new ArrayList<Integer>(this.getInvDataSlot("menu-data.mail-inbox")),
 				outbox = new ArrayList<Integer>(this.getInvDataSlot("menu-data.mail-outbox")),
 				total = new ArrayList<Integer>(inbox);
 		
 		PlayerData pd = (PlayerData) this.getCustomObject().get("playerdata");
 		List<Mail> ab = new ArrayList<Mail>(), ib = pd.getInbox(), ob = pd.getOutbox();
-		ab.addAll(ib);
-		// Filtering
-		for (Mail m : ib) {
-			for (Mail mb : ob) {
-				if (m.getMailUUID().equals(mb.getMailUUID())) {
-					ob.remove(mb);
-					break;
+		switch(mailbox) {
+		case 0:
+			ab.clear();
+			ab.addAll(ib);
+			// Filtering
+			for (Mail m : ib) {
+				for (Mail mb : ob) {
+					if (m.getMailUUID().equals(mb.getMailUUID())) {
+						ob.remove(mb);
+						break;
+					}
 				}
 			}
+			ab.addAll(ob);
+			break;
+		case 1:
+			ab.clear();
+			ab.addAll(ib);
+			break;
+		case 2:
+			ab.clear();
+			ab.addAll(ob);
+			break;
 		}
-		ab.addAll(ob);
 		
 		for (int i = 0; i < total.size();i++) {
 			int a = total.get(i);

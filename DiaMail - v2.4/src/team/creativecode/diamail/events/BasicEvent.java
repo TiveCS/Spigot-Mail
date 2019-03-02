@@ -16,6 +16,8 @@ import team.creativecode.diamail.Main;
 import team.creativecode.diamail.manager.Menu;
 import team.creativecode.diamail.manager.PlayerData;
 import team.creativecode.diamail.manager.mail.Mail;
+import team.creativecode.diamail.manager.menu.MailShow;
+import team.creativecode.diamail.manager.menu.Mailbox;
 import team.creativecode.diamail.utils.DataConverter;
 import team.creativecode.diamail.utils.Updater;
 
@@ -51,7 +53,14 @@ public class BasicEvent implements Listener {
 			if (event.getClickedInventory().equals(m.getMenu())) {
 				event.setCancelled(true);
 				DataConverter.playSoundByString(p.getLocation(), plugin.getConfig().getString("settings.inventory-interact-sound"));
-				m.action(p, event.getSlot(), event.getClick());
+				if (m instanceof MailShow) {
+					m.action(p, event.getSlot(), event.getClick(), m);
+				}else if (m instanceof Mailbox) {
+					m.action(p, event.getSlot(), event.getClick(), m);
+				}
+				else {
+					m.action(p, event.getSlot(), event.getClick());
+				}
 			}
 		}
 	}
@@ -83,7 +92,10 @@ public class BasicEvent implements Listener {
 				return;
 			}else {
 				try {
-					if (!m.getReceiver().equals(null)) {
+					if (m.isSendAll()) {
+						m.addMessage(msg);
+					}
+					else if (!m.getReceiver().equals(null)) {
 						if (m.getReceiver().hasPlayedBefore()) {
 							m.addMessage(msg);
 						}else {

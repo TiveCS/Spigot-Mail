@@ -22,18 +22,26 @@ public class Placeholder {
 	public List<String> listUse(List<String> list){
 		for (int line = 0; line < list.size(); line++) {
 			String msg = list.get(line);
+			int size = 0;
 			for (String path : this.replacerList.keySet()) {
 				if (msg.contains("%" + path + "%")) {
-					msg = msg.replace("%" + path + "%","");
-					String c = "";
-					for (String s : this.replacerList.get(path)) {
-						c = c.concat(s);
+					msg = msg.replace("%" + path + "%", "");
+					String c = msg;
+					size = this.replacerList.get(path).size();
+					for (int i = 0; i < size; i++) {
+						String s = ChatColor.translateAlternateColorCodes('&', "&f" + this.replacerList.get(path).get(i));
+						if (i >= line + size) {
+							c = c.concat(s);
+							break;
+						}else {
+							list.add(line + i, s);
+							continue;
+						}
 					}
-					msg = msg.concat(c);
+					list.set(line + size, c);
 					break;
 				}
 			}
-			list.set(line, msg);
 		}
 		return list;
 	}
@@ -64,6 +72,11 @@ public class Placeholder {
 		for (String key : map.keySet()) {
 			replacer.put(key, map.get(key));
 		}
+	}
+	
+	
+	public HashMap<String, String> getReplacer(){
+		return this.replacer;
 	}
 	
 	public HashMap<String, List<String>> getReplacerList(){

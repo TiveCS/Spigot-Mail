@@ -40,6 +40,12 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 			index.add("help.mailbox");
 			index.add("help.update");
 			break;
+		case 3:
+			index.add("help.read");
+			index.add("help.get");
+			index.add("help.take");
+			index.add("help.settings");
+			break;
 		}
 		
 		double s = Main.lang.getConfig().getConfigurationSection("help").getKeys(false).size() / 4;
@@ -87,6 +93,10 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 						help(p, 1);
 						return true;
 					}
+					if (strings[0].equalsIgnoreCase("settings") || strings[0].equalsIgnoreCase("setting")) {
+						pd.getPlayerSetting().showSettingMenu(p);
+						return true;
+					}
 					if (strings[0].equalsIgnoreCase("send")) {
 						new Mail(pd, false);
 						return true;
@@ -124,6 +134,13 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 						return true;
 					}
 				}if (strings.length == 2) {
+					if (strings[0].equalsIgnoreCase("read")) {
+						List<Mail> mailbox = pd.getInbox();
+						mailbox.addAll(pd.getOutbox());
+						Mail m = mailbox.get(Integer.parseInt(strings[1]));
+						m.read(p);
+						return true;
+					}
 					if (strings[0].equalsIgnoreCase("delete")) {
 						List<Mail> mailbox = pd.getInbox();
 						mailbox.addAll(pd.getOutbox());
@@ -166,12 +183,14 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 				for (String s : Main.lang.getConfig().getConfigurationSection("help").getKeys(false)) {
 					tab.add(s);
 				}
+				return tab;
 			}
 			if (args.length == 2) {
-				if (args[0].equalsIgnoreCase("delete")) {
+				if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("open") || args[0].equalsIgnoreCase("take") || args[0].equalsIgnoreCase("get") || args[0].equalsIgnoreCase("read")) {
 					for (int i = 0; i < mailbox.size(); i++) {
 						tab.add(i + "");
 					}
+					return tab;
 				}
 			}
 		}

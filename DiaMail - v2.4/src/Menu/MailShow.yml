@@ -53,6 +53,7 @@ menu-data:
       Slot: '22'
       Click-Type:
          ANY:
+            - CLOSE
             - COMMAND:diamail mailbox
    
    item:
@@ -80,7 +81,8 @@ menu-data:
       Slot: '16'
       Click-Type:
          ANY:
-            - COMMAND:diamail delete %mail_uuid%
+            - CLOSE
+            - CUSTOM:DELETE
    
    read:
       Minimum-Page: 1
@@ -88,3 +90,7 @@ menu-data:
       Material: BOOK
       Name: '&aRead Message'
       Slot: '12'
+      Click-Type:
+         ANY:
+            - CLOSE
+            - CUSTOM:READ

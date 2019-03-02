@@ -16,6 +16,9 @@ help:
    aliases:
       - '&8- &3/diamail &baliases'
       - '&fShow all registered command aliases'
+   settings:
+      - '&8- &3/diamail &bsettings'
+      - '&fOpen individual settings'
    block:
       - '&8- &3/diamail &bblock &7<Player>'
       - '&fBlock player to send mail to you'
@@ -31,6 +34,15 @@ help:
    update:
       - '&8- &3/diamail &bupdate'
       - '&fCheck update for DiaMail'
+   read:
+      - '&8- &3/diamail &bread &7<Index> [Inbox/Outbox]'
+      - '&fRead mail based on index'
+   take:
+      - '&8- &3/diamail &btake &7<Index> [Inbox/Outbox]'
+      - '&fTake item from mail based on index'
+   get:
+      - '&8- &3/diamail &bget <Index> [Inbox/Outbox]'
+      - '&fGet written book contains mail msg'
 
 command:
    check:
@@ -41,6 +53,8 @@ command:
       - '&7&m---------------------'
 
 alert:
+   notification-delete:
+      - '%prefix% &eMail has been removed from mailbox!'
    notification-send-exit:
       - '%prefix% &fMail sending has been &ccancelled!'
    notification-send-failed:
@@ -50,6 +64,8 @@ alert:
       - '%prefix% &7You have got a Mail!'
    notification-send-try:
       - '%prefix% &7Mail has been sent!'
+   notification-sendall-try:
+      - '%prefix% &fMail has been sent to &a%mail_sendall_size% &fplayer(s)'
    notification-send-button:
       - '&8[&a&lSend&8]' #Button for sending mail
       - ' &8[&c&lExit&8]' #Button for cancel mail
@@ -57,7 +73,7 @@ alert:
       - ' &8[&b&lSend All&8]' #Button to toggle sendall status
    notification-send-pre:
       - '%prefix% &fWrite receiver name..'
-      - '%prefix% &fYou can input message now..'
+      - '%prefix% &fCreating mail with sendall mode...'
    notification-send-input:
       - '%prefix% &eSend All &fstatus &b%mail_sendall%'
       - '%prefix% &6Receiver &a%mail_receiver%'
@@ -72,6 +88,10 @@ alert:
       - '&7[ &f%mail_item% &7]'
    notification-send-button-sendall:
       - '&eStatus &b%mail_sendall_symbol%'
+   notification-take:
+      - '%prefix% &7Item from mail has been taken'
+   notification-take-failed:
+      - '%prefix% &7Need at least &c%inventory_need_free% &fslot free in inventory'
    updater-latest:
       - ' '
       - '%prefix% &fYou are on latest version of &bDiaMail'
@@ -85,5 +105,7 @@ alert:
       - '%prefix% &fYou are on &e%version%&f, version &6%version_new% &fhas released!'
       - '%prefix% &fhttps://www.spigotmc.org/resources/58869/'
       - ' '
+   player-not-found:
+      - '%prefix% &cPlayer that name is not found!'
    no-permission:
       - '%prefix% &cInsufficient Permission!'

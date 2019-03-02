@@ -1,3 +1,10 @@
+# Variables
+# Used for built in conditioning
+# The value can only integer number
+#
+# format
+# name: <value>
+
 # MENU PARAMETER
 #
 # Title - Apply menu title
@@ -17,15 +24,20 @@ menu-config:
 # Minimum-Page - Will be show when on minimum page (default is page 1)
 # Maximum-Page - Will be show when on maximum page (default is page 0) [ 0 means unlimited page ]
 # Slot - Set slot of item (allow multiple) [ REQUIRED ]
+# Click-Type - Set action when specify click has been occured
+#
+# Format
+# name:
+#   parameter1: value
 # 
-# ON CLICK TYPE
+# ON CLICK TYPE (list of values for parameter Click-Type)
 # 
 # RIGHT
 # LEFT
 # MIDDLE
 # ANY - This will be override all type of click
 # 
-# ON CLICK EXECUTE
+# ON CLICK EXECUTE (list of values after parameter value of Click-Type)
 # 
 # COMMAND - Execute player command on click
 # NEXT_PAGE - Show next page of menu after click
@@ -36,12 +48,38 @@ menu-config:
 #
 menu-data:
    
+   border-previous:
+      Slot: '9,18'
+      Page: 1
+      Name: ' '
+      Material: BLACK_STAINED_GLASS_PANE
+   
    border:
-      Slot: '0,1,2,3,4,5,6,7,8,9,35,34,33,32,31,30,29,28,27'
+      Slot: '0,1,2,3,4,5,6,7,8,35,34,33,32,30,29,28,27'
       Name: ' '
       Material: BLACK_STAINED_GLASS_PANE
       Minimum-Page: 1
       Maximum-Page: 0
    
+   next:
+      Slot: '17,26'
+      Name: '&aNext Page'
+      Material: GREEN_STAINED_GLASS_PANE
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Click-Type:
+         ANY:
+            - NEXT_PAGE
+      
    
+   mailbox:
+      Slot: '31'
+      Name: '&eGo To Mailbox'
+      Material: RED_STAINED_GLASS_PANE
+      Minimum-Page: 1
+      Maximum-Page: 0
+      Click-Type:
+         ANY:
+            - CLOSE
+            - COMMAND:diamail mailbox
    

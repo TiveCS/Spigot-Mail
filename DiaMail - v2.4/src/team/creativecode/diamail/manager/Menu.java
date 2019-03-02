@@ -28,6 +28,10 @@ public abstract class Menu {
 		RIGHT, LEFT, MIDDLE, ANY;
 	}
 	
+	public enum SlotPriority{
+		LOWEST, MEDIUM, HIGHEST;
+	}
+	
 	Main plugin = Main.getPlugin(Main.class);
 	public static HashMap<Player, Menu> singleMenu = new HashMap<Player, Menu>();
 
@@ -123,7 +127,7 @@ public abstract class Menu {
 					this.variables.put(split[0], i >= 0 ? i : v);
 				}
 				else if (s.startsWith("CUSTOM")) {
-					actionCustom(clicker, slot, click, args);
+					actionCustom(clicker, slot, click, s, args);
 				}
 			}
 		}
