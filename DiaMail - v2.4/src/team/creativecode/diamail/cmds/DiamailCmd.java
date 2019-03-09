@@ -11,14 +11,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import team.creativecode.diamail.Main;
 import team.creativecode.diamail.manager.PlayerData;
 import team.creativecode.diamail.manager.mail.Mail;
-import team.creativecode.diamail.utils.Placeholder;
 import team.creativecode.diamail.utils.Updater;
 
 public class DiamailCmd implements CommandExecutor, TabCompleter {
@@ -68,7 +66,6 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 	public boolean onCommand(CommandSender commandSender, Command command, String label, String[] strings) {
 		if (command.getName().equalsIgnoreCase("diamail")) {
 			if (commandSender instanceof Player) {
-				Placeholder plc = new Placeholder();
 				Player p = (Player) commandSender;
 				PlayerData pd = new PlayerData(p);
 				if (strings.length == 0 || (strings.length == 1 && strings[0].equalsIgnoreCase("mailbox"))) {
@@ -106,30 +103,7 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 						return true;
 					}
 					if (strings[0].equalsIgnoreCase("check")) {
-						List<String> msg = new ArrayList<String>(Main.placeholder.useAsList(Main.lang.getMessages().get("command.check")))
-								, hmsg = new ArrayList<String>(Main.placeholder.useAsList(Main.lang.getMessages().get("command.check-hovertext")));
-						TextComponent main = new TextComponent();
-						TextComponent hover = new TextComponent();
-						plc.inputData("mailbox", "" + (pd.getInbox().size() + pd.getOutbox().size()));
-						plc.inputData("inbox", "" + pd.getInbox().size());
-						plc.inputData("outbox", "" + pd.getOutbox().size());
-						plc.useAsList(msg);
-						plc.useAsList(hmsg);
-						for (String m : msg) {
-							main.addExtra(new TextComponent(new ComponentBuilder(m).create()));
-						}
-						
-						for (int line = 0; line < hmsg.size(); line++) {
-							hover.addExtra(new TextComponent(hmsg.get(line)));
-							if (hmsg.size() > (line + 1)) {
-								hover.addExtra("\n");
-							}
-						}
-						
-						main.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/diamail"));
-						main.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hover).create()));
-						
-						p.spigot().sendMessage(main);
+						pd.checkMailbox(p);
 						
 						return true;
 					}
@@ -176,16 +150,19 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 		List<String> tab = new ArrayList<String>();
 		if (cmd.getName().equalsIgnoreCase("diamail")) {
 			Player p = (Player) sender;
-			PlayerData pd = new PlayerData(p);
-			List<Mail> mailbox = pd.getInbox();
-			mailbox.addAll(pd.getOutbox());
 			if (args.length == 1) {
+				PlayerData pd = new PlayerData(p);
+				List<Mail> mailbox = pd.getInbox();
+				mailbox.addAll(pd.getOutbox());
 				for (String s : Main.lang.getConfig().getConfigurationSection("help").getKeys(false)) {
 					tab.add(s);
 				}
 				return tab;
 			}
 			if (args.length == 2) {
+				PlayerData pd = new PlayerData(p);
+				List<Mail> mailbox = pd.getInbox();
+				mailbox.addAll(pd.getOutbox());
 				if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("open") || args[0].equalsIgnoreCase("take") || args[0].equalsIgnoreCase("get") || args[0].equalsIgnoreCase("read")) {
 					for (int i = 0; i < mailbox.size(); i++) {
 						tab.add(i + "");

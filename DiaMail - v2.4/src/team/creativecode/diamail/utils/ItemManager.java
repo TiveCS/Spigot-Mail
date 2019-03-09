@@ -32,6 +32,24 @@ public class ItemManager {
 		}
 	}
 	
+	public static void removeItemFromInventory(Inventory inv, ItemStack item) {
+		for (int i = 0; i < inv.getSize(); i++) {
+			try {
+				if (!inv.getItem(i).getType().equals(Material.AIR)) {
+					if (inv.getItem(i).equals(item) ||
+							(inv.getItem(i).isSimilar(item) && inv.getItem(i).getAmount() >= item.getAmount())) {
+						ItemStack it = inv.getItem(i);
+						it.setAmount(it.getAmount() - item.getAmount());
+						inv.setItem(i, it);
+						break;
+					}
+				}else {
+					continue;
+				}
+			}catch(Exception e) {}
+		}
+	}
+	
     public static ItemStack generateItem(Material material, String displayname, List<String> lore){
 
         ItemStack item = new ItemStack(material);

@@ -4,17 +4,25 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import team.creativecode.diamail.Main;
+import team.creativecode.diamail.events.BasicEvent;
 import team.creativecode.diamail.manager.mail.Mail;
 import team.creativecode.diamail.manager.mail.Mail.MailType;
 import team.creativecode.diamail.manager.menu.Mailbox;
 import team.creativecode.diamail.utils.ConfigManager;
 import team.creativecode.diamail.utils.DataConverter;
 import team.creativecode.diamail.utils.Language;
+import team.creativecode.diamail.utils.Language.SendMode;
 import team.creativecode.diamail.utils.Placeholder;
 
 public class PlayerData {
@@ -52,6 +60,54 @@ public class PlayerData {
 			loadBasicDataFile();
 			loadMails();
 			this.ps = new PlayerSetting(this);
+		}
+	}
+	
+	public void checkMailbox(Player p) {
+		SendMode mode = SendMode.valueOf(getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase());
+		if (mode.equals(SendMode.NONE)) {
+			return;
+		}
+		DataConverter.playSoundByString(p.getLocation(), plugin.getConfig().getString("settings.notification-check"));
+		List<String> msg = new ArrayList<String>(Main.placeholder.useAsList(Main.lang.getMessages().get("command.check")))
+				, hmsg = new ArrayList<String>(Main.placeholder.useAsList(Main.lang.getMessages().get("command.check-hovertext")));
+		TextComponent main = new TextComponent();
+		TextComponent hover = new TextComponent();
+		plc.inputData("mailbox", "" + (getInbox().size() + getOutbox().size()));
+		plc.inputData("inbox", "" + getInbox().size());
+		plc.inputData("outbox", "" + getOutbox().size());
+		plc.useAsList(msg);
+		plc.useAsList(hmsg);
+		for (String m : msg) {
+			main.addExtra(new TextComponent(new ComponentBuilder(m).create()));
+		}
+		
+		for (int line = 0; line < hmsg.size(); line++) {
+			hover.addExtra(new TextComponent(hmsg.get(line)));
+			if (hmsg.size() > (line + 1)) {
+				hover.addExtra("\n");
+			}
+		}
+		
+		main.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/diamail"));
+		main.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hover).create()));
+		
+		getLanguage().sendMessage(p, mode, main);
+	}
+	
+	public void checkMailboxScheduled(Player p) {
+		long interval = Integer.parseInt(getPlayerSetting().getSettings().get("checking-mailbox-interval").toString());
+		
+		if (interval > 0) {
+			Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
+				@Override
+				public void run() {
+					if (BasicEvent.players.contains(p)) {
+						checkMailboxScheduled(p);
+					}
+				}
+				
+			}, interval*20);
 		}
 	}
 	

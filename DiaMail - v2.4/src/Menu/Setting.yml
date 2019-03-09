@@ -4,7 +4,8 @@
 #
 # format
 # name: <value>
-
+variables:
+   active-settings-prefix: '&f' # Do not change the name
 # MENU PARAMETER
 #
 # Title - Apply menu title
@@ -48,6 +49,73 @@ menu-config:
 #
 menu-data:
    
+   # The name of menu-data it must be the settings path name, like below
+   notification-display:
+      Slot: '10'
+      Page: 1
+      Name: '&aNotification Display'
+      Material: WRITABLE_BOOK
+      Click-Type:
+         ANY:
+            - CUSTOM:notification-display
+      Lore:
+         - ' '
+         - '&8- &7Message'
+         - '&8- &7Actionbar'
+         - '&8- &7Title'
+         - '&8- &7None'
+   
+   notification-sound:
+      Slot: '11'
+      Page: 1
+      Name: '&aNotification Sound'
+      Material: NOTE_BLOCK
+      Click-Type:
+         ANY:
+            - CUSTOM:notification-sound
+      Lore:
+         - ' '
+         - '&8- &7true'
+         - '&8- &7false'
+   
+   checking-mailbox-interval:
+      Slot: '12'
+      Page: 1
+      Name: '&6Check Interval'
+      Material: CLOCK
+      Click-Type:
+         ANY:
+            - CUSTOM:checking-mailbox-interval
+      Lore:
+         - ' '
+         - '&7- &c%settings_checking-mailbox-interval% &esecond(s)'
+   
+   inventory-interact-sound:
+      Slot: '13'
+      Page: 1
+      Name: '&aInventory Interact Sound'
+      Material: NOTE_BLOCK
+      Click-Type:
+         ANY:
+            - CUSTOM:inventory-interact-sound
+      Lore:
+         - ' '
+         - '&8- &7true'
+         - '&8- &7false'
+   
+   language:
+      Slot: '14'
+      Page: 1
+      Name: '&3Language'
+      Material: KNOWLEDGE_BOOK
+      Click-Type:
+         ANY:
+            - CUSTOM:language
+      Lore:
+         - ' '
+         - '&8- &b%settings_language%'
+   
+   # End of settings
    border-previous:
       Slot: '9,18'
       Page: 1
@@ -70,7 +138,16 @@ menu-data:
       Click-Type:
          ANY:
             - NEXT_PAGE
-      
+   
+   previous:
+      Slot: '9,18'
+      Name: '&9Previous Page'
+      Material: BLUE_STAINED_GLASS_PANE
+      Minimum-Page: 2
+      Maximum-Page: 0
+      Click-Type:
+         ANY:
+            - PREVIOUS_PAGE
    
    mailbox:
       Slot: '31'

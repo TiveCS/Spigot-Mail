@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import team.creativecode.diamail.Main;
 import team.creativecode.diamail.manager.menu.Setting;
+import team.creativecode.diamail.utils.DataConverter;
 
 public class PlayerSetting {
 
@@ -15,7 +16,7 @@ public class PlayerSetting {
 	final String path = "player-setting";
 	
 	private PlayerData pd;
-	private Setting s = new Setting();
+	private Setting s;
 	private HashMap<String, Object> settingValues = new HashMap<String, Object>();
 	private HashMap<String, Object> setting = new HashMap<String, Object>();
 	
@@ -28,6 +29,19 @@ public class PlayerSetting {
 		
 		loadSettingValues();
 		
+		this.s = new Setting(this);
+		this.s.inputObject("player", pd.getPlayer());
+		this.s.inputObject("playersetting", this);
+		this.s.inputObject("playerdata", pd);
+		
+		initPlaceholder();
+		
+	}
+	
+	public void initPlaceholder() {
+		for (String key : this.setting.keySet()) {
+			getPlayerData().getPlaceholder().inputData("settings_" + key, this.setting.get(key).toString());
+		}
 	}
 	
 	public void loadSettingValues() {
@@ -63,12 +77,53 @@ public class PlayerSetting {
 			
 		}
 		
-		System.out.println(this.settingValues);
+	}
+	
+	public void switchSetting(String key) {
+		List<String> values = DataConverter.objectToList(this.getSettingValues().get(key));
+		int maxKey = values.size() - 1;
+		int currentKey = values.indexOf(this.getSettings().get(key).toString());
+		int nextKey = 0;
+		
+		if (currentKey == maxKey) {
+			nextKey = 0;
+		}else if (currentKey < maxKey){
+			nextKey = currentKey + 1;
+		}
+		
+		Object value = values.get(nextKey);
+		
+		try {
+			if (value.toString().equalsIgnoreCase("true") || value.toString().equalsIgnoreCase("false")) {
+				value = Boolean.parseBoolean(value.toString());
+			}
+		}catch(Exception e) {
+			value = values.get(nextKey);
+		}
+		
+		changeSetting(key, value);
 	}
 	
 	public void changeSetting(String key, Object value) {
 		this.setting.put(key, value);
 		updateSetting();
+	}
+	
+	public void numberIncreaseSetting(String key, int inc) {
+		try {
+			Object o = this.setting.get(key);
+			if (o instanceof Number) {
+				if (o instanceof Integer) {
+					int i = (int) o;
+					i+=inc;
+					changeSetting(key, i);
+				}else if (o instanceof Double) {
+					double d = (double) o;
+					d+=inc;
+					changeSetting(key, d);
+				}
+			}
+		}catch(Exception e) {}
 	}
 	
 	public void updateSetting() {
@@ -81,6 +136,7 @@ public class PlayerSetting {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		initPlaceholder();
 	}
 	
 	public void showSettingMenu(Player targetplayer) {

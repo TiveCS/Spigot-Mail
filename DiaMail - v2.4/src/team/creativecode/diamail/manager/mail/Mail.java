@@ -24,6 +24,9 @@ import team.creativecode.diamail.Main;
 import team.creativecode.diamail.manager.PlayerData;
 import team.creativecode.diamail.manager.menu.MailShow;
 import team.creativecode.diamail.utils.ConfigManager;
+import team.creativecode.diamail.utils.DataConverter;
+import team.creativecode.diamail.utils.ItemManager;
+import team.creativecode.diamail.utils.Language.SendMode;
 import team.creativecode.diamail.utils.Placeholder;
 
 public class Mail{
@@ -153,7 +156,7 @@ public class Mail{
 	
 	public void send() {
 		if (this.getMessage().size() <= 0) {
-			getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(),
+			getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
 					getPlayerData().getPlaceholder().useAsList(
 							getPlayerData().getLanguage().getMessages().get("alert.notification-send-failed")));
 			this.showButton();
@@ -164,11 +167,12 @@ public class Mail{
 			for (File f : file) {
 				ConfigManager.input(f, path + ".date", this.getDate());
 				ConfigManager.input(f, path + ".sender", this.getSender().getUniqueId().toString());
-				ConfigManager.input(f, path + ".item", this.getItem());
+				ConfigManager.input(f, path + ".item", this.getItem().getType().equals(Material.AIR) ? null : this.getItem());
 				ConfigManager.input(f, path + ".message", this.getMessage());
 				OfflinePlayer op = Bukkit.getOfflinePlayer(UUID.fromString(f.getName().split("[.]")[0]));
 				if (op.isOnline()) {
-					getPlayerData().getLanguage().sendMessage(op.getPlayer(),
+					DataConverter.playSoundByString(op.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
+					getPlayerData().getLanguage().sendMessage(op.getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
 							this.getPlaceholder().useAsList(getPlayerData().getPlaceholder().useAsList(
 									getPlayerData().getLanguage().getMessages().get("alert.notification-send-receive"))));
 				}
@@ -176,7 +180,8 @@ public class Mail{
 			this.plc.inputData("mail_sendall_size", file.length + "");
 			sending.remove(this.getPlayerData().getPlayer());
 			if (pd.getPlayer().isOnline()) {
-				getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(),
+				DataConverter.playSoundByString(pd.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
+				getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(),SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
 						this.getPlaceholder().useAsList(getPlayerData().getPlaceholder().useAsList(
 								getPlayerData().getLanguage().getMessages().get("alert.notification-sendall-try"))));
 			}
@@ -190,7 +195,7 @@ public class Mail{
 				ConfigManager.input(this.getPlayerData().getFile(), outbox + ".sender",this.getPlayerData().getPlayer().getUniqueId().toString());
 				ConfigManager.input(this.getPlayerData().getFile(), outbox + ".message",this.getMessage());
 				if (!this.getItem().getType().equals(Material.AIR)) {
-					ConfigManager.input(this.getPlayerData().getFile(), outbox + ".item",this.getItem());
+					ConfigManager.input(this.getPlayerData().getFile(), outbox + ".item",this.getItem().getType().equals(Material.AIR) ? null : this.getItem());
 				}
 			}
 			
@@ -199,22 +204,25 @@ public class Mail{
 			ConfigManager.input(receiver.getFile(), inbox + ".target", this.getReceiver().getPlayer().getUniqueId().toString());
 			ConfigManager.input(receiver.getFile(), inbox + ".message", this.getMessage());
 			if (!this.getItem().getType().equals(Material.AIR)) {
-				ConfigManager.input(receiver.getFile(), inbox + ".item", this.getItem());
+				ConfigManager.input(receiver.getFile(), inbox + ".item", this.getItem().getType().equals(Material.AIR) ? null : this.getItem());
 			}
 			
 			if (pd.getPlayer().isOnline()) {
-				getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(),
+				DataConverter.playSoundByString(pd.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
+				getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
 						getPlayerData().getPlaceholder().useAsList(
 								getPlayerData().getLanguage().getMessages().get("alert.notification-send-try")));
 			}
 			if (this.getReceiver().isOnline()) {
-				receiver.getLanguage().sendMessage(this.getReceiver().getPlayer(),
+				DataConverter.playSoundByString(getReceiver().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
+				receiver.getLanguage().sendMessage(this.getReceiver().getPlayer(), SendMode.valueOf(receiver.getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
 						receiver.getPlaceholder().useAsList(
 								receiver.getLanguage().getMessages().get("alert.notification-send-receive")));
 			}
 			sending.remove(this.getPlayerData().getPlayer());
 		}else {
-			getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(),
+			DataConverter.playSoundByString(pd.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
+			getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
 					getPlayerData().getPlaceholder().useAsList(
 							getPlayerData().getLanguage().getMessages().get("alert.notification-send-exit")));
 		}
@@ -226,7 +234,8 @@ public class Mail{
 		if (sending.containsKey(this.getPlayerData().getPlayer())) {
 			sending.remove(this.getPlayerData().getPlayer());
 			if (pd.getPlayer().isOnline()) {
-				getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(),
+				DataConverter.playSoundByString(pd.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-delete"));
+				getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
 						getPlayerData().getPlaceholder().useAsList(
 								getPlayerData().getLanguage().getMessages().get("alert.notification-send-exit")));
 			}
@@ -238,7 +247,8 @@ public class Mail{
 					ConfigManager.input(sender.getFile(), "mailbox.outbox." + this.getMailUUID(), null);
 					ConfigManager.input(sender.getFile(), "mailbox.inbox." + this.getMailUUID(), null);
 					if (sender.getPlayer().isOnline()) {
-						sender.getLanguage().sendMessage(sender.getPlayer().getPlayer(), sender.getPlaceholder().useAsList(sender.getLanguage().getMessages().get("alert.notification-delete")));
+						DataConverter.playSoundByString(sender.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-delete"));
+						sender.getLanguage().sendMessage(sender.getPlayer().getPlayer(), SendMode.valueOf(sender.getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()), sender.getPlaceholder().useAsList(sender.getLanguage().getMessages().get("alert.notification-delete")));
 					}
 					checked = true;
 				}
@@ -249,12 +259,14 @@ public class Mail{
 					ConfigManager.input(sender.getFile(), "mailbox.outbox." + this.getMailUUID(), null);
 					ConfigManager.input(sender.getFile(), "mailbox.inbox." + this.getMailUUID(), null);
 					if (sender.getPlayer().isOnline()) {
-						sender.getLanguage().sendMessage(sender.getPlayer().getPlayer(), sender.getPlaceholder().useAsList(sender.getLanguage().getMessages().get("alert.notification-delete")));
+						DataConverter.playSoundByString(sender.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-delete"));
+						sender.getLanguage().sendMessage(sender.getPlayer().getPlayer(), SendMode.valueOf(sender.getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()), sender.getPlaceholder().useAsList(sender.getLanguage().getMessages().get("alert.notification-delete")));
 					}
 				}else {
+					DataConverter.playSoundByString(receiver.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-delete"));
 					PlayerData receiver = new PlayerData(this.getReceiver());
 					ConfigManager.input(receiver.getFile(), "mailbox.inbox." + this.getMailUUID(), null);
-					receiver.getLanguage().sendMessage(receiver.getPlayer().getPlayer(), receiver.getPlaceholder().useAsList(receiver.getLanguage().getMessages().get("alert.notification-delete")));
+					receiver.getLanguage().sendMessage(receiver.getPlayer().getPlayer(), SendMode.valueOf(receiver.getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()), receiver.getPlaceholder().useAsList(receiver.getLanguage().getMessages().get("alert.notification-delete")));
 				}
 			}
 		}
@@ -294,14 +306,28 @@ public class Mail{
 	
 	public void setItem(ItemStack item) {
 		if (!item.getType().equals(Material.AIR)) {
-			this.item = item;
-			this.getPlayerData().getPlayer().getPlayer().getInventory().remove(this.getItem());
+			if (!this.getItem().getType().equals(Material.AIR)) {
+				getPlayerData().getPlayer().getPlayer().getInventory().addItem(this.getItem());
+			}
+			this.item = item.clone();
 			this.getPlayerData().getPlaceholder().inputData("mail_item_amount", this.getItem().getType().equals(Material.AIR) ? "0" : this.getItem().getAmount() + "");
 			this.getPlayerData().getPlaceholder().inputData("mail_item", this.item.getItemMeta().hasDisplayName() ? this.getItem().getItemMeta().getDisplayName() : this.getItem().getType().toString());
 			
 			if (this.getPlayerData().getPlayer().isOnline()) {
 				this.getPlayerData().getLanguage().sendDirectMessage(this.getPlayerData().getPlayer().getPlayer(),
 						this.getPlayerData().getPlaceholder().use(this.getPlayerData().getLanguage().getMessages().get("alert.notification-send-input").get(2)));
+			}
+			ItemManager.removeItemFromInventory(this.getPlayerData().getPlayer().getPlayer().getInventory(), item);
+		}else {
+			returnItem();
+		}
+	}
+	
+	public void returnItem() {
+		if (!this.getItem().getType().equals(Material.AIR)) {
+			if (this.getPlayerData().getPlayer().isOnline()) {
+				getPlayerData().getPlayer().getPlayer().getInventory().addItem(this.getItem());
+				this.item = new ItemStack(Material.AIR);
 			}
 		}
 	}

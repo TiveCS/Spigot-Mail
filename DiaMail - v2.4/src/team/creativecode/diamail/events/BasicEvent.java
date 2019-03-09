@@ -1,6 +1,8 @@
 package team.creativecode.diamail.events;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -10,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 import team.creativecode.diamail.Main;
@@ -26,9 +29,17 @@ public class BasicEvent implements Listener {
 	Main plugin = Main.getPlugin(Main.class);
 	File folder = new File(plugin.getDataFolder() + "/PlayerData");
 	
+	public static List<Player> players = new ArrayList<Player>();
+	
+	@EventHandler
+	public void quit(PlayerQuitEvent event) {
+		players.remove(event.getPlayer());
+	}
+	
 	@EventHandler
 	public void join(PlayerJoinEvent event) {
 		Player p = event.getPlayer();
+		players.add(p);
 		new PlayerData(event.getPlayer());
 		
 		if (event.getPlayer().hasPermission("diamail.admin")) {
@@ -43,23 +54,29 @@ public class BasicEvent implements Listener {
 				Main.lang.sendMessage(p,  Main.placeholder.useAsList(Main.lang.getMessages().get("alert.updater-latest")));
 			}
 		}
+		
 	}
 	
 	@EventHandler
 	public void invclick(InventoryClickEvent event) {
 		Player p = (Player) event.getWhoClicked();
-		if (Menu.singleMenu.containsKey(p)) {
-			Menu m = Menu.singleMenu.get(p);
-			if (event.getClickedInventory().equals(m.getMenu())) {
-				event.setCancelled(true);
-				DataConverter.playSoundByString(p.getLocation(), plugin.getConfig().getString("settings.inventory-interact-sound"));
-				if (m instanceof MailShow) {
-					m.action(p, event.getSlot(), event.getClick(), m);
-				}else if (m instanceof Mailbox) {
-					m.action(p, event.getSlot(), event.getClick(), m);
-				}
-				else {
-					m.action(p, event.getSlot(), event.getClick());
+		if (!event.getClick().name().startsWith("WINDOW_BORDER")) {
+			if (Menu.singleMenu.containsKey(p)) {
+				Menu m = Menu.singleMenu.get(p);
+				if (event.getClickedInventory().equals(m.getMenu())) {
+					event.setCancelled(true);
+					PlayerData pd = new PlayerData(p);
+					if (Boolean.parseBoolean(pd.getPlayerSetting().getSettings().get("inventory-interact-sound").toString())) {
+						DataConverter.playSoundByString(p.getLocation(), plugin.getConfig().getString("settings.inventory-interact-sound"));
+					}
+					if (m instanceof MailShow) {
+						m.action(p, event.getSlot(), event.getClick(), m);
+					}else if (m instanceof Mailbox) {
+						m.action(p, event.getSlot(), event.getClick(), m);
+					}
+					else {
+						m.action(p, event.getSlot(), event.getClick());
+					}
 				}
 			}
 		}

@@ -32,7 +32,6 @@ public class Updater{
             connection.disconnect();
 		} catch (IOException e) {
 			Bukkit.getServer().getConsoleSender().sendMessage("[" + Main.getPlugin(Main.class).getDescription().getName() + "] Cannot connect to update server!");
-			e.printStackTrace();
 		} 
 		
 		return nv;

@@ -48,8 +48,14 @@ public abstract class Menu {
 	private File folder = new File(plugin.getDataFolder() + "/Menu");
 	private File file = new File(plugin.getDataFolder() + "/Menu", this.getClass().getSimpleName() + ".yml");
 	private FileConfiguration config;
-	
+
 	public Menu() {
+		loadMenu();
+	}
+	
+	public abstract void actionCustom(Player clicker, int slot, ClickType click, Object... args);
+	
+	public void loadMenu() {
 		if (!folder.exists()) {
 			folder.mkdir();
 		}
@@ -65,10 +71,12 @@ public abstract class Menu {
 		
 		this.title = plc.use(title);
 		
-		this.menu = Bukkit.createInventory(null, this.rows*9, this.title);
+		initMenu(this.title, this.rows*9);
 	}
 	
-	public abstract void actionCustom(Player clicker, int slot, ClickType click, Object... args);
+	public void initMenu(String title, int size) {
+		this.menu = Bukkit.createInventory(null, size, title);
+	}
 	
 	public void loadVariables() {
 		this.variables.clear();
@@ -155,6 +163,14 @@ public abstract class Menu {
 			this.getMenu().setItem(key, this.getInventoryData().get(key));
 		}
 		
+	}
+	
+	public void refresh() {
+		initItemFromConfig();
+		
+		for (int key : this.getInventoryData().keySet()) {
+			this.getMenu().setItem(key, this.getInventoryData().get(key));
+		}
 	}
 	
 	public void open(Player p) {

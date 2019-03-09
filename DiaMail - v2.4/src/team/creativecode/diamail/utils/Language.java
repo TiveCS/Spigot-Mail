@@ -7,15 +7,21 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import team.creativecode.diamail.Main;
 
 public class Language {
 	
+	public enum SendMode{
+		MESSAGE, TITLE, ACTIONBAR, NONE;
+	}
 	
 	public static HashMap<String, Language> languages = new HashMap<String, Language>();
 	public static Main plugin = Main.getPlugin(Main.class);
@@ -83,6 +89,61 @@ public class Language {
         for (String s : msg) {
             p.sendMessage(s);
         }
+    }
+    
+    public void sendMessage(Player p, SendMode mode, Object msg) {
+    	
+    	if (msg instanceof ArrayList) {
+    		List<String> list = DataConverter.objectToList(msg);
+    		for (int i = 0; i < list.size(); i++) {
+    			final String s = list.get(i);
+    			Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
+
+					@Override
+					public void run() {
+						sendMessage(p, mode, s);
+					}
+    				
+    			}, i*20);
+    		}
+    	}else if (msg instanceof String) {
+    		sendMessage(p, mode, msg.toString());
+    	}else {
+    		plugin.getServer().getConsoleSender().sendMessage("[" + plugin.getDescription().getName() + "] Failed to send message (Mode: " + mode.name() + ") (Message Data Type: " + msg.getClass().getSimpleName() + ".class)");
+    	}
+    }
+    
+    public void sendMessage(Player p, SendMode mode, String msg) {
+    	msg = ChatColor.translateAlternateColorCodes('&', msg);
+    	switch(mode) {
+		case ACTIONBAR:
+			p.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(msg));
+			break;
+		case MESSAGE:
+			p.sendMessage(msg);
+			break;
+		case TITLE:
+			p.sendTitle(" ", msg, 10, 10, 10);
+			break;
+		case NONE:
+			break;
+    	}
+    }
+    
+    public void sendMessage(Player p, SendMode mode, TextComponent msg) {
+    	switch(mode) {
+		case ACTIONBAR:
+			p.spigot().sendMessage(ChatMessageType.ACTION_BAR, msg);
+			break;
+		case MESSAGE:
+			p.spigot().sendMessage(msg);
+			break;
+		case TITLE:
+			p.sendTitle(" ", msg.toLegacyText(), 10, 10, 10);
+			break;
+		case NONE:
+			break;
+    	}
     }
 	
 	public HashMap<String, List<String>> getMessages(){
