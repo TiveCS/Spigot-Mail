@@ -154,6 +154,22 @@ public class Mail{
 		show.open(targetplayer);
 	}
 	
+	public void takeItem(Player p) {
+		PlayerData rec = new PlayerData(this.getReceiver());
+		try {
+			p.getInventory().addItem(this.getItem());
+			rec.getConfig().set("mailbox.inbox." + this.getMailUUID() + ".item", null);
+			this.setItem(new ItemStack(Material.AIR));
+			rec.getLanguage().sendMessage(receiver.getPlayer(), SendMode.valueOf(rec.getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
+					getPlayerData().getPlaceholder().useAsList(
+							getPlayerData().getLanguage().getMessages().get("alert.notification-take")));
+		}catch(Exception e) {
+			rec.getLanguage().sendMessage(receiver.getPlayer(), SendMode.valueOf(rec.getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
+					getPlayerData().getPlaceholder().useAsList(
+							getPlayerData().getLanguage().getMessages().get("alert.notification-take")));
+		}
+	}
+	
 	public void send() {
 		if (this.getMessage().size() <= 0) {
 			getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),

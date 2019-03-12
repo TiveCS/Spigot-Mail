@@ -24,6 +24,10 @@ public class MailShow extends Menu{
 		
 		for (int slot : this.getInventoryData().keySet()) {
 			ItemStack item = this.getInventoryData().get(slot);
+			if (!this.m.getItem().getType().equals(Material.AIR) && this.getPathName(slot).contains("item")) {
+				item = this.m.getItem().clone();
+			}
+			
 			ItemMeta meta = item.getItemMeta();
 			if (meta.hasLore()) {
 				List<String> lore = meta.getLore();
@@ -31,6 +35,7 @@ public class MailShow extends Menu{
 				lore = this.m.getPlaceholder().listUse(lore);
 				meta.setLore(lore);
 			}
+			
 			item.setItemMeta(meta);
 			this.getInventoryData().put(slot, item);
 		}
@@ -49,27 +54,15 @@ public class MailShow extends Menu{
 	
 	@Override
 	public void actionCustom(Player clicker, int slot, ClickType click, Object... args) {
-		//PlayerData pd = new PlayerData(clicker);
 		
 		switch (args[0].toString().toUpperCase().split(":")[1]) {
 		case "TAKE":
-			if (!this.m.getItem().getType().equals(Material.AIR)) {
-				if (this.m.getReceiver().getPlayer().equals(clicker)) {
-					if (this.m.getReceiver().isOnline()) {
-						if (ItemManager.hasAvaliableSlot(clicker, 1)) {
-							//pd.getLanguage().sendMessage(clicker, this.m.getPlaceholder().useAsList(this.getPlaceholder().useAsList(pd.getLanguage().getMessages().get("notification-take"))));
-							clicker.getInventory().addItem(this.m.getItem());
-						}else {
-							this.getPlaceholder().inputData("inventory_need_free", 1 + "");
-							//pd.getLanguage().sendMessage(clicker, this.getPlaceholder().useAsList(pd.getLanguage().getMessages().get("notification-take-failed")));
-						}
-					}
-				}else {
-					if (clicker.hasPermission("diamail.admin")) {
-						
-					}
+			if (this.m.getReceiver().isOnline()) {
+				if (ItemManager.hasAvaliableSlot(this.m.getReceiver().getPlayer(), 1)) {
+					this.m.takeItem(this.m.getReceiver().getPlayer());
 				}
 			}
+			break;
 		case "READ":
 			this.m.read(clicker);
 			break;

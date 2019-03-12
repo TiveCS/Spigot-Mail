@@ -56,12 +56,16 @@ menu-data:
             - CLOSE
             - COMMAND:diamail mailbox
    
-   item:
+   item: # Do not change the name
       Minimum-Page: 1
       Maximum-Page: 0
       Material: BARRIER
       Name: '&cNo Item Attached'
       Slot: '14'
+      Click-Type:
+         ANY:
+            - CLOSE
+            - CUSTOM:TAKE
    
    message:
       Minimum-Page: 1

@@ -26,7 +26,7 @@ import team.creativecode.diamail.utils.Updater;
 
 public class BasicEvent implements Listener {
 
-	Main plugin = Main.getPlugin(Main.class);
+	private Main plugin = Main.getPlugin(Main.class);
 	File folder = new File(plugin.getDataFolder() + "/PlayerData");
 	
 	public static List<Player> players = new ArrayList<Player>();

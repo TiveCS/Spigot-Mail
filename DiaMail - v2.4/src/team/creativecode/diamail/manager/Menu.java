@@ -136,6 +136,8 @@ public abstract class Menu {
 				}
 				else if (s.startsWith("CUSTOM")) {
 					actionCustom(clicker, slot, click, s, args);
+				}else {
+					System.out.println("Action not found! (Action Type: " + s + ", Slot: " + slot +" ) [" + this.getFile().getName() + "]");
 				}
 			}
 		}
@@ -263,6 +265,17 @@ public abstract class Menu {
 			}
 		}
 		return map; 
+	}
+	
+	public List<String> getPathName(int slot) {
+		List<String> list = new ArrayList<String>();
+		for (String p : getConfig().getConfigurationSection("menu-data").getKeys(false)) {
+			if (this.getInvDataSlot("menu-data." + p).contains(slot)) {
+				list.add(p);
+				continue;
+			}
+		}
+		return list;
 	}
 	
 	public List<Integer> getInvDataSlot(String p) {
