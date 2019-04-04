@@ -98,6 +98,7 @@ public class PlayerData {
 	public void checkMailboxScheduled(Player p) {
 		long interval = Integer.parseInt(getPlayerSetting().getSettings().get("checking-mailbox-interval").toString());
 		
+		checkMailbox(p);
 		if (interval > 0) {
 			Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
 				@Override

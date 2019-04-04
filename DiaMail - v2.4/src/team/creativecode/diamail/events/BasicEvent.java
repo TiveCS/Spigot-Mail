@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -22,12 +23,12 @@ import team.creativecode.diamail.manager.mail.Mail;
 import team.creativecode.diamail.manager.menu.MailShow;
 import team.creativecode.diamail.manager.menu.Mailbox;
 import team.creativecode.diamail.utils.DataConverter;
-import team.creativecode.diamail.utils.Updater;
 
 public class BasicEvent implements Listener {
 
 	private Main plugin = Main.getPlugin(Main.class);
 	File folder = new File(plugin.getDataFolder() + "/PlayerData");
+	boolean hasUpdate = false;
 	
 	public static List<Player> players = new ArrayList<Player>();
 	
@@ -40,26 +41,15 @@ public class BasicEvent implements Listener {
 	public void join(PlayerJoinEvent event) {
 		Player p = event.getPlayer();
 		players.add(p);
-		new PlayerData(event.getPlayer());
-		
-		if (event.getPlayer().hasPermission("diamail.admin")) {
-			String newversion = Updater.getUpdateCheck(Main.rsid);
-			Main.placeholder.inputData("version_new", newversion);
-			if (newversion.equals("")) {
-				Main.lang.sendMessage(p, Main.placeholder.useAsList(Main.lang.getMessages().get("alert.updater-failed")));
-			}
-			else if (Updater.isNewVersion()) {
-				Main.lang.sendMessage(p, Main.placeholder.useAsList(Main.lang.getMessages().get("alert.updater")));
-			}else{
-				Main.lang.sendMessage(p,  Main.placeholder.useAsList(Main.lang.getMessages().get("alert.updater-latest")));
-			}
-		}
+		PlayerData pd = new PlayerData(event.getPlayer());
+		pd.checkMailboxScheduled(p);
 		
 	}
 	
 	@EventHandler
 	public void invclick(InventoryClickEvent event) {
 		Player p = (Player) event.getWhoClicked();
+		if (event.getClickedInventory() == null) {return;}
 		if (!event.getClick().name().startsWith("WINDOW_BORDER")) {
 			if (Menu.singleMenu.containsKey(p)) {
 				Menu m = Menu.singleMenu.get(p);
@@ -100,7 +90,11 @@ public class BasicEvent implements Listener {
 					m.getPlayerData().getLanguage().sendMessage(p, m.getPlayerData().getLanguage().getMessages().get("alert.no-permission"));
 				}
 			}else if (msg.equalsIgnoreCase("SETITEM")) {
-				m.setItem(p.getInventory().getItemInMainHand());
+				if (p.hasPermission("diamail.access.sendmultiple.item")) {
+					m.setItem(p.getInventory().getItemInMainHand());
+				}else {
+					m.getPlayerData().getLanguage().sendMessage(p, m.getPlayerData().getLanguage().getMessages().get("alert.no-permission"));
+				}
 			}else if (msg.equalsIgnoreCase("SEND")) {
 				m.send();
 				return;
@@ -112,15 +106,31 @@ public class BasicEvent implements Listener {
 					if (m.isSendAll()) {
 						m.addMessage(msg);
 					}
-					else if (!m.getReceiver().equals(null)) {
-						if (m.getReceiver().hasPlayedBefore()) {
+					else if (m.getReceiver() != null || !m.getMultipleReceiver().isEmpty()) {
+						if (m.getReceiver() != null || !m.getMultipleReceiver().isEmpty()) {
 							m.addMessage(msg);
 						}else {
 							m.setReceiver(null);
 						}
+					}else if (m.getReceiver() == null || m.getMultipleReceiver().isEmpty()) {
+						msg = msg.replace(" ", "");
+						String[] split = msg.split("[,]");
+						if (split.length == 1) {
+							m.setReceiver(Bukkit.getOfflinePlayer(msg));
+						}else if (split.length > 1) {
+							if (p.hasPermission("diamail.access.sendmultiple")) {
+								List<OfflinePlayer> l = new ArrayList<OfflinePlayer>();
+								for (String sp : split) {	
+									l.add(Bukkit.getOfflinePlayer(sp));
+								}
+								m.addMultiReceiver(l);
+							}else {
+								m.setReceiver(Bukkit.getOfflinePlayer(split[0]));
+							}
+						}
 					}
 				}catch(Exception e) {
-					m.setReceiver(Bukkit.getOfflinePlayer(msg));
+					e.printStackTrace();
 				}
 			}
 			if (m.isSendAll() && !m.getItem().getType().equals(Material.AIR)) {

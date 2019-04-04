@@ -59,7 +59,9 @@ public class MailShow extends Menu{
 		case "TAKE":
 			if (this.m.getReceiver().isOnline()) {
 				if (ItemManager.hasAvaliableSlot(this.m.getReceiver().getPlayer(), 1)) {
-					this.m.takeItem(this.m.getReceiver().getPlayer());
+					if (this.m.getItem() != null || !this.m.getItem().getType().equals(Material.AIR)) {
+						this.m.takeItem(this.m.getReceiver().getPlayer());
+					}
 				}
 			}
 			break;
@@ -67,7 +69,9 @@ public class MailShow extends Menu{
 			this.m.read(clicker);
 			break;
 		case "DELETE":
-			this.m.delete(this.m.getSender().getPlayer().equals(clicker));
+			try {
+				this.m.delete(this.m.getSender().getPlayer().equals(clicker));
+			}catch(Exception e) {this.m.forceDelete(clicker);}
 			break;
 		}
 	}

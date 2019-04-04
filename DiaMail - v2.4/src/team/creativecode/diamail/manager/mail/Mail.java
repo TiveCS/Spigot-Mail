@@ -50,8 +50,11 @@ public class Mail{
 	private String displayDate = "00:00 - ?/?/????";
 	private PlayerData pd = null;
 	private String uuid = null;
-	private OfflinePlayer sender, receiver = null;
+	private OfflinePlayer sender;
+	private OfflinePlayer receiver = null;
+	private List<OfflinePlayer> multiReceiver = new ArrayList<OfflinePlayer>();
 	private boolean isSendAll = false;
+	private boolean isMultiSend = false;
 	private List<String> msg = new ArrayList<String>();
 	private ItemStack item = new ItemStack(Material.AIR);
 	
@@ -113,7 +116,7 @@ public class Mail{
 		try{
 			boolean check = false;
 			try {
-				check = getReceiver().hasPlayedBefore() || isSendAll();
+				check = getReceiver() != null || isSendAll() || !getMultipleReceiver().isEmpty();
 			}catch(Exception e) {
 				check = isSendAll();
 			}
@@ -157,9 +160,10 @@ public class Mail{
 	public void takeItem(Player p) {
 		PlayerData rec = new PlayerData(this.getReceiver());
 		try {
-			p.getInventory().addItem(this.getItem());
+			ItemStack item = getItem();
 			rec.getConfig().set("mailbox.inbox." + this.getMailUUID() + ".item", null);
-			this.setItem(new ItemStack(Material.AIR));
+			rec.getConfig().save(rec.getFile());
+			p.getInventory().addItem(item);
 			rec.getLanguage().sendMessage(receiver.getPlayer(), SendMode.valueOf(rec.getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
 					getPlayerData().getPlaceholder().useAsList(
 							getPlayerData().getLanguage().getMessages().get("alert.notification-take")));
@@ -168,6 +172,37 @@ public class Mail{
 					getPlayerData().getPlaceholder().useAsList(
 							getPlayerData().getLanguage().getMessages().get("alert.notification-take")));
 		}
+	}
+	
+	private void sendWriteData(OfflinePlayer receive) {
+		PlayerData receiver = new PlayerData(receive);
+		String inbox = "mailbox.inbox." + this.getMailUUID(), outbox = "mailbox.outbox." + this.getMailUUID();
+		
+		if (!this.getSender().getName().equals(receive.getName())) {
+			ConfigManager.input(this.getPlayerData().getFile(), outbox + ".date", this.getDate());
+			ConfigManager.input(this.getPlayerData().getFile(), outbox + ".target", receive.getUniqueId().toString());
+			ConfigManager.input(this.getPlayerData().getFile(), outbox + ".sender",this.getPlayerData().getPlayer().getUniqueId().toString());
+			ConfigManager.input(this.getPlayerData().getFile(), outbox + ".message",this.getMessage());
+			if (!this.getItem().getType().equals(Material.AIR)) {
+				ConfigManager.input(this.getPlayerData().getFile(), outbox + ".item",this.getItem().getType().equals(Material.AIR) ? null : this.getItem());
+			}
+		}
+		
+		ConfigManager.input(receiver.getFile(), inbox + ".date", this.getDate());
+		ConfigManager.input(receiver.getFile(), inbox + ".sender", this.getPlayerData().getPlayer().getUniqueId().toString());
+		ConfigManager.input(receiver.getFile(), inbox + ".target", receive.getPlayer().getUniqueId().toString());
+		ConfigManager.input(receiver.getFile(), inbox + ".message", this.getMessage());
+		if (!this.getItem().getType().equals(Material.AIR)) {
+			ConfigManager.input(receiver.getFile(), inbox + ".item", this.getItem().getType().equals(Material.AIR) ? null : this.getItem());
+		}
+		
+		if (receive.isOnline()) {
+			DataConverter.playSoundByString(receive.getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
+			receiver.getLanguage().sendMessage(receive.getPlayer(), SendMode.valueOf(receiver.getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
+					receiver.getPlaceholder().useAsList(
+							receiver.getLanguage().getMessages().get("alert.notification-send-receive")));
+		}
+		sending.remove(this.getPlayerData().getPlayer());
 	}
 	
 	public void send() {
@@ -183,6 +218,7 @@ public class Mail{
 			for (File f : file) {
 				ConfigManager.input(f, path + ".date", this.getDate());
 				ConfigManager.input(f, path + ".sender", this.getSender().getUniqueId().toString());
+				ConfigManager.input(f, path + ".target", f.getName().split("[.]")[0]);
 				ConfigManager.input(f, path + ".item", this.getItem().getType().equals(Material.AIR) ? null : this.getItem());
 				ConfigManager.input(f, path + ".message", this.getMessage());
 				OfflinePlayer op = Bukkit.getOfflinePlayer(UUID.fromString(f.getName().split("[.]")[0]));
@@ -202,40 +238,24 @@ public class Mail{
 								getPlayerData().getLanguage().getMessages().get("alert.notification-sendall-try"))));
 			}
 		}
-		else if (this.isSendAll() == false && this.getReceiver().hasPlayedBefore()) {
-			PlayerData receiver = new PlayerData(this.getReceiver());
-			String inbox = "mailbox.inbox." + this.getMailUUID(), outbox = "mailbox.outbox." + this.getMailUUID();
-			if (!this.getSender().getName().equals(this.getReceiver().getName())) {
-				ConfigManager.input(this.getPlayerData().getFile(), outbox + ".date", this.getDate());
-				ConfigManager.input(this.getPlayerData().getFile(), outbox + ".target",this.getReceiver().getUniqueId().toString());
-				ConfigManager.input(this.getPlayerData().getFile(), outbox + ".sender",this.getPlayerData().getPlayer().getUniqueId().toString());
-				ConfigManager.input(this.getPlayerData().getFile(), outbox + ".message",this.getMessage());
-				if (!this.getItem().getType().equals(Material.AIR)) {
-					ConfigManager.input(this.getPlayerData().getFile(), outbox + ".item",this.getItem().getType().equals(Material.AIR) ? null : this.getItem());
-				}
-			}
-			
-			ConfigManager.input(receiver.getFile(), inbox + ".date", this.getDate());
-			ConfigManager.input(receiver.getFile(), inbox + ".sender", this.getPlayerData().getPlayer().getUniqueId().toString());
-			ConfigManager.input(receiver.getFile(), inbox + ".target", this.getReceiver().getPlayer().getUniqueId().toString());
-			ConfigManager.input(receiver.getFile(), inbox + ".message", this.getMessage());
-			if (!this.getItem().getType().equals(Material.AIR)) {
-				ConfigManager.input(receiver.getFile(), inbox + ".item", this.getItem().getType().equals(Material.AIR) ? null : this.getItem());
-			}
-			
+		else if (this.isSendAll() == false && this.getReceiver() != null) {
+			sendWriteData(this.getReceiver());
 			if (pd.getPlayer().isOnline()) {
 				DataConverter.playSoundByString(pd.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
 				getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
 						getPlayerData().getPlaceholder().useAsList(
 								getPlayerData().getLanguage().getMessages().get("alert.notification-send-try")));
 			}
-			if (this.getReceiver().isOnline()) {
-				DataConverter.playSoundByString(getReceiver().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
-				receiver.getLanguage().sendMessage(this.getReceiver().getPlayer(), SendMode.valueOf(receiver.getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
-						receiver.getPlaceholder().useAsList(
-								receiver.getLanguage().getMessages().get("alert.notification-send-receive")));
+		}else if (this.isSendAll == false && !this.getMultipleReceiver().isEmpty()){
+			for (OfflinePlayer op : this.getMultipleReceiver()) {
+				sendWriteData(op);
 			}
-			sending.remove(this.getPlayerData().getPlayer());
+			if (pd.getPlayer().isOnline()) {
+				DataConverter.playSoundByString(pd.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
+				getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
+						getPlayerData().getPlaceholder().useAsList(
+								getPlayerData().getLanguage().getMessages().get("alert.notification-send-try")));
+			}
 		}else {
 			DataConverter.playSoundByString(pd.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
 			getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
@@ -246,6 +266,28 @@ public class Mail{
 	
 	// isSender = true, it will be delete mail from sender
 	// if else, it will be delete mail to receiver
+	public void forceDelete(Player p) {
+		boolean checked = false;
+		PlayerData receiver = new PlayerData(p);
+		try {
+			if (this.getSender().getName().equals(this.getReceiver().getName())) {
+				PlayerData sender = this.getPlayerData();
+				ConfigManager.input(sender.getFile(), "mailbox.outbox." + this.getMailUUID(), null);
+				ConfigManager.input(sender.getFile(), "mailbox.inbox." + this.getMailUUID(), null);
+				if (sender.getPlayer().isOnline()) {
+					DataConverter.playSoundByString(sender.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-delete"));
+					sender.getLanguage().sendMessage(sender.getPlayer().getPlayer(), SendMode.valueOf(sender.getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()), sender.getPlaceholder().useAsList(sender.getLanguage().getMessages().get("alert.notification-delete")));
+				}
+				checked = true;
+			}
+		}catch(Exception e) {}
+		if (checked == false) {
+			DataConverter.playSoundByString(receiver.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-delete"));
+			ConfigManager.input(receiver.getFile(), "mailbox.inbox." + this.getMailUUID(), null);
+			receiver.getLanguage().sendMessage(receiver.getPlayer().getPlayer(), SendMode.valueOf(receiver.getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()), receiver.getPlaceholder().useAsList(receiver.getLanguage().getMessages().get("alert.notification-delete")));
+		}
+	}
+	
 	public void delete(boolean isSender) {
 		if (sending.containsKey(this.getPlayerData().getPlayer())) {
 			sending.remove(this.getPlayerData().getPlayer());
@@ -348,6 +390,58 @@ public class Mail{
 		}
 	}
 	
+	public void addMultiReceiver(List<OfflinePlayer> list) {
+		try {
+			this.getMultipleReceiver().addAll(list);
+			setMultiSend(true);
+			List<String> name = new ArrayList<String>();
+			for (OfflinePlayer op : this.getMultipleReceiver()) {
+				name.add(op.getName());
+			}
+			
+			this.getPlayerData().getPlaceholder().inputData("mail_receiver_size", this.getMultipleReceiver().size() + "");
+			this.getPlayerData().getPlaceholder().inputData("mail_sender", this.getPlayerData().getPlayer().getName());
+			this.getPlayerData().getPlaceholder().inputData("mail_receiver", name.toString());
+			if (this.getPlayerData().getPlayer().isOnline()) {
+				this.getPlayerData().getLanguage().sendDirectMessage(this.getPlayerData().getPlayer().getPlayer(),
+						this.getPlayerData().getPlaceholder().use(this.getPlayerData().getLanguage().getMessages().get("alert.notification-send-input").get(1)));
+			}
+		}catch(Exception e) {
+			if (this.getPlayerData().getPlayer().isOnline()) {
+				this.getPlayerData().getLanguage().sendMessage(this.getPlayerData().getPlayer().getPlayer(),
+						this.getPlayerData().getPlaceholder().useAsList(this.getPlayerData().getLanguage().getMessages().get("alert.player-not-found")));
+			}
+		}
+	}
+	
+	public void addMultiReceiver(OfflinePlayer offlinePlayer) {	
+		try {
+			this.getMultipleReceiver().add(offlinePlayer);
+			setMultiSend(true);
+			List<String> name = new ArrayList<String>();
+			for (OfflinePlayer op : this.getMultipleReceiver()) {
+				name.add(op.getName());
+			}
+			
+			this.getPlayerData().getPlaceholder().inputData("mail_receiver_size", this.getMultipleReceiver().size() + "");
+			this.getPlayerData().getPlaceholder().inputData("mail_sender", this.getPlayerData().getPlayer().getName());
+			this.getPlayerData().getPlaceholder().inputData("mail_receiver", name.toString());
+			if (this.getPlayerData().getPlayer().isOnline()) {
+				this.getPlayerData().getLanguage().sendDirectMessage(this.getPlayerData().getPlayer().getPlayer(),
+						this.getPlayerData().getPlaceholder().use(this.getPlayerData().getLanguage().getMessages().get("alert.notification-send-input").get(1)));
+			}
+		}catch(Exception e) {
+			if (this.getPlayerData().getPlayer().isOnline()) {
+				this.getPlayerData().getLanguage().sendMessage(this.getPlayerData().getPlayer().getPlayer(),
+						this.getPlayerData().getPlaceholder().useAsList(this.getPlayerData().getLanguage().getMessages().get("alert.player-not-found")));
+			}
+		}
+	}
+	
+	public void setMultiSend(boolean bool) {
+		this.isMultiSend = bool;
+	}
+	
 	public void setReceiver(OfflinePlayer offlinePlayer) {
 		try {
 			this.receiver = offlinePlayer;
@@ -381,6 +475,10 @@ public class Mail{
 			e.printStackTrace();
 		}
 		plc.inputListData("mail_message", this.getMessage());
+	}
+	
+	public boolean isMultiSend() {
+		return this.isMultiSend;
 	}
 	
 	public String getMailUUID() {
@@ -429,6 +527,11 @@ public class Mail{
 	
 	public String getDate() {
 		return this.displayDate;
+	}
+	
+	
+	public List<OfflinePlayer> getMultipleReceiver(){
+		return this.multiReceiver;
 	}
 
 }

@@ -1,5 +1,5 @@
 name: DiaMail
-version: 2.4
+version: 2.5
 api-version: 1.13
 description: An E-Mail inside minecraft
 main: team.creativecode.diamail.Main
@@ -26,12 +26,14 @@ permissions:
       children:
          diamail.access.sendall: true
          diamail.access.other: true
+         diamail.access.sendmultiple.item: true
    diamail.access.player:
       description: Allow player use default DiaMail permission
       default: true
       children:
          diamail.command: true
          diamail.access.calendar: true
+         diamail.access.sendmultiple: true
    diamail.access.sendall:
       description: Allow player use sendall effect
       default: false
