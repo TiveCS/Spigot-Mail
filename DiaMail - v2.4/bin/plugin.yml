@@ -1,10 +1,11 @@
 name: DiaMail
-version: 2.5
+version: 2.6
 api-version: 1.13
 description: An E-Mail inside minecraft
 main: team.creativecode.diamail.Main
 website: https://www.spigotmc.org/resources/58869/
 author: TiveCS
+softdepend: [HolographicDisplays, Vault]
 commands:
    diamail:
       aliases: [ mail, dm, dmail]
@@ -34,6 +35,23 @@ permissions:
          diamail.command: true
          diamail.access.calendar: true
          diamail.access.sendmultiple: true
+         diamail.access.setting: true
+         diamail.access.receive.sendall: true
+   diamail.access.receive.sendall:
+      description: Allow player to receive sendall mail
+      default: false
    diamail.access.sendall:
       description: Allow player use sendall effect
       default: false
+   diamail.access.readonly:
+      description: Make player can only read and take item from the mail 
+      default: false
+   diamail.access.sendmultiple:
+      description: Make player can do multiple target on mail 
+      default: true
+   diamail.access.sendmultiple.item:
+      description: Player allowed to send multiple target with item 
+      default: false
+   diamail.access.setting:
+      description: Player can access their individual setting 
+      default: true

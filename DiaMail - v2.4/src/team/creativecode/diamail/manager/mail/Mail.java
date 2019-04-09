@@ -22,10 +22,13 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import team.creativecode.diamail.Main;
 import team.creativecode.diamail.manager.PlayerData;
+import team.creativecode.diamail.manager.event.mail.MailReceiveEvent;
+import team.creativecode.diamail.manager.event.mail.MailSendEvent;
 import team.creativecode.diamail.manager.menu.MailShow;
 import team.creativecode.diamail.utils.ConfigManager;
 import team.creativecode.diamail.utils.DataConverter;
 import team.creativecode.diamail.utils.ItemManager;
+import team.creativecode.diamail.utils.Language;
 import team.creativecode.diamail.utils.Language.SendMode;
 import team.creativecode.diamail.utils.Placeholder;
 
@@ -174,8 +177,9 @@ public class Mail{
 		}
 	}
 	
-	private void sendWriteData(OfflinePlayer receive) {
-		PlayerData receiver = new PlayerData(receive);
+	private void sendWriteData(PlayerData receiver) {
+		
+		OfflinePlayer receive = receiver.getPlayer();
 		String inbox = "mailbox.inbox." + this.getMailUUID(), outbox = "mailbox.outbox." + this.getMailUUID();
 		
 		if (!this.getSender().getName().equals(receive.getName())) {
@@ -190,7 +194,7 @@ public class Mail{
 		
 		ConfigManager.input(receiver.getFile(), inbox + ".date", this.getDate());
 		ConfigManager.input(receiver.getFile(), inbox + ".sender", this.getPlayerData().getPlayer().getUniqueId().toString());
-		ConfigManager.input(receiver.getFile(), inbox + ".target", receive.getPlayer().getUniqueId().toString());
+		ConfigManager.input(receiver.getFile(), inbox + ".target", receive.getUniqueId().toString());
 		ConfigManager.input(receiver.getFile(), inbox + ".message", this.getMessage());
 		if (!this.getItem().getType().equals(Material.AIR)) {
 			ConfigManager.input(receiver.getFile(), inbox + ".item", this.getItem().getType().equals(Material.AIR) ? null : this.getItem());
@@ -205,62 +209,95 @@ public class Mail{
 		sending.remove(this.getPlayerData().getPlayer());
 	}
 	
+	@SuppressWarnings("unused")
+	private void sendWriteData(OfflinePlayer receive) {
+		sendWriteData(new PlayerData(receive));
+	}
+	
 	public void send() {
+		Language lang = this.getPlayerData().getLanguage();
+		if (this.getSender().isOnline()) {
+			if (this.getSender().getPlayer().hasPermission("diamail.access.readonly")) {
+				lang.sendMessage(getSender().getPlayer(), lang.getMessages().get("alert.no-permission"));
+				return;
+			}
+		}
+		List<OfflinePlayer> receivers = new ArrayList<>();
+		if (getReceiver() != null && this.getMultipleReceiver().isEmpty()) {
+			receivers.add(getReceiver());
+		}else if (!this.getMultipleReceiver().isEmpty()) {
+			receivers.addAll(this.getMultipleReceiver());
+		}
+		MailSendEvent sendEvent = new MailSendEvent(this, getSender(), receivers, isSendAll(), this.getPlayerData());
 		if (this.getMessage().size() <= 0) {
-			getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
-					getPlayerData().getPlaceholder().useAsList(
-							getPlayerData().getLanguage().getMessages().get("alert.notification-send-failed")));
+			lang.sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
+					getPlayerData().getPlaceholder().useAsList(lang.getMessages().get("alert.notification-send-failed")));
 			this.showButton();
+			return;
 		}
 		else if (this.isSendAll() == true) {
 			File[] file = PlayerData.folder.listFiles();
 			String path = "mailbox.inbox." + this.getMailUUID();
+			Bukkit.getServer().getPluginManager().callEvent(sendEvent);
 			for (File f : file) {
+				OfflinePlayer op = Bukkit.getOfflinePlayer(UUID.fromString(f.getName().split("[.]")[0]));
+				if (plugin.getConfig().getBoolean("sendall-settings.online-only")) {
+					if (!op.isOnline()) {
+						continue;
+					}
+				}
 				ConfigManager.input(f, path + ".date", this.getDate());
 				ConfigManager.input(f, path + ".sender", this.getSender().getUniqueId().toString());
 				ConfigManager.input(f, path + ".target", f.getName().split("[.]")[0]);
 				ConfigManager.input(f, path + ".item", this.getItem().getType().equals(Material.AIR) ? null : this.getItem());
 				ConfigManager.input(f, path + ".message", this.getMessage());
-				OfflinePlayer op = Bukkit.getOfflinePlayer(UUID.fromString(f.getName().split("[.]")[0]));
+				PlayerData l = new PlayerData(op);
+				MailReceiveEvent receiveEvent = new MailReceiveEvent(this, op, l);
+				Bukkit.getServer().getPluginManager().callEvent(receiveEvent);
+				sendWriteData(l);
 				if (op.isOnline()) {
 					DataConverter.playSoundByString(op.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
-					getPlayerData().getLanguage().sendMessage(op.getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
-							this.getPlaceholder().useAsList(getPlayerData().getPlaceholder().useAsList(
-									getPlayerData().getLanguage().getMessages().get("alert.notification-send-receive"))));
+					lang.sendMessage(op.getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
+							this.getPlaceholder().useAsList(getPlayerData().getPlaceholder().useAsList(lang.getMessages().get("alert.notification-send-receive"))));
 				}
 			}
 			this.plc.inputData("mail_sendall_size", file.length + "");
 			sending.remove(this.getPlayerData().getPlayer());
 			if (pd.getPlayer().isOnline()) {
 				DataConverter.playSoundByString(pd.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
-				getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(),SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
-						this.getPlaceholder().useAsList(getPlayerData().getPlaceholder().useAsList(
-								getPlayerData().getLanguage().getMessages().get("alert.notification-sendall-try"))));
+				lang.sendMessage(pd.getPlayer().getPlayer(),SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
+						this.getPlaceholder().useAsList(getPlayerData().getPlaceholder().useAsList(lang.getMessages().get("alert.notification-sendall-try"))));
 			}
 		}
-		else if (this.isSendAll() == false && this.getReceiver() != null) {
-			sendWriteData(this.getReceiver());
+		else if (this.isSendAll() == false && (this.getReceiver() != null || this.getReceiver().hasPlayedBefore())) {
+			PlayerData l = new PlayerData(getReceiver());
+			MailReceiveEvent receiveEvent = new MailReceiveEvent(this, getReceiver(), l);
+			Bukkit.getServer().getPluginManager().callEvent(receiveEvent);
+			Bukkit.getServer().getPluginManager().callEvent(sendEvent);
+			sendWriteData(l);
 			if (pd.getPlayer().isOnline()) {
 				DataConverter.playSoundByString(pd.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
-				getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
+				lang.sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
 						getPlayerData().getPlaceholder().useAsList(
-								getPlayerData().getLanguage().getMessages().get("alert.notification-send-try")));
+								lang.getMessages().get("alert.notification-send-try")));
 			}
 		}else if (this.isSendAll == false && !this.getMultipleReceiver().isEmpty()){
+			Bukkit.getServer().getPluginManager().callEvent(sendEvent);
 			for (OfflinePlayer op : this.getMultipleReceiver()) {
-				sendWriteData(op);
+				PlayerData l = new PlayerData(op);
+				MailReceiveEvent receiveEvent = new MailReceiveEvent(this, op, l);
+				Bukkit.getServer().getPluginManager().callEvent(receiveEvent);
+				sendWriteData(l);
 			}
 			if (pd.getPlayer().isOnline()) {
 				DataConverter.playSoundByString(pd.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
-				getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
-						getPlayerData().getPlaceholder().useAsList(
-								getPlayerData().getLanguage().getMessages().get("alert.notification-send-try")));
+				lang.sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
+						getPlayerData().getPlaceholder().useAsList(lang.getMessages().get("alert.notification-send-try")));
 			}
 		}else {
 			DataConverter.playSoundByString(pd.getPlayer().getPlayer().getLocation(), plugin.getConfig().getString("settings.notification-mail-send"));
-			getPlayerData().getLanguage().sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
-					getPlayerData().getPlaceholder().useAsList(
-							getPlayerData().getLanguage().getMessages().get("alert.notification-send-exit")));
+			lang.sendMessage(pd.getPlayer().getPlayer(), SendMode.valueOf(getPlayerData().getPlayerSetting().getSettings().get("notification-display").toString().toUpperCase()),
+					getPlayerData().getPlaceholder().useAsList(lang.getMessages().get("alert.notification-send-exit")));
 		}
 	}
 	

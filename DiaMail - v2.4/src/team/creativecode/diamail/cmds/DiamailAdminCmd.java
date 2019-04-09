@@ -1,0 +1,41 @@
+package team.creativecode.diamail.cmds;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
+
+import team.creativecode.diamail.manager.AdminManager;
+
+public class DiamailAdminCmd implements CommandExecutor, TabCompleter {
+
+	@Override
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+		if (args.length == 1) {
+			if (sender instanceof Player) {
+				Player p = (Player) sender;
+				AdminManager admin = new AdminManager(p);
+				if (args[0].equalsIgnoreCase("physicalMailbox")) {
+					admin.physicalMailbox(block);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+		List<String> list = new ArrayList<>();
+		if (args.length == 1) {
+			list.add("physicalMailbox");
+			return list;
+		}
+		return null;
+	}
+
+}

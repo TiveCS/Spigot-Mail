@@ -1,7 +1,6 @@
 prefix: '&8( &aDiaMail &8)'
-mail-perline-length: 20
 global-language: 'en-US.yml'
-check-update: true
+check-update: false
 
 #Player settings
 player-setting:
@@ -9,7 +8,7 @@ player-setting:
    notification-display: Message
    notification-sound: true
    inventory-interact-sound: true
-   checking-mailbox-interval: 600
+   checking-mailbox-interval: 1200
 
 player-setting-values:
    language: TEXT
@@ -25,7 +24,43 @@ player-setting-values:
       - true
       - false
    checking-mailbox-interval: NUMBER
-   
+
+json-settings:
+   mail-check: false
+
+sendall-settings:
+   online-only: true
+   send-to-blocked: false
+
+global-settings:
+   enable: false
+   disable-individual-setting: true
+   notification-display: Message
+   notification-sound: true
+   inventory-interact-sound: true
+   checking-mailbox-interval: 1200
+
+physical-mailbox:
+   enable: true
+   disable-command-mailbox: false
+   enable-hologram: false
+   enable-particle: true
+   hologram:
+      x-offset: 0
+      y-offset: 0.5
+      z-offset: 0
+      text:
+         - '&7[ &fMailbox &7]'
+   particle:
+      circle_animation_example:
+         enable: true
+         type: VILLAGER_HAPPY
+         delay: 200
+         amount: 1
+         radius: 1.5
+         x-offset: 0
+         y-offset: 0.5
+         z-offset: 0
 
 settings:
    notification-default: BLOCK_NOTE_BLOCK_PLING-1-1

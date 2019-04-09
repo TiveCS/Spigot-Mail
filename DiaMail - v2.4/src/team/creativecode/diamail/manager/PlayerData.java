@@ -3,6 +3,7 @@ package team.creativecode.diamail.manager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -89,7 +90,9 @@ public class PlayerData {
 			}
 		}
 		
-		main.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/diamail"));
+		if (plugin.getConfig().getBoolean("json-settings.mail-check")) {
+			main.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/diamail"));
+		}
 		main.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(hover).create()));
 		
 		getLanguage().sendMessage(p, mode, main);
@@ -98,7 +101,9 @@ public class PlayerData {
 	public void checkMailboxScheduled(Player p) {
 		long interval = Integer.parseInt(getPlayerSetting().getSettings().get("checking-mailbox-interval").toString());
 		
-		checkMailbox(p);
+		if (this.getInbox().size() > 0 || this.getOutbox().size() > 0) {
+			checkMailbox(p);
+		}
 		if (interval > 0) {
 			Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, new Runnable() {
 				@Override
@@ -112,11 +117,34 @@ public class PlayerData {
 		}
 	}
 	
+	public void saveAccess() {
+		if (this.player.isOnline()) {
+			Player p = this.player.getPlayer();
+			List<String> permission = new ArrayList<>();
+			permission.add("diamail.access.receive.sendall");
+			permission.add("diamail.access.readonly");
+			for (String perm : permission) {
+				if (!p.hasPermission(perm)) {
+					permission.remove(perm);
+				}
+			}
+			ConfigManager.input(getFile(), "permission", permission);
+		}
+	}
+	
 	public void loadBasicDataFile() {
 		ConfigManager.input(getFile(), "player-name", getPlayer().getName());
 		
-		for (String s : plugin.getConfig().getConfigurationSection("player-setting").getKeys(false)) {
-			ConfigManager.init(getFile(),"player-setting." + s, plugin.getConfig().get("player-setting." + s));
+		Set<String> settings = plugin.getConfig().getBoolean("global-settings.enable") ? plugin.getConfig().getConfigurationSection("global-settings").getKeys(false) : plugin.getConfig().getConfigurationSection("player-setting").getKeys(false);
+		if (plugin.getConfig().getBoolean("global-settings.enable")) {
+			settings.remove("enable");
+			for (String s : settings) {
+				ConfigManager.input(getFile(),"player-setting." + s, plugin.getConfig().get("player-setting." + s));
+			}
+		}else {
+			for (String s : settings) {
+				ConfigManager.init(getFile(),"player-setting." + s, plugin.getConfig().get("player-setting." + s));
+			}
 		}
 		
 		this.language = new Language(this.getConfig().getString("player-setting.language"));

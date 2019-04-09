@@ -17,6 +17,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 import team.creativecode.diamail.Main;
 import team.creativecode.diamail.manager.PlayerData;
 import team.creativecode.diamail.manager.mail.Mail;
+import team.creativecode.diamail.utils.Language;
 import team.creativecode.diamail.utils.Updater;
 
 public class DiamailCmd implements CommandExecutor, TabCompleter {
@@ -95,10 +96,20 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 						return true;
 					}
 					if (strings[0].equalsIgnoreCase("send")) {
+						if (p.hasPermission("diamail.access.readonly")) {
+							Language lang = pd.getLanguage();
+							lang.sendMessage(p, lang.getMessages().get("alert.no-permission"));
+							return true;
+						}
 						new Mail(pd, false);
 						return true;
 					}
 					if (strings[0].equalsIgnoreCase("sendall")) {
+						if (!p.hasPermission("diamail.access.sendall")) {
+							Language lang = pd.getLanguage();
+							lang.sendMessage(p, lang.getMessages().get("alert.no-permission"));
+							return true;
+						}
 						new Mail(pd, true);
 						return true;
 					}

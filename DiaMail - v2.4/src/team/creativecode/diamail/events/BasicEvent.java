@@ -23,6 +23,8 @@ import team.creativecode.diamail.manager.mail.Mail;
 import team.creativecode.diamail.manager.menu.MailShow;
 import team.creativecode.diamail.manager.menu.Mailbox;
 import team.creativecode.diamail.utils.DataConverter;
+import team.creativecode.diamail.utils.Language;
+import team.creativecode.diamail.utils.Updater;
 
 public class BasicEvent implements Listener {
 
@@ -42,8 +44,16 @@ public class BasicEvent implements Listener {
 		Player p = event.getPlayer();
 		players.add(p);
 		PlayerData pd = new PlayerData(event.getPlayer());
+		Language lang = pd.getLanguage();
 		pd.checkMailboxScheduled(p);
 		
+		if (plugin.getConfig().getBoolean("check-update")) {
+			if (Updater.isNewVersion()) {
+				lang.sendMessage(p, lang.getMessages().get("alert.updater"));
+			}else {
+				lang.sendMessage(p, lang.getMessages().get("alert.updater-latest"));
+			}
+		}
 	}
 	
 	@EventHandler
