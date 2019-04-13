@@ -96,9 +96,9 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 						return true;
 					}
 					if (strings[0].equalsIgnoreCase("send")) {
-						if (p.hasPermission("diamail.access.readonly")) {
+						if (!p.hasPermission("diamail.access.send")) {
 							Language lang = pd.getLanguage();
-							lang.sendMessage(p, lang.getMessages().get("alert.no-permission"));
+							lang.sendMessage(p, pd.getPlaceholder().useAsList(lang.getMessages().get("alert.no-permission")));
 							return true;
 						}
 						new Mail(pd, false);
@@ -107,7 +107,7 @@ public class DiamailCmd implements CommandExecutor, TabCompleter {
 					if (strings[0].equalsIgnoreCase("sendall")) {
 						if (!p.hasPermission("diamail.access.sendall")) {
 							Language lang = pd.getLanguage();
-							lang.sendMessage(p, lang.getMessages().get("alert.no-permission"));
+							lang.sendMessage(p, pd.getPlaceholder().useAsList(lang.getMessages().get("alert.no-permission")));
 							return true;
 						}
 						new Mail(pd, true);

@@ -208,12 +208,14 @@ public abstract class Menu {
 		plc.inputData("page", this.getPage() + "");
 	}
 	
+	@SuppressWarnings("deprecation")
 	public ItemStack convertItem(String p, Placeholder plc) {
 		ItemStack item = new ItemStack(Material.AIR);
 		
 		String name = "";
 		List<String> lore = new ArrayList<String>();
 		int amount = 1;
+		byte data = 0;
 		Material material = Material.AIR;
 		
 		try {
@@ -222,8 +224,14 @@ public abstract class Menu {
 			lore = plc.useAsList(ConfigManager.contains(getFile(), p + ".Lore") ? this.getConfig().getStringList(p + ".Lore") : new ArrayList<String>());
 			
 			material = Material.valueOf(this.getConfig().getString(p + ".Material").toUpperCase());
+			data = ConfigManager.contains(getFile(), p + ".Data") ? Byte.parseByte(ConfigManager.get(getFile(), p + ".Data").toString()) : 0;
 			
-			item = new ItemStack(material, amount);
+			if (data != 0) {
+				item = new ItemStack(material, amount);
+			}else {
+				item = new ItemStack(material, amount, data);
+			}
+			
 			ItemMeta meta = item.getItemMeta();
 			if (!name.equals("")) {
 				meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));

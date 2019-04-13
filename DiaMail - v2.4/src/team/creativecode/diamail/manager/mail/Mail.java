@@ -217,11 +217,12 @@ public class Mail{
 	public void send() {
 		Language lang = this.getPlayerData().getLanguage();
 		if (this.getSender().isOnline()) {
-			if (this.getSender().getPlayer().hasPermission("diamail.access.readonly")) {
-				lang.sendMessage(getSender().getPlayer(), lang.getMessages().get("alert.no-permission"));
+			if (!this.getSender().getPlayer().hasPermission("diamail.access.send")) {
+				lang.sendMessage(getSender().getPlayer(), this.getPlaceholder().useAsList(lang.getMessages().get("alert.no-permission")));
 				return;
 			}
 		}
+		
 		List<OfflinePlayer> receivers = new ArrayList<>();
 		if (getReceiver() != null && this.getMultipleReceiver().isEmpty()) {
 			receivers.add(getReceiver());

@@ -9,19 +9,18 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
-import team.creativecode.diamail.manager.AdminManager;
-
 public class DiamailAdminCmd implements CommandExecutor, TabCompleter {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if (args.length == 1) {
-			if (sender instanceof Player) {
-				Player p = (Player) sender;
-				AdminManager admin = new AdminManager(p);
-				if (args[0].equalsIgnoreCase("physicalMailbox")) {
-					admin.physicalMailbox(block);
-					return true;
+		if (cmd.getName().equalsIgnoreCase("diamailadmin")) {
+			if (args.length == 1) {
+				if (sender instanceof Player) {
+					// Player p = (Player) sender;
+					// AdminManager admin = new AdminManager(p);
+					if (args[0].equalsIgnoreCase("physicalMailbox")) {
+						return true;
+					}
 				}
 			}
 		}

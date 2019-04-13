@@ -47,11 +47,16 @@ public class BasicEvent implements Listener {
 		Language lang = pd.getLanguage();
 		pd.checkMailboxScheduled(p);
 		
-		if (plugin.getConfig().getBoolean("check-update")) {
-			if (Updater.isNewVersion()) {
-				lang.sendMessage(p, lang.getMessages().get("alert.updater"));
+		if (plugin.getConfig().getBoolean("check-update") == true) {
+			String version = Updater.getUpdateCheck(Main.rsid);
+			pd.getPlaceholder().inputData("version_new", version);
+			if (version.equals("")) {
+				lang.sendMessage(p, pd.getPlaceholder().useAsList(lang.getMessages().get("alert.updater-failed")));
+			}
+			else if (Updater.isNewVersion()) {
+				lang.sendMessage(p, pd.getPlaceholder().useAsList(lang.getMessages().get("alert.updater")));
 			}else {
-				lang.sendMessage(p, lang.getMessages().get("alert.updater-latest"));
+				lang.sendMessage(p, pd.getPlaceholder().useAsList(lang.getMessages().get("alert.updater-latest")));
 			}
 		}
 	}

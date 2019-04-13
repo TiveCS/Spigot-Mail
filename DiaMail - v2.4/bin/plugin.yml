@@ -11,6 +11,10 @@ commands:
       aliases: [ mail, dm, dmail]
       description: DiaMail main command
       permission: diamail.command
+   diamailadmin:
+      aliases: [dmailadmin, dmadmin, mailadmin, madmin]
+      permission: diamail.command.admin
+      description: DiaMail command for admin
 permissions:
    diamail.*:
       description: Allow player access all DiaMail permission
@@ -25,6 +29,7 @@ permissions:
       default: op
       description: Allow access player use admin DiaMail permission
       children:
+         diamail.command.admin: true
          diamail.access.sendall: true
          diamail.access.other: true
          diamail.access.sendmultiple.item: true
@@ -33,8 +38,6 @@ permissions:
       default: true
       children:
          diamail.command: true
-         diamail.access.calendar: true
-         diamail.access.sendmultiple: true
          diamail.access.setting: true
          diamail.access.receive.sendall: true
    diamail.access.receive.sendall:
@@ -43,8 +46,8 @@ permissions:
    diamail.access.sendall:
       description: Allow player use sendall effect
       default: false
-   diamail.access.readonly:
-      description: Make player can only read and take item from the mail 
+   diamail.access.send:
+      description: Make player can send mail to other 
       default: false
    diamail.access.sendmultiple:
       description: Make player can do multiple target on mail 
