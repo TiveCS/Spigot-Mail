@@ -1,5 +1,5 @@
 name: DiaMail
-version: 2.6
+version: 2.6-AR1_MC-1.13
 api-version: 1.13
 description: An E-Mail inside minecraft
 main: team.creativecode.diamail.Main
