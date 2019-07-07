@@ -1,0 +1,27 @@
+name: DiaMail
+version: 3.0a
+api-version: 1.13
+description: E-Mail inside minecraft
+authors: [TiveCS, Rhk_Co, Rehoukrel_Studio]
+main: com.rehoukrel.diamail.DiaMail
+commands:
+  diamail:
+    aliases: [dm, dmail, mail]
+    permission: diamail.command
+
+permissions:
+  diamail.command:
+    default: true
+    description: Main diamail command
+  diamail.access.sendall:
+    default: op
+    description: Access send all
+  diamail.access.player:
+    default: true
+    description: Basic player permission
+  diamail.access.admin:
+    default: op
+    description: Basic admin permission
+  diamail.access.template:
+    default: op
+    description: Allow player create mail template
