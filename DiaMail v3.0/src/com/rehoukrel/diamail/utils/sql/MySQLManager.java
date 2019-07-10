@@ -28,21 +28,31 @@ public class MySQLManager {
         this.plugin = plugin;
         this.username = username;
         this.password = password;
+        this.database = database;
     }
 
-    public void openConnection() throws SQLException, ClassNotFoundException {
+    public void openConnection(){
 
-        if (connection != null && !connection.isClosed()){
-            return;
-        }
-
-        synchronized (this){
-            if (connection != null && !connection.isClosed()){
+        try {
+            if (connection != null && !connection.isClosed()) {
                 return;
             }
-            Class.forName("com.mysql.jdbc.Driver");
-            connection = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + getDatabase(), this.username, this.password);
-            statement = connection.createStatement();
+
+            synchronized (this) {
+                if (connection != null && !connection.isClosed()) {
+                    return;
+                }
+                plugin.getLogger().info("Connecting to MySQL...");
+                Class.forName("com.mysql.jdbc.Driver");
+                connection = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + getDatabase(), this.username, this.password);
+                statement = connection.createStatement();
+            }
+            plugin.getLogger().info("Connected to MySQL :D");
+        }catch (SQLException e){
+            plugin.getLogger().warning("Cannot connect to MySQL :(");
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
     }
 

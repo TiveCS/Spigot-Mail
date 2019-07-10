@@ -104,14 +104,14 @@ public class Mail {
 
     //---------------------------------
 
-    public void send(){
+    public boolean send(){
         if (!getReceiver().isEmpty() && !getMessages().isEmpty() && !getType().equals(MailType.TEMPLATE)){
 
             OfflinePlayer playerSender = getSender() instanceof OfflinePlayer ? (OfflinePlayer) getSender() : null;
 
             MailSendEvent sendEvent = new MailSendEvent(getSender(), getReceiver(), this);
             Bukkit.getServer().getPluginManager().callEvent(sendEvent);
-            if (sendEvent.isCancelled()){return;}
+            if (sendEvent.isCancelled()){return false;}
 
             // Execution for receivers
             for (OfflinePlayer op : getReceiver()){
@@ -157,8 +157,10 @@ public class Mail {
             }else if (getReceiver().size() == 0){
 
             }
+            return true;
         }else{
             getSender().sendMessage("You cannot send empty mail");
+            return false;
         }
     }
 

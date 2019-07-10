@@ -64,8 +64,8 @@ public class DataConverter {
 		Material mat;
 		try{
 			mat = Material.getMaterial("RED_WOOL");
+			return mat == null;
 		}catch (Exception e){return true;}
-		return mat == null;
 	}
 
 	public static int convertStringToInt(String text) {

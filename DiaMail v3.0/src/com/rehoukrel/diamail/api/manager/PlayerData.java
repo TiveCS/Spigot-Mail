@@ -3,6 +3,7 @@ package com.rehoukrel.diamail.api.manager;
 import com.rehoukrel.diamail.DiaMail;
 import com.rehoukrel.diamail.menu.MailboxMenu;
 import com.rehoukrel.diamail.utils.ConfigManager;
+import com.rehoukrel.diamail.utils.sql.MySQLManager;
 import org.bukkit.OfflinePlayer;
 
 import java.io.File;
@@ -15,6 +16,7 @@ public class PlayerData {
     public static DiaMail plugin = DiaMail.getPlugin(DiaMail.class);
     public static File folder = new File(plugin.getDataFolder(), "PlayerData");
     public static HashMap<OfflinePlayer, PlayerData> listedData = new HashMap<>();
+    public static boolean useMySQL = false;
 
     private OfflinePlayer player;
     private File file;
@@ -42,11 +44,23 @@ public class PlayerData {
         this.configManager = new ConfigManager(plugin, file);
 
         loadDefaultData();
+        if (useMySQL){
+            loadDefaultDataSQL();
+        }
         this.mailbox = new Mailbox(this);
 
         //this.mailboxMenu = new MailboxMenu(plugin, mailbox, this);
 
         listedData.put(player, this);
+    }
+
+    public void loadDefaultDataSQL(){
+        MySQLManager mysql = DiaMail.mysql;
+        String table = DiaMail.table_pd;
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("uuid", getPlayer().getUniqueId());
+        map.put("name", getPlayer().getName());
+        mysql.insertSingleData(table, map);
     }
 
     public void loadDefaultData(){
