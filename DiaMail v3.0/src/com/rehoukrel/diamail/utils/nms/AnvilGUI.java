@@ -113,7 +113,9 @@ public class AnvilGUI {
 			WRAPPER.addActiveContainerSlotListener(container, holder);
 			open = true;
 		} else {
-			holder.closeInventory();
+			try {
+				holder.closeInventory();
+			}catch (Exception ignore){}
 
 			Bukkit.getPluginManager().registerEvents(listener, plugin);
 
@@ -185,14 +187,14 @@ public class AnvilGUI {
 						meta.setDisplayName(ret);
 						clicked.setItemMeta(meta);
 						inventory.setItem(e.getRawSlot(), clicked);
-					} else closeInventory();
+					} else try{closeInventory();}catch (Exception ignore){}
 				}
 			}
 		}
 
 		@EventHandler
 		public void onInventoryClose(InventoryCloseEvent e) {
-			if (open && e.getInventory().equals(inventory)) closeInventory();
+			if (open && e.getInventory().equals(inventory)) try{closeInventory();}catch (Exception ignore){}
 		}
 
 	}

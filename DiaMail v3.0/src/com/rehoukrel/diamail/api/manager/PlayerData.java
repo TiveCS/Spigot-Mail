@@ -4,6 +4,7 @@ import com.rehoukrel.diamail.DiaMail;
 import com.rehoukrel.diamail.menu.MailboxMenu;
 import com.rehoukrel.diamail.utils.ConfigManager;
 import com.rehoukrel.diamail.utils.sql.MySQLManager;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.io.File;
@@ -58,9 +59,17 @@ public class PlayerData {
         MySQLManager mysql = DiaMail.mysql;
         String table = DiaMail.table_pd;
         HashMap<String, Object> map = new HashMap<>();
-        map.put("uuid", getPlayer().getUniqueId());
+        boolean hasUUID = false, hasName = false;
+        hasUUID = mysql.getData(table, "uuid", "uuid='" + getPlayer().getUniqueId().toString() + "'").size() > 0;
+        hasName = mysql.getData(table, "name", "uuid='" + getPlayer().getUniqueId().toString() + "'").size() > 0;
         map.put("name", getPlayer().getName());
-        mysql.insertSingleData(table, map);
+        if (!hasUUID && !hasName) {
+            map.put("uuid", getPlayer().getUniqueId());
+            mysql.insertSingleData(table, map);
+        }else {
+            mysql.updateData(table, "uuid='" + getPlayer().getUniqueId().toString() +"'", map);
+        }
+
     }
 
     public void loadDefaultData(){

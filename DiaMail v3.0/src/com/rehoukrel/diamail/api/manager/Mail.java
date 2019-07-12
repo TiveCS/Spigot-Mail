@@ -6,6 +6,7 @@ import com.rehoukrel.diamail.api.events.MailReceiveEvent;
 import com.rehoukrel.diamail.api.events.MailSendEvent;
 import com.rehoukrel.diamail.menu.MailEditor;
 import com.rehoukrel.diamail.utils.ConfigManager;
+import com.rehoukrel.diamail.utils.sql.MySQLManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -13,12 +14,14 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 public class Mail {
 
     public static DiaMail plugin = DiaMail.getPlugin(DiaMail.class);
+    public static String separator = "|-|";
 
     private UUID uniqueId = UUID.randomUUID();
     private CommandSender sender;
@@ -107,6 +110,8 @@ public class Mail {
     public boolean send(){
         if (!getReceiver().isEmpty() && !getMessages().isEmpty() && !getType().equals(MailType.TEMPLATE)){
 
+            MySQLManager sql = DiaMail.mysql;
+            boolean useSQL = PlayerData.useMySQL;
             OfflinePlayer playerSender = getSender() instanceof OfflinePlayer ? (OfflinePlayer) getSender() : null;
 
             MailSendEvent sendEvent = new MailSendEvent(getSender(), getReceiver(), this);
@@ -114,6 +119,18 @@ public class Mail {
             if (sendEvent.isCancelled()){return false;}
 
             // Execution for receivers
+            HashMap<String, Object> map = new HashMap<>();
+            List<String> rec = new ArrayList<>();
+            StringBuilder msg = new StringBuilder();
+            String com = "";
+            for (String s : getMessages()){
+                msg.append(com);
+                msg.append(s);
+                com = separator;
+            }
+            map.put("uuid", getUniqueId().toString());
+            map.put("type", getType().name());
+            map.put("message", msg);
             for (OfflinePlayer op : getReceiver()){
                 if (op.hasPlayedBefore()){
                     PlayerData pd = PlayerData.getPlayerData(op);
@@ -124,36 +141,61 @@ public class Mail {
                         continue;
                     }
 
-                    ConfigManager c = pd.getConfigManager();
-                    String path = "mailbox.inbox." + getUniqueId().toString();
-                    c.input(path + "." + MailSection.MESSAGE.getPath(), getMessages());
-                    c.input(path + "." + MailSection.TYPE.getPath(), getType().name());
-                    if (playerSender != null) {
-                        c.input(path + "." + MailSection.SENDER.getPath(), playerSender.getUniqueId().toString());
-                    }else{
-                        c.input(path + "." + MailSection.SENDER.getPath(), getSender().getName());
+                    rec.add(op.getUniqueId().toString());
+                    if (useSQL){
+                        map.put("receiver_uuid", op.getUniqueId().toString());
+                        map.put("sender", getSender() instanceof OfflinePlayer ? ((OfflinePlayer) getSender()).getUniqueId().toString() : getSender().getName());
+                        sql.insertSingleData(DiaMail.table_inbox, new HashMap<>(map));
+
+                    }else {
+                        ConfigManager c = pd.getConfigManager();
+                        String path = "mailbox.inbox." + getUniqueId().toString();
+                        c.input(path + "." + MailSection.MESSAGE.getPath(), getMessages());
+                        c.input(path + "." + MailSection.TYPE.getPath(), getType().name());
+                        c.input(path + "." + MailSection.ATTACHED_ITEMS.getPath(), getAttachedItem());
+                        if (playerSender != null) {
+                            c.input(path + "." + MailSection.SENDER.getPath(), playerSender.getUniqueId().toString());
+                        } else {
+                            c.input(path + "." + MailSection.SENDER.getPath(), getSender().getName());
+                        }
+                        c.input(path + "." + MailSection.ATTACHED_ITEMS.getPath(), getAttachedItem());
+                        c.saveConfig();
                     }
-                    c.input(path + "." + MailSection.ATTACHED_ITEMS.getPath(), getAttachedItem());
-                    c.saveConfig();
                 }else{
                     getReceiver().remove(op);
                 }
             }
+            map.remove("sender");
+            map.remove("receiver_uuid");
 
             // Execution for sender
             if (playerSender != null && getReceiver().size() > 0){
                 PlayerData pd = PlayerData.getPlayerData(playerSender);
-                ConfigManager c = pd.getConfigManager();
-                String path = "mailbox.outbox." + getUniqueId().toString();
-                c.input(path + "." + MailSection.MESSAGE.getPath(), getMessages());
-                c.input(path + "." + MailSection.TYPE.getPath(), getType().name());
-                List<String> receivers = new ArrayList<>();
-                for (OfflinePlayer op : getReceiver()){
-                    receivers.add(op.getUniqueId().toString());
+                StringBuilder r = new StringBuilder();
+                String spt = "";
+                for (String uuid : rec){
+                    r.append(spt);
+                    r.append(uuid);
+                    spt = separator;
                 }
-                c.input(path + "." + MailSection.RECEIVER.getPath(), receivers);
-                c.input(path + "." + MailSection.ATTACHED_ITEMS.getPath(), getAttachedItem());
-                c.saveConfig();
+                if (useSQL){
+                    map.put("sender_uuid", getSender() instanceof OfflinePlayer ? ((OfflinePlayer) getSender()).getUniqueId().toString() : getSender().getName());
+                    map.put("receiver", r);
+                    sql.insertSingleData(DiaMail.table_outbox, new HashMap<>(map));
+                }else {
+                    ConfigManager c = pd.getConfigManager();
+                    String path = "mailbox.outbox." + getUniqueId().toString();
+                    c.input(path + "." + MailSection.MESSAGE.getPath(), getMessages());
+                    c.input(path + "." + MailSection.TYPE.getPath(), getType().name());
+                    c.input(path + "." + MailSection.ATTACHED_ITEMS.getPath(), getAttachedItem());
+                    List<String> receivers = new ArrayList<>();
+                    for (OfflinePlayer op : getReceiver()) {
+                        receivers.add(op.getUniqueId().toString());
+                    }
+                    c.input(path + "." + MailSection.RECEIVER.getPath(), receivers);
+                    c.input(path + "." + MailSection.ATTACHED_ITEMS.getPath(), getAttachedItem());
+                    c.saveConfig();
+                }
             }else if (getReceiver().size() == 0){
 
             }

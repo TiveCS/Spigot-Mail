@@ -8,7 +8,7 @@ public class BasicEvent implements Listener {
 
     @EventHandler
     public void onMailSend(MailSendEvent event){
-        event.getSender().sendMessage("Mail successfully send to " + event.getReceiver().get(0).getUniqueId());
+        event.getSender().sendMessage("Mail successfully send to " + event.getReceiver().get(0).getName());
     }
 
 }

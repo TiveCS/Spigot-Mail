@@ -3,6 +3,7 @@ package com.rehoukrel.diamail.menu;
 import com.rehoukrel.diamail.DiaMail;
 import com.rehoukrel.diamail.api.manager.Mail;
 import com.rehoukrel.diamail.api.manager.MailType;
+import com.rehoukrel.diamail.api.manager.PlayerData;
 import com.rehoukrel.diamail.utils.DataConverter;
 import com.rehoukrel.diamail.utils.XMaterial;
 import com.rehoukrel.diamail.utils.language.Placeholder;
@@ -10,6 +11,8 @@ import com.rehoukrel.diamail.utils.menu.UneditableMenu;
 import com.rehoukrel.diamail.utils.nms.AnvilGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -28,7 +31,7 @@ public class MailEditor extends UneditableMenu implements Listener {
     public static DiaMail plugin = DiaMail.getPlugin(DiaMail.class);
     private Mail mail;
     private int addMessageSlot, addReceiverSlot;
-    private List<Integer> messageSlot = new ArrayList<>(), receiverSlot = new ArrayList<>();
+    private List<Integer> messageSlot = new ArrayList<>(), receiverSlot = new ArrayList<>(), itemSlot = Arrays.asList(31,32,33,40,41,42,49,50,51);
 
     public MailEditor(Mail mail) {
         super(plugin, 6);
@@ -84,8 +87,8 @@ public class MailEditor extends UneditableMenu implements Listener {
         }
 
         // Receiver
-        for (int i = 3; i < 5; i++){
-            for (int o = 0; o < 2; o++){
+        for (int i = 3; i < 6; i++){
+            for (int o = 0; o < 3; o++){
                 int slot = o + i*9;
                 Placeholder plc = new Placeholder();
                 if (count < getMail().getReceiver().size()){
@@ -150,6 +153,7 @@ public class MailEditor extends UneditableMenu implements Listener {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void actionClick(InventoryClickEvent event) {
         Player p = null;
@@ -166,23 +170,53 @@ public class MailEditor extends UneditableMenu implements Listener {
                 getMail().setType(MailType.SEND_ALL);
             }
         }else if (slot == 8){
+            getMail().getAttachedItem().clear();
+            for (int sl : itemSlot){
+                ItemStack item = event.getClickedInventory().getItem(sl);
+                if (item != null){
+                    if (!item.getType().equals(Material.AIR)) {
+                        getMail().getAttachedItem().add(item);
+                    }
+                }
+            }
             getMail().send();
         }else if (slot == addMessageSlot){
             if (p != null) {
-                AnvilGUI input = new AnvilGUI(plugin, p, "Message here...", (player, reply) -> {
-                    getMail().getMessages().add(ChatColor.translateAlternateColorCodes('&', reply));
-                    load();
-                    open(player);
-                    return null;
-                });
-
+                try {
+                    AnvilGUI input = new AnvilGUI(plugin, p, "Message here...", (player, reply) -> {
+                        getMail().getMessages().add(ChatColor.translateAlternateColorCodes('&', reply));
+                        load();
+                        open(player);
+                        return null;
+                    });
+                }catch (Exception ignore){}
             }
         }else if (messageSlot.contains(slot)){
             int line = messageSlot.indexOf(slot);
             getMail().getMessages().remove(line);
             load();
             open(p);
-        }else if (slot == 53){
+        }else if (slot == addReceiverSlot){
+            if (p != null) {
+                try{AnvilGUI input = new AnvilGUI(plugin, p, "Name (case sensitive)", (player, reply) -> {
+                    OfflinePlayer op = Bukkit.getOfflinePlayer(reply);
+                    if (op.hasPlayedBefore()){
+                        if (op.getUniqueId() != null){
+                            getMail().getReceiver().add(op);
+                        }
+                    }
+                    load();
+                    open(player);
+                    return null;
+                });} catch (Exception ignore){ }
+            }
+        }else if (receiverSlot.contains(slot)){
+            int line = receiverSlot.indexOf(slot);
+            getMail().getReceiver().remove(line);
+            load();
+            open(p);
+        }
+        else if (slot == 53){
             p.closeInventory();
         }
     }
