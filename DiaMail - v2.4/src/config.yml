@@ -1,72 +1,8 @@
-prefix: '&8( &aDiaMail &8)'
-global-language: 'en-US.yml'
-check-update: false
-
-#Player settings
-player-setting:
-   language: 'en-US.yml'
-   notification-display: Message
-   notification-sound: true
-   inventory-interact-sound: true
-   checking-mailbox-interval: 1200
-
-player-setting-values:
-   language: TEXT
-   notification-display:
-      - Message
-      - Actionbar
-      - Title
-      - None
-   notification-sound:
-      - true
-      - false
-   inventory-interact-sound:
-      - true
-      - false
-   checking-mailbox-interval: NUMBER
-
-json-settings:
-   mail-check: false
-
-sendall-settings:
-   online-only: true
-   send-to-blocked: false
-
-global-settings:
-   enable: false
-   disable-individual-setting: true
-   notification-display: Message
-   notification-sound: true
-   inventory-interact-sound: true
-   checking-mailbox-interval: 1200
-
-physical-mailbox:
-   enable: true
-   disable-command-mailbox: false
-   enable-hologram: false
-   enable-particle: true
-   hologram:
-      x-offset: 0
-      y-offset: 0.5
-      z-offset: 0
-      text:
-         - '&7[ &fMailbox &7]'
-   particle:
-      circle_animation_example:
-         enable: true
-         type: VILLAGER_HAPPY
-         delay: 200
-         amount: 1
-         radius: 1.5
-         x-offset: 0
-         y-offset: 0.5
-         z-offset: 0
-
-settings:
-   notification-default: BLOCK_NOTE_BLOCK_PLING-1-1
-   notification-check: BLOCK_ENCHANTMENT_TABLE_USE-1-1
-   notification-mail-delete: BLOCK_NOTE_BLOCK_BASS-1-1
-   notification-mail-send: ENTITY_EXPERIENCE_ORB_PICKUP-1-1
-   notification-mail-block: UI_BUTTON_CLICK-1-1
-   inventory-interact-sound: BLOCK_TRIPWIRE_CLICK_ON-1-1
-    
+use-anvil-gui: true
+mysql:
+  enable: false
+  username: root
+  password: password
+  host: localhost
+  port: 3306
+  database: mydatabase

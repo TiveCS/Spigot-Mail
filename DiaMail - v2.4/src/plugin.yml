@@ -1,60 +1,27 @@
 name: DiaMail
-version: 2.6-AR1_MC-1.13
+version: 3.0a
 api-version: 1.13
-description: An E-Mail inside minecraft
-main: team.creativecode.diamail.Main
-website: https://www.spigotmc.org/resources/58869/
-author: TiveCS
-softdepend: [HolographicDisplays, Vault]
+description: E-Mail inside minecraft
+authors: [TiveCS, Rhk_Co, Rehoukrel_Studio]
+main: com.rehoukrel.diamail.DiaMail
 commands:
-   diamail:
-      aliases: [ mail, dm, dmail]
-      description: DiaMail main command
-      permission: diamail.command
-   diamailadmin:
-      aliases: [dmailadmin, dmadmin, mailadmin, madmin]
-      permission: diamail.command.admin
-      description: DiaMail command for admin
+  diamail:
+    aliases: [dm, dmail, mail]
+    permission: diamail.command
+
 permissions:
-   diamail.*:
-      description: Allow player access all DiaMail permission
-      default: op
-      children:
-         diamail.access.admin: true
-         diamail.access.player: true
-   diamail.command:
-      description: Allow player access basic command
-      default: true
-   diamail.access.admin:
-      default: op
-      description: Allow access player use admin DiaMail permission
-      children:
-         diamail.command.admin: true
-         diamail.access.sendall: true
-         diamail.access.other: true
-         diamail.access.sendmultiple.item: true
-   diamail.access.player:
-      description: Allow player use default DiaMail permission
-      default: true
-      children:
-         diamail.command: true
-         diamail.access.setting: true
-         diamail.access.receive.sendall: true
-   diamail.access.receive.sendall:
-      description: Allow player to receive sendall mail
-      default: false
-   diamail.access.sendall:
-      description: Allow player use sendall effect
-      default: false
-   diamail.access.send:
-      description: Make player can send mail to other 
-      default: false
-   diamail.access.sendmultiple:
-      description: Make player can do multiple target on mail 
-      default: true
-   diamail.access.sendmultiple.item:
-      description: Player allowed to send multiple target with item 
-      default: false
-   diamail.access.setting:
-      description: Player can access their individual setting 
-      default: true
+  diamail.command:
+    default: true
+    description: Main diamail command
+  diamail.access.sendall:
+    default: op
+    description: Access send all
+  diamail.access.player:
+    default: true
+    description: Basic player permission
+  diamail.access.admin:
+    default: op
+    description: Basic admin permission
+  diamail.access.template:
+    default: op
+    description: Allow player create mail template
