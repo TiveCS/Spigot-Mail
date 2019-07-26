@@ -14,6 +14,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -35,7 +36,7 @@ public abstract class UneditableMenu {
     private ConfigManager configFile;
 
     public enum MenuDataPath{
-        MATERIAL("material"), NAME("name"), LORE("lore"), ENCHANTMENTS("enchantments");
+        MATERIAL("material"), NAME("name"), LORE("lore"), ENCHANTMENTS("enchantments"), SKIN("options.skin");
 
         String path;
 
@@ -137,7 +138,17 @@ public abstract class UneditableMenu {
             item = new ItemStack(XMaterial.fromString(material).parseMaterial());
             if (!item.getType().equals(Material.AIR)) {
                 ItemMeta meta = item.getItemMeta();
-
+                if (meta instanceof SkullMeta){
+                    SkullMeta skullMeta = (SkullMeta) meta;
+                    if (getConfigFile().contains(p + "." + MenuDataPath.SKIN.getPath())){
+                        if (DataConverter.isLegacyVersion()) {
+                            skullMeta.setOwner(getConfigFile().getConfig().getString(p + "." + MenuDataPath.SKIN.getPath()));
+                        }else{
+                            skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(getConfigFile().getConfig().getString(p + "." + MenuDataPath.SKIN.getPath())));
+                        }
+                        meta = skullMeta;
+                    }
+                }
                 if (getConfigFile().contains(p + "." + MenuDataPath.NAME.getPath())) {
                     meta.setDisplayName(plc.use(ChatColor.translateAlternateColorCodes('&', getConfigFile().getConfig().getString(p + "." + MenuDataPath.NAME.getPath()))));
                 }

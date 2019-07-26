@@ -49,8 +49,7 @@ public class PlayerData {
             loadDefaultDataSQL();
         }
         this.mailbox = new Mailbox(this);
-
-        //this.mailboxMenu = new MailboxMenu(plugin, mailbox, this);
+        this.mailboxMenu = new MailboxMenu(this);
 
         listedData.put(player, this);
     }

@@ -123,8 +123,18 @@ public class MySQLManager {
                 int count = 1;
                 for (String s : data.keySet()){
                     Object obj = data.get(s);
-                    if (!(obj instanceof Number)){
-                        obj = "'" + obj.toString() + "'";
+                    if (obj instanceof ItemStack){
+                        HashMap<String, Object> serialize = (HashMap<String, Object>) ((ItemStack) obj).serialize();
+                        StringBuilder b = new StringBuilder();
+                        String c = "";
+                        for (String k : serialize.keySet()){
+                            b.append(c);
+                            b.append(k + "=" + serialize.get(k));
+                            c = "|-||-|";
+                        }
+                        obj = b.toString();
+                    }else{
+
                     }
 
                     if (data.size() > 1){

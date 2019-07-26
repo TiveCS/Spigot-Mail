@@ -172,7 +172,7 @@ public class DataConverter {
     }
 
 	// ItemStack Serializer & Deserializer
-	public final static List<HashMap<Map<String, Object>, Map<String, Object>>> serializeItemStackList(final ItemStack[] itemStackList) {
+	public static List<HashMap<Map<String, Object>, Map<String, Object>>> serializeItemStackList(final ItemStack[] itemStackList) {
 		final List<HashMap<Map<String, Object>, Map<String, Object>>> serializedItemStackList = new ArrayList<HashMap<Map<String, Object>, Map<String, Object>>>();
 
 		for (ItemStack itemStack : itemStackList) {
@@ -192,7 +192,25 @@ public class DataConverter {
 		return serializedItemStackList;
 	}
 
-	public final static ItemStack[] deserializeItemStackList(final List<HashMap<Map<String, Object>, Map<String, Object>>> serializedItemStackList) {
+	public static HashMap<Map<String, Object>, Map<String, Object>> serializeItemStack(ItemStack itemStack) {
+		final HashMap<Map<String, Object>, Map<String, Object>> serializedItemStackList = new HashMap<Map<String, Object>, Map<String, Object>>();
+
+		Map<String, Object> serializedItemStack, serializedItemMeta;
+		HashMap<Map<String, Object>, Map<String, Object>> serializedMap = new HashMap<Map<String, Object>, Map<String, Object>>();
+
+		if (itemStack == null) itemStack = new ItemStack(Material.AIR);
+		serializedItemMeta = (itemStack.hasItemMeta())
+				? itemStack.getItemMeta().serialize()
+				: null;
+		itemStack.setItemMeta(null);
+		serializedItemStack = itemStack.serialize();
+
+		serializedMap.put(serializedItemStack, serializedItemMeta);
+
+		return serializedItemStackList;
+	}
+
+	public static ItemStack[] deserializeItemStackList(final List<HashMap<Map<String, Object>, Map<String, Object>>> serializedItemStackList) {
 		final ItemStack[] itemStackList = new ItemStack[serializedItemStackList.size()];
 
 		int i = 0;
@@ -207,6 +225,22 @@ public class DataConverter {
 
 			itemStackList[i++] = itemStack;
 		}
+		return itemStackList;
+	}
+
+	public static ItemStack deserializeItemStack(HashMap<Map<String, Object>, Map<String, Object>> serializedItemStackList) {
+		ItemStack itemStackList = null;
+
+		Map.Entry<Map<String, Object>, Map<String, Object>> serializedItemStack = serializedItemStackList.entrySet().iterator().next();
+
+		ItemStack itemStack = ItemStack.deserialize(serializedItemStack.getKey());
+		if (serializedItemStack.getValue() != null) {
+			ItemMeta itemMeta = (ItemMeta) ConfigurationSerialization.deserializeObject(serializedItemStack.getValue(), ConfigurationSerialization.getClassByAlias("ItemMeta"));
+			itemStack.setItemMeta(itemMeta);
+		}
+
+		itemStackList = itemStack;
+
 		return itemStackList;
 	}
 	//====================================

@@ -185,7 +185,6 @@ public class MailEditor extends UneditableMenu implements Listener {
                 try {
                     AnvilGUI input = new AnvilGUI(plugin, p, "Message here...", (player, reply) -> {
                         getMail().getMessages().add(ChatColor.translateAlternateColorCodes('&', reply));
-                        load();
                         open(player);
                         return null;
                     });
@@ -194,7 +193,6 @@ public class MailEditor extends UneditableMenu implements Listener {
         }else if (messageSlot.contains(slot)){
             int line = messageSlot.indexOf(slot);
             getMail().getMessages().remove(line);
-            load();
             open(p);
         }else if (slot == addReceiverSlot){
             if (p != null) {
@@ -205,7 +203,6 @@ public class MailEditor extends UneditableMenu implements Listener {
                             getMail().getReceiver().add(op);
                         }
                     }
-                    load();
                     open(player);
                     return null;
                 });} catch (Exception ignore){ }
@@ -213,7 +210,6 @@ public class MailEditor extends UneditableMenu implements Listener {
         }else if (receiverSlot.contains(slot)){
             int line = receiverSlot.indexOf(slot);
             getMail().getReceiver().remove(line);
-            load();
             open(p);
         }
         else if (slot == 53){

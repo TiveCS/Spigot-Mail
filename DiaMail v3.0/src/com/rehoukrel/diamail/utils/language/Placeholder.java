@@ -11,6 +11,7 @@ import java.util.List;
 public class Placeholder {
 
     private HashMap<String, String> replacer = new HashMap<String, String>();
+    private HashMap<String, List<String>> replacerList = new HashMap<>();
     private JavaPlugin plugin = null;
 
     public Placeholder(){
@@ -69,8 +70,36 @@ public class Placeholder {
         return s;
     }
 
+    public List<String> useListReplacer(List<String> list){
+    	for (int line = 0; line < list.size(); line++) {
+			StringBuilder s = new StringBuilder(list.get(line));
+			for (String repl : getReplacerList().keySet()) {
+				if (s.toString().contains("%" + repl +"%")) {
+					int index = s.indexOf("%" + repl +"%"), length = ("%" + repl +"%").length();
+					String afterReplacer = s.substring((index + length)), beforeReplacer = s.substring(0, index);
+					for (int i = 0; i < getReplacerList().get(repl).size(); i++) {
+						if (i == 0) {
+							list.set(line, beforeReplacer + getReplacerList().get(repl).get(i));
+							continue;
+						}
+						if (i == getReplacerList().get(repl).size() - 1) {
+							list.add(line + i, getReplacerList().get(repl).get(i) + afterReplacer);
+							continue;
+						}
+						list.add(line + i, getReplacerList().get(repl).get(i));
+					}
+				}
+			}
+		}
+		return list;
+    }
+
     public void addReplacer(String key, String replacer){
         getReplacer().put(key, replacer);
+    }
+
+    public void addReplacerList(String key, List<String> replacer){
+        getReplacerList().put(key, replacer);
     }
 
     public void initializeDefaultReplacer(){
@@ -89,5 +118,9 @@ public class Placeholder {
 
     public HashMap<String, String> getReplacer() {
         return replacer;
+    }
+
+    public HashMap<String, List<String>> getReplacerList() {
+        return replacerList;
     }
 }

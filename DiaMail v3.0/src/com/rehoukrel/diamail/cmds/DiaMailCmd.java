@@ -31,6 +31,7 @@ public class DiaMailCmd implements CommandExecutor {
                 Player p = (Player) commandSender;
                 if (strings.length == 0){
                     PlayerData pd = PlayerData.getPlayerData(p);
+                    pd.getMailboxMenu().open(p);
                     return true;
                 }else if (strings.length == 2){
                     PlayerData pd = PlayerData.getPlayerData(p);
