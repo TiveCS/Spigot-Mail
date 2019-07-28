@@ -8,7 +8,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 public class Mailbox {
@@ -92,12 +91,15 @@ public class Mailbox {
                     }catch (Exception ignored){}
                     getOutbox().add(mail);
                 }
-            }else {
+            }
+            else {
+                getInbox().clear();
                 for (String uuid : getPlayerData().getConfigManager().getConfig().getConfigurationSection("mailbox.inbox").getKeys(false)) {
                     Mail m = new Mail(getPlayerData(), uuid, true);
                     getInbox().add(m);
                 }
 
+                getOutbox().clear();
                 for (String uuid : getPlayerData().getConfigManager().getConfig().getConfigurationSection("mailbox.outbox").getKeys(false)) {
                     Mail m = new Mail(getPlayerData(), uuid, false);
                     getOutbox().add(m);

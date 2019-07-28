@@ -19,6 +19,7 @@ public class PlayerData {
     public static HashMap<OfflinePlayer, PlayerData> listedData = new HashMap<>();
     public static boolean useMySQL = false;
 
+    private boolean hasUpdate = true;
     private OfflinePlayer player;
     private File file;
     private ConfigManager configManager;
@@ -81,7 +82,11 @@ public class PlayerData {
     }
 
     public void updateMailbox(){
+        if (hasUpdate == false){
+            return;
+        }
         getMailbox().update();
+        setHasUpdate(false);
     }
 
     //---------------------------
@@ -108,5 +113,13 @@ public class PlayerData {
 
     public List<Mail> getTemplates() {
         return templates;
+    }
+
+    public boolean hasUpdate(){
+        return hasUpdate;
+    }
+
+    public void setHasUpdate(boolean hasUpdate) {
+        this.hasUpdate = hasUpdate;
     }
 }

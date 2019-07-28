@@ -64,6 +64,14 @@ public abstract class UneditableMenu {
     }
 
     // Misc
+    public HashMap<Integer, ItemStack> slotItem(ItemStack item, List<Integer> slots){
+        HashMap<Integer, ItemStack> map = new HashMap<>();
+        for (int s : slots){
+            map.put(s, item);
+        }
+        return map;
+    }
+
     public HashMap<Integer, ItemStack> slotItem(ItemStack item, int... slots){
         HashMap<Integer, ItemStack> map = new HashMap<>();
         for (int s : slots){
@@ -153,7 +161,7 @@ public abstract class UneditableMenu {
                     meta.setDisplayName(plc.use(ChatColor.translateAlternateColorCodes('&', getConfigFile().getConfig().getString(p + "." + MenuDataPath.NAME.getPath()))));
                 }
                 if (getConfigFile().contains(p + "." + MenuDataPath.LORE.getPath())) {
-                    meta.setLore(plc.useMass(DataConverter.colored(getConfigFile().getConfig().getStringList(p + "." + MenuDataPath.LORE.getPath()))));
+                    meta.setLore(plc.useMass(plc.useListReplacer(DataConverter.colored(getConfigFile().getConfig().getStringList(p + "." + MenuDataPath.LORE.getPath())))));
                 }
                 item.setItemMeta(meta);
                 if (getConfigFile().contains(p + "." + MenuDataPath.ENCHANTMENTS.getPath())) {

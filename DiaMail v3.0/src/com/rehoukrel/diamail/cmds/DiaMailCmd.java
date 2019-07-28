@@ -30,7 +30,12 @@ public class DiaMailCmd implements CommandExecutor {
             if (commandSender instanceof Player){
                 Player p = (Player) commandSender;
                 if (strings.length == 0){
+                    boolean isNew = !PlayerData.listedData.containsKey(p);
                     PlayerData pd = PlayerData.getPlayerData(p);
+                    if (!isNew){
+                        pd.setHasUpdate(true);
+                        pd.updateMailbox();
+                    }
                     pd.getMailboxMenu().open(p);
                     return true;
                 }else if (strings.length == 2){

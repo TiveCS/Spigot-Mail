@@ -57,9 +57,8 @@ public class Mail {
         if (pd.getConfigManager().getConfig().contains("mailbox." + b + "." + uuid)){
             String path = "mailbox." + b +"." + uuid;
             List<String> msg = new ArrayList<>(pd.getConfigManager().getConfig().getStringList(path + "." + MailSection.MESSAGE.getPath()));
-
             this.setMessages(msg);
-
+            this.setType(MailType.valueOf(pd.getConfigManager().getConfig().getString(path + "." + MailSection.TYPE.getPath()).toUpperCase()));
             if (isInbox){
                 String sender = pd.getConfigManager().getConfig().getString(path + "." + MailSection.SENDER.getPath());
                 UUID uid = UUID.fromString(sender);
@@ -161,6 +160,7 @@ public class Mail {
                         c.input(path + "." + MailSection.ATTACHED_ITEMS.getPath(), getAttachedItem());
                         c.saveConfig();
                     }
+                    pd.setHasUpdate(true);
                 }else{
                     getReceiver().remove(op);
                 }
@@ -173,6 +173,7 @@ public class Mail {
                 PlayerData pd = PlayerData.getPlayerData(playerSender);
                 StringBuilder r = new StringBuilder();
                 String spt = "";
+
                 for (String uuid : rec){
                     r.append(spt);
                     r.append(uuid);
@@ -196,6 +197,7 @@ public class Mail {
                     c.input(path + "." + MailSection.ATTACHED_ITEMS.getPath(), getAttachedItem());
                     c.saveConfig();
                 }
+                pd.setHasUpdate(true);
             }else if (getReceiver().size() == 0){
 
             }

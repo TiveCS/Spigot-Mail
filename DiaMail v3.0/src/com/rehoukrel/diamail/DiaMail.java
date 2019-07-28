@@ -28,9 +28,11 @@ public class DiaMail extends JavaPlugin {
     @Override
     public void onDisable() {
         try {
-            if (mysql.getConnection() != null && !mysql.getConnection().isClosed()) {
-                mysql.getConnection().close();
-                getLogger().info("MySQL connection is closed..");
+            if (mysql != null) {
+                if (mysql.getConnection() != null && !mysql.getConnection().isClosed()) {
+                    mysql.getConnection().close();
+                    getLogger().info("MySQL connection is closed..");
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
