@@ -31,6 +31,8 @@ public class Mail {
     private List<ItemStack> attachedItem = new ArrayList<>();
 
     private MailEditor editor;
+    private String path = "mailbox";
+    private boolean isHasUpdate = false;
 
     public enum MailSection{
 
@@ -50,12 +52,14 @@ public class Mail {
     // For getting mail
     public Mail(){
         this.editor = new MailEditor(this);
+        setHasUpdate(false);
     }
     public Mail(PlayerData pd, String uuid, boolean isInbox){
         if (pd == null){return;}
+        setHasUpdate(false);
         String b = isInbox ? "inbox" : "outbox";
         if (pd.getConfigManager().getConfig().contains("mailbox." + b + "." + uuid)){
-            String path = "mailbox." + b +"." + uuid;
+            path = "mailbox." + b +"." + uuid;
             List<String> msg = new ArrayList<>(pd.getConfigManager().getConfig().getStringList(path + "." + MailSection.MESSAGE.getPath()));
             this.setMessages(msg);
             this.setType(MailType.valueOf(pd.getConfigManager().getConfig().getString(path + "." + MailSection.TYPE.getPath()).toUpperCase()));
@@ -102,6 +106,7 @@ public class Mail {
         }
         this.sender = sender;
         this.editor = new MailEditor(this);
+
     }
 
     //---------------------------------
@@ -144,8 +149,11 @@ public class Mail {
                     if (useSQL){
                         map.put("receiver_uuid", op.getUniqueId().toString());
                         map.put("sender", getSender() instanceof OfflinePlayer ? ((OfflinePlayer) getSender()).getUniqueId().toString() : getSender().getName());
-                        sql.insertSingleData(DiaMail.table_inbox, new HashMap<>(map));
-
+                        if (isHasUpdate) {
+                            sql.updateData(DiaMail.table_inbox, "uuid=" + getUniqueId().toString(), new HashMap<>(map));
+                        }else{
+                            sql.insertSingleData(DiaMail.table_inbox, new HashMap<>(map));
+                        }
                     }else {
                         ConfigManager c = pd.getConfigManager();
                         String path = "mailbox.inbox." + getUniqueId().toString();
@@ -156,7 +164,6 @@ public class Mail {
                             c.input(path + "." + MailSection.SENDER.getPath(), playerSender.getUniqueId().toString());
                         } else {
                             c.input(path + "." + MailSection.SENDER.getPath(), getSender().getName());
-                        }
                         c.input(path + "." + MailSection.ATTACHED_ITEMS.getPath(), getAttachedItem());
                         c.saveConfig();
                     }
@@ -182,7 +189,11 @@ public class Mail {
                 if (useSQL){
                     map.put("sender_uuid", getSender() instanceof OfflinePlayer ? ((OfflinePlayer) getSender()).getUniqueId().toString() : getSender().getName());
                     map.put("receiver", r);
-                    sql.insertSingleData(DiaMail.table_outbox, new HashMap<>(map));
+                    if (isHasUpdate) {
+                        sql.updateData(DiaMail.table_outbox, "uuid=" + getUniqueId().toString(), new HashMap<>(map));
+                    }else{
+                        sql.insertSingleData(DiaMail.table_outbox, new HashMap<>(map));
+                    }
                 }else {
                     ConfigManager c = pd.getConfigManager();
                     String path = "mailbox.outbox." + getUniqueId().toString();
@@ -201,11 +212,24 @@ public class Mail {
             }else if (getReceiver().size() == 0){
 
             }
+            setHasUpdate(false);
             return true;
         }else{
             getSender().sendMessage("You cannot send empty mail");
             return false;
         }
+    }
+
+    //---------------------------------
+
+    //----------UPDATE FILE------------
+
+    public void updateFile(PlayerData playerData){
+        if (playerData == null){
+            return;
+        }
+        setHasUpdate(true);
+        send();
     }
 
     //---------------------------------
@@ -225,6 +249,10 @@ public class Mail {
 
     public void setReceiver(List<OfflinePlayer> receiver) {
         this.receiver = receiver;
+    }
+
+    public void setHasUpdate(boolean hasUpdate) {
+        isHasUpdate = hasUpdate;
     }
 
     public void setType(MailType type) {
@@ -264,4 +292,7 @@ public class Mail {
         return editor;
     }
 
+    public boolean isHasUpdate() {
+        return isHasUpdate;
+    }
 }

@@ -88,6 +88,8 @@ public class MailboxMenu extends UneditableMenu implements Listener {
         inbox = getMailOnPage(mailbox.getInbox());
         outbox = getMailOnPage(mailbox.getOutbox());
 
+        addInventoryData(0, new HashMap<>(map));
+        map.clear();
         if (isInbox) {
             for (int slot : inbox.keySet()) {
                 Mail m = inbox.get(slot);
@@ -112,9 +114,7 @@ public class MailboxMenu extends UneditableMenu implements Listener {
                 map.putAll(slotItem(loadItemDataFromFile("inbox-mail", plc), slot));
             }
         }
-
-        addInventoryData(0, new HashMap<>(map));
-        map.clear();
+        addInventoryData(getPage(), new HashMap<>(map));
     }
 
     public HashMap<Integer, Mail> getMailOnPage(List<Mail> mailType){
