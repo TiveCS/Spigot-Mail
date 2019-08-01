@@ -101,8 +101,8 @@ public class MailboxMenu extends UneditableMenu implements Listener {
                 map.putAll(slotItem(loadItemDataFromFile("inbox-mail", plc), slot));
             }
         }else{
-            for (int slot : inbox.keySet()) {
-                Mail m = inbox.get(slot);
+            for (int slot : outbox.keySet()) {
+                Mail m = outbox.get(slot);
                 plc.addReplacer("mail_uuid", m.getUniqueId().toString());
                 plc.addReplacer("mail_receiver_size", m.getReceiver().size() + "");
                 for (int i = 0; i < m.getReceiver().size(); i++) {
@@ -111,7 +111,7 @@ public class MailboxMenu extends UneditableMenu implements Listener {
                 plc.addReplacer("mail_item_size", m.getAttachedItem().size() + "");
                 plc.addReplacer("mail_type", m.getType().name());
                 plc.addReplacerList("mail_message", m.getMessages());
-                map.putAll(slotItem(loadItemDataFromFile("inbox-mail", plc), slot));
+                map.putAll(slotItem(loadItemDataFromFile("outbox-mail", plc), slot));
             }
         }
         addInventoryData(getPage(), new HashMap<>(map));
@@ -139,6 +139,9 @@ public class MailboxMenu extends UneditableMenu implements Listener {
     @Override
     public void open(Player p) {
         load();
+        if (p.getOpenInventory().getTopInventory() !=null){
+            p.closeInventory();
+        }
         super.open(p);
     }
 
@@ -173,6 +176,21 @@ public class MailboxMenu extends UneditableMenu implements Listener {
             m.setSender((CommandSender) getPlayerData().getPlayer());
             m.setType(MailType.PLAYER_SEND);
             m.getEditor().open((Player) event.getWhoClicked());
+        }else if (mailSlot.contains(slot)){
+            if (getInventoryData().get(getPage()).containsKey(slot)){
+                Mail m;
+                if (isInbox){
+                    m = inbox.get(slot);
+                }else{
+                    m = outbox.get(slot);
+                }
+                if (m == null || getPlayerData() == null){
+                    return;
+                }
+                MailContents contents = new MailContents(getPlayerData(), m);
+                contents.open((Player) event.getWhoClicked());
+                contents.setConnectedMailbox(this);
+            }
         }
     }
 

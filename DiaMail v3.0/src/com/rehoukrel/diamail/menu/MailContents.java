@@ -23,11 +23,12 @@ import java.util.List;
 public class MailContents extends UneditableMenu implements Listener {
 
     private static DiaMail plugin = DiaMail.getPlugin(DiaMail.class);
-    List<Integer> itemSlot = Arrays.asList(18,19,20,21,22,23,24,25,26);
+    private List<Integer> itemSlot = Arrays.asList(18,19,20,21,22,23,24,25,26);
 
-    Placeholder plc = new Placeholder();
-    Mail mail;
-    PlayerData playerData;
+    private MailboxMenu connectedMailbox;
+    private Placeholder plc = new Placeholder();
+    private Mail mail;
+    private PlayerData playerData;
 
     public MailContents(PlayerData playerData, Mail mail) {
         super(plugin, 3, ChatColor.translateAlternateColorCodes('&', "&4&lMail Contents"));
@@ -65,10 +66,11 @@ public class MailContents extends UneditableMenu implements Listener {
     }
 
     public void init(){
+
         addItemData("border", XMaterial.BLACK_STAINED_GLASS_PANE.parseMaterial(), " ", new ArrayList<>(), new HashMap<>());
         addItemData("message", XMaterial.PAPER.parseMaterial(), "&3&lMESSAGE", DataConverter.colored(getMail().getMessages()), new HashMap<>());
-        addItemData("sender", XMaterial.PLAYER_HEAD.parseMaterial(), "&e%sender%", new ArrayList<>(), new HashMap<>());
-        addItemData("receiver", XMaterial.PLAYER_HEAD.parseMaterial(), "&6%receiver%", new ArrayList<>(), new HashMap<>());
+        addItemData("sender", XMaterial.PLAYER_HEAD.parseMaterial(), "&e&lSENDER", Arrays.asList(" ", "&7- &f%sender%"), new HashMap<>());
+        addItemData("receiver", XMaterial.PLAYER_HEAD.parseMaterial(), "&6&lRECEIVER", Arrays.asList(" ", "&f%receiver%"), new HashMap<>());
         addItemData("take-item", XMaterial.CHEST.parseMaterial(), "&a&lTAKE ITEM", new ArrayList<>(), new HashMap<>());
     }
 
@@ -133,5 +135,13 @@ public class MailContents extends UneditableMenu implements Listener {
 
     public PlayerData getPlayerData() {
         return playerData;
+    }
+
+    public void setConnectedMailbox(MailboxMenu connectedMailbox) {
+        this.connectedMailbox = connectedMailbox;
+    }
+
+    public MailboxMenu getConnectedMailbox() {
+        return connectedMailbox;
     }
 }

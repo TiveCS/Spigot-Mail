@@ -166,8 +166,8 @@ public class Mail {
                         } else {
                             c.input(path + "." + MailSection.SENDER.getPath(), getSender().getName());
                             c.input(path + "." + MailSection.ATTACHED_ITEMS.getPath(), getAttachedItem());
-                            c.saveConfig();
                         }
+                        c.saveConfig();
                         pd.setHasUpdate(true);
                     }
                 }else{
