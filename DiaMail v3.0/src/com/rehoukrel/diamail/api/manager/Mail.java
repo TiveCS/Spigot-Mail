@@ -5,9 +5,11 @@ import com.rehoukrel.diamail.api.events.MailCreateEvent;
 import com.rehoukrel.diamail.api.events.MailReceiveEvent;
 import com.rehoukrel.diamail.api.events.MailSendEvent;
 import com.rehoukrel.diamail.menu.MailEditor;
+import com.rehoukrel.diamail.utils.BookManager;
 import com.rehoukrel.diamail.utils.ConfigManager;
 import com.rehoukrel.diamail.utils.sql.MySQLManager;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -29,6 +31,8 @@ public class Mail {
     private List<OfflinePlayer> receiver = new ArrayList<>();
     private List<String> messages = new ArrayList<>();
     private List<ItemStack> attachedItem = new ArrayList<>();
+
+    private BookManager bookManager = new BookManager();
 
     private MailEditor editor;
     private String path = "mailbox";
@@ -224,6 +228,30 @@ public class Mail {
 
     //---------------------------------
 
+    //----------UPDATE BOOK------------
+    public void updateBook(){
+        if (getSender() != null) {
+            getBookManager().getMeta().setAuthor(getSender().getName());
+            getBookManager().getMeta().setTitle(ChatColor.translateAlternateColorCodes('&', "&e&oMail by &6&o" + getSender().getName()));
+        }else if (!getReceiver().isEmpty()){
+            StringBuilder s = new StringBuilder();
+            String comma = "";
+            for (OfflinePlayer op : getReceiver()){
+                s.append(op.getName() + comma);
+                comma = ", ";
+            }
+            getBookManager().getMeta().setAuthor(s.toString());
+        }
+
+        getBookManager().getMeta().addPage("Contains " + getAttachedItem().size() + " items");
+
+        for (String s : getMessages()){
+            getBookManager().getMeta().addPage(s);
+        }
+        getBookManager().updateBookMeta();
+    }
+    //---------------------------------
+
     //----------UPDATE FILE------------
 
     public void updateFile(PlayerData playerData){
@@ -295,5 +323,9 @@ public class Mail {
 
     public boolean isHasUpdate() {
         return isHasUpdate;
+    }
+
+    public BookManager getBookManager() {
+        return bookManager;
     }
 }

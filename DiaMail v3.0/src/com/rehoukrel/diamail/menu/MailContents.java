@@ -69,6 +69,7 @@ public class MailContents extends UneditableMenu implements Listener {
 
         addItemData("border", XMaterial.BLACK_STAINED_GLASS_PANE.parseMaterial(), " ", new ArrayList<>(), new HashMap<>());
         addItemData("message", XMaterial.PAPER.parseMaterial(), "&3&lMESSAGE", DataConverter.colored(getMail().getMessages()), new HashMap<>());
+        addItemData("get-mail", XMaterial.WRITTEN_BOOK.parseMaterial(), "&b&lGET MAIL", Arrays.asList(" ", "&7Get this mail as written book item"), new HashMap<>());
         addItemData("sender", XMaterial.PLAYER_HEAD.parseMaterial(), "&e&lSENDER", Arrays.asList(" ", "&7- &f%sender%"), new HashMap<>());
         addItemData("receiver", XMaterial.PLAYER_HEAD.parseMaterial(), "&6&lRECEIVER", Arrays.asList(" ", "&f%receiver%"), new HashMap<>());
         addItemData("take-item", XMaterial.CHEST.parseMaterial(), "&a&lTAKE ITEM", new ArrayList<>(), new HashMap<>());
@@ -88,6 +89,7 @@ public class MailContents extends UneditableMenu implements Listener {
             map.put(2, loadItemDataFromFile("sender", plc));
         }
         map.put(3, loadItemDataFromFile("take-item", plc));
+        map.put(4, loadItemDataFromFile("get-mail", plc));
         for (int i = 0; i < itemSlot.size(); i++){
             int slot = itemSlot.get(i);
             if (getMail().getAttachedItem().size() - 1 >= i){
@@ -126,6 +128,16 @@ public class MailContents extends UneditableMenu implements Listener {
                 getMail().getAttachedItem().remove(itemSlot.indexOf(slot));
             }
         }
+        else if (slot == 1){
+            StringBuilder s = new StringBuilder();
+            for (String m : getMail().getMessages()){
+                s.append(m);
+            }
+            event.getWhoClicked().sendMessage(s.toString());
+        }else if (slot == 4){
+            event.getWhoClicked().getInventory().addItem(getMail().getBookManager().getBook());
+        }
+
         event.setCancelled(true);
     }
 
