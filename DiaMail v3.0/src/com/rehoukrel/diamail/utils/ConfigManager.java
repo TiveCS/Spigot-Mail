@@ -2,20 +2,16 @@ package com.rehoukrel.diamail.utils;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 
 public class ConfigManager {
 
-    private JavaPlugin plugin;
     private File file;
     private FileConfiguration config;
 
-    public ConfigManager(JavaPlugin plugin, File file){
-        this.plugin = plugin;
+    public ConfigManager(File file){
         this.file = file;
 
         if (!this.file.exists()){
@@ -105,9 +101,6 @@ public class ConfigManager {
         return file;
     }
 
-    public JavaPlugin getPlugin() {
-        return plugin;
-    }
 
     public FileConfiguration getConfig() {
         return config;

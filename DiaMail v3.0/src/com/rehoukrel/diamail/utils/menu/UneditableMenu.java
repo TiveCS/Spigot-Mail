@@ -94,7 +94,7 @@ public abstract class UneditableMenu {
         if (!getFolder().exists()){
             getFolder().mkdir();
         }else{
-            this.configFile = new ConfigManager(getPlugin(), getFile());
+            this.configFile = new ConfigManager(getFile());
         }
     }
 
@@ -143,7 +143,7 @@ public abstract class UneditableMenu {
             }else{
                 return null;
             }
-            item = new ItemStack(XMaterial.fromString(material).parseMaterial());
+            item = new ItemStack(XMaterial.valueOf(material).parseMaterial());
             if (!item.getType().equals(Material.AIR)) {
                 ItemMeta meta = item.getItemMeta();
                 if (meta instanceof SkullMeta){

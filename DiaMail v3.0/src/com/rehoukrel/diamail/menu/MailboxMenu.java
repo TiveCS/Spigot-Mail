@@ -40,12 +40,7 @@ public class MailboxMenu extends UneditableMenu implements Listener {
         }else{
             System.out.println("[" + this.getClass().getSimpleName() + "] Failed to register event.");
         }
-    }
 
-    public void load(){
-        if (getPlayerData() == null) {return;}
-        if (!getPlayerData().getPlayer().hasPlayedBefore()){return;}
-        mailbox = getPlayerData().getMailbox();
         addItemData("next-page", XMaterial.LIME_STAINED_GLASS_PANE.parseMaterial(), "&aNext Page", new ArrayList<>(), new HashMap<>());
         addItemData("previous-page", XMaterial.BLUE_STAINED_GLASS_PANE.parseMaterial(), "&3Previous Page", new ArrayList<>(), new HashMap<>());
         addItemData("border", XMaterial.BLACK_STAINED_GLASS_PANE.parseMaterial(), " ", new ArrayList<>(), new HashMap<>());
@@ -55,7 +50,14 @@ public class MailboxMenu extends UneditableMenu implements Listener {
         addItemData("block-list", XMaterial.TNT.parseMaterial(), "&cBlocked Players", new ArrayList<>(), new HashMap<>());
         addItemData("inbox-mail", XMaterial.KNOWLEDGE_BOOK.parseMaterial(), " ", DataConverter.colored(Arrays.asList("&2&lSENDER &a%mail_sender%", "&e&lITEM &c%mail_item_size%", " ", "&f%mail_message%")), new HashMap<>());
         addItemData("outbox-mail", XMaterial.BOOK.parseMaterial(), " ", DataConverter.colored(Arrays.asList("&2&lRECEIVER&8(&c%mail_receiver_size%&8) &a%mail_receiver_1%", "&7Contains &c%mail_item_size% &7item(s)", " ", "&f%mail_message%")), new HashMap<>());
-        addItemData("summary", XMaterial.SIGN.parseMaterial(), "&6%player%'s Mailbox", DataConverter.colored(Arrays.asList(" ", "&8- &fInbox &8(&7%mailbox_inbox%&8)", "&8- &fOutbox &8(&7%mailbox_outbox%&8)")), new HashMap<>());
+        addItemData("summary", XMaterial.OAK_SIGN.parseMaterial(), "&6%player%'s Mailbox", DataConverter.colored(Arrays.asList(" ", "&8- &fInbox &8(&7%mailbox_inbox%&8)", "&8- &fOutbox &8(&7%mailbox_outbox%&8)")), new HashMap<>());
+
+    }
+
+    public void load(){
+        if (getPlayerData() == null) {return;}
+        if (!getPlayerData().getPlayer().hasPlayedBefore()){return;}
+        mailbox = getPlayerData().getMailbox();
 
         HashMap<Integer, ItemStack> map = new HashMap<>();
         loadInventoryDataFromFile();

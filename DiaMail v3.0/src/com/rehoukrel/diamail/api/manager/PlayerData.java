@@ -4,7 +4,6 @@ import com.rehoukrel.diamail.DiaMail;
 import com.rehoukrel.diamail.menu.MailboxMenu;
 import com.rehoukrel.diamail.utils.ConfigManager;
 import com.rehoukrel.diamail.utils.sql.MySQLManager;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.io.File;
@@ -43,7 +42,7 @@ public class PlayerData {
         }
         this.player = player;
         this.file = new File(folder, player.getUniqueId().toString() + ".yml");
-        this.configManager = new ConfigManager(plugin, file);
+        this.configManager = new ConfigManager(file);
 
         loadDefaultData();
         if (useMySQL){

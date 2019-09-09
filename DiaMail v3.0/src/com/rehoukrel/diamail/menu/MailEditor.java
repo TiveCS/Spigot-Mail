@@ -41,10 +41,7 @@ public class MailEditor extends UneditableMenu implements Listener {
         }else{
             System.out.println("[" + this.getClass().getSimpleName() + "] Failed to register event.");
         }
-    }
 
-    @SuppressWarnings("deprecation")
-    public void load(){
         addItemData("border", XMaterial.BLACK_STAINED_GLASS_PANE.parseMaterial(), " ", new ArrayList<>(), new HashMap<>());
         addItemData("send", XMaterial.LIME_TERRACOTTA.parseMaterial(), "&a&lSend Mail", new ArrayList<>(), new HashMap<>());
         addItemData("sendall-true", XMaterial.LIME_WOOL.parseMaterial(), "&3&lSend All&7: &a&lTrue", new ArrayList<>(), new HashMap<>());
@@ -56,6 +53,10 @@ public class MailEditor extends UneditableMenu implements Listener {
         addItemData("message", XMaterial.PAPER.parseMaterial(), "&cRemove message &7(Line #%message_line%)", Arrays.asList(" ", "&f%message%"), new HashMap<>());
         addItemData("add-message", XMaterial.WRITABLE_BOOK.parseMaterial(), "&bAdd message &7(Line #%message_line%)", new ArrayList<>(), new HashMap<>());
         addItemData("error", XMaterial.FIRE.parseMaterial(), "&4&lERROR", new ArrayList<>(), new HashMap<>());
+    }
+
+    @SuppressWarnings("deprecation")
+    public void load(){
 
         HashMap<Integer, ItemStack> map = new HashMap<>();
         loadInventoryDataFromFile();

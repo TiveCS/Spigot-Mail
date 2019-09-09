@@ -34,6 +34,7 @@ public class MailContents extends UneditableMenu implements Listener {
         super(plugin, 3, ChatColor.translateAlternateColorCodes('&', "&4&lMail Contents"));
         this.mail = mail;
         this.playerData = playerData;
+        init();
         if (getMail() != null && getPlayerData() != null){
             plc.addReplacer("sender", getMail().getSender().getName());
             plc.addReplacer("type", getMail().getType().name());
@@ -42,7 +43,7 @@ public class MailContents extends UneditableMenu implements Listener {
             plc.addReplacer("receiver_size", getMail().getReceiver().size() + "");
 
             List<String> receiverName = new ArrayList<>(), itemName = new ArrayList<>();
-            plc.addReplacerList("message", getMail().getMessages());
+            plc.addReplacerList("message", DataConverter.colored(getMail().getMessages()));
             int count = 1;
             for (OfflinePlayer op : getMail().getReceiver()){
                 receiverName.add(op.getName());
@@ -68,7 +69,7 @@ public class MailContents extends UneditableMenu implements Listener {
     public void init(){
 
         addItemData("border", XMaterial.BLACK_STAINED_GLASS_PANE.parseMaterial(), " ", new ArrayList<>(), new HashMap<>());
-        addItemData("message", XMaterial.PAPER.parseMaterial(), "&3&lMESSAGE", DataConverter.colored(getMail().getMessages()), new HashMap<>());
+        addItemData("message", XMaterial.PAPER.parseMaterial(), "&3&lMESSAGE", Arrays.asList("%message%"), new HashMap<>());
         addItemData("get-mail", XMaterial.WRITTEN_BOOK.parseMaterial(), "&b&lGET MAIL", Arrays.asList(" ", "&7Get this mail as written book item"), new HashMap<>());
         addItemData("sender", XMaterial.PLAYER_HEAD.parseMaterial(), "&e&lSENDER", Arrays.asList(" ", "&7- &f%sender%"), new HashMap<>());
         addItemData("receiver", XMaterial.PLAYER_HEAD.parseMaterial(), "&6&lRECEIVER", Arrays.asList(" ", "&f%receiver%"), new HashMap<>());
@@ -81,7 +82,7 @@ public class MailContents extends UneditableMenu implements Listener {
         }
 
         HashMap<Integer, ItemStack> map = new HashMap<>();
-        map.putAll(slotItem(getFileInventoryData().get("border"), 10,11,12,13,14,15,16,17));
+        map.putAll(slotItem(loadItemDataFromFile("border", plc), 9,10,11,12,13,14,15,16,17));
         map.put(1, loadItemDataFromFile("message", plc));
         if (getMail().getSender().getName().equals(getPlayerData().getPlayer().getName())) {
             map.put(2, loadItemDataFromFile("receiver", plc));

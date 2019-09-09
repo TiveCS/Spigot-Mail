@@ -60,7 +60,7 @@ public abstract class Menu {
 		this.plugin = plugin;
 		this.folder = new File(plugin.getDataFolder(), "Menu");
 		this.file = new File(plugin.getDataFolder() + "/Menu", this.getClass().getSimpleName() + ".yml");
-		this.cm = new ConfigManager(plugin, file);
+		this.cm = new ConfigManager(file);
 		loadMenu();
 	}
 	
@@ -240,7 +240,7 @@ public abstract class Menu {
 			amount = cm.getConfig().contains(p + ".Amount") ? this.getConfig().getInt(p + ".Amount") : 1;
 			lore = plc.useMass(cm.getConfig().contains(p + ".Lore") ? this.getConfig().getStringList(p + ".Lore") : new ArrayList<String>());
 			
-			material = XMaterial.fromString(this.getConfig().getString(p + ".Material").toUpperCase()).parseMaterial();
+			material = XMaterial.valueOf(this.getConfig().getString(p + ".Material").toUpperCase()).parseMaterial();
 			
 			item = new ItemStack(material, amount);
 			ItemMeta meta = item.getItemMeta();
