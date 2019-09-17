@@ -1,8 +1,0 @@
-name: Mailplus
-version: 1.0a
-authors: [NuCodes_Team, Vel_Cl, TiveCS]
-main: team.creativecodes.mailplus.Mail
-commands:
-  mail:
-    aliases: [mails, mailplus, mailsplus]
-    permission: mailplus.command
