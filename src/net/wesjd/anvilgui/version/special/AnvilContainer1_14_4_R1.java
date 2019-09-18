@@ -20,7 +20,11 @@ public class AnvilContainer1_14_4_R1 extends ContainerAnvil {
     @Override
     public void e() {
         super.e();
-        this.levelCost.a(0);
+        try {
+            this.levelCost.set(0);
+        }catch (NoSuchMethodError e){
+            e.printStackTrace();
+        }
     }
 
 }

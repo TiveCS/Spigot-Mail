@@ -185,11 +185,12 @@ public class MailEditor extends UneditableMenu implements Listener {
         }else if (slot == addMessageSlot){
             if (p != null) {
                 try {
-                    AnvilGUI input = new AnvilGUI(plugin, p, "Message here...", (player, reply) -> {
-                        getMail().getMessages().add(ChatColor.translateAlternateColorCodes('&', reply));
+                    new AnvilGUI.Builder().onComplete((player, s) -> {
+                        getMail().getMessages().add(ChatColor.translateAlternateColorCodes('&', s));
+                        return AnvilGUI.Response.close();
+                    }).onClose(player -> {
                         open(player);
-                        return null;
-                    });
+                    }).text("Input message..").plugin(plugin).open(p);
                 }catch (Exception ignore){}
             }
         }else if (messageSlot.contains(slot)){
@@ -198,16 +199,15 @@ public class MailEditor extends UneditableMenu implements Listener {
             open(p);
         }else if (slot == addReceiverSlot){
             if (p != null) {
-                try{AnvilGUI input = new AnvilGUI(plugin, p, "Name (case sensitive)", (player, reply) -> {
-                    OfflinePlayer op = Bukkit.getOfflinePlayer(reply);
-                    if (op.hasPlayedBefore()){
-                        if (op.getUniqueId() != null){
+                try{
+                    new AnvilGUI.Builder().onComplete((player, s) -> {
+                        OfflinePlayer op = Bukkit.getOfflinePlayer(s);
+                        if (op.hasPlayedBefore() && op.getUniqueId() != null){
                             getMail().getReceiver().add(op);
                         }
-                    }
-                    open(player);
-                    return null;
-                });} catch (Exception ignore){ }
+                        return AnvilGUI.Response.close();
+                    }).onClose(this::open).text("Input player..").plugin(plugin).open(p);
+                } catch (Exception ignore){ }
             }
         }else if (receiverSlot.contains(slot)){
             int line = receiverSlot.indexOf(slot);
