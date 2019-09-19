@@ -31,8 +31,8 @@ public class DiaMailCmd implements CommandExecutor {
                     PlayerData pd = PlayerData.getPlayerData(p);
                     if (!isNew){
                         pd.setHasUpdate(true);
-                        pd.updateMailbox();
                     }
+                    pd.updateMailbox();
                     pd.getMailboxMenu().open(p);
                     return true;
                 }else if (strings.length == 2){

@@ -29,6 +29,7 @@ public class MailContents extends UneditableMenu implements Listener {
     private Placeholder plc = new Placeholder();
     private Mail mail;
     private PlayerData playerData;
+    private boolean isInbox = false;
 
     public MailContents(PlayerData playerData, Mail mail) {
         super(plugin, 3, ChatColor.translateAlternateColorCodes('&', "&4&lMail Contents"));
@@ -57,7 +58,9 @@ public class MailContents extends UneditableMenu implements Listener {
             }
             plc.addReplacerList("item", itemName);
             plc.addReplacerList("receiver", receiverName);
-
+            try {
+                playerData.getPlayer().getPlayer().sendMessage("" + receiverName);
+            }catch (Exception ignored){}
         }else{
             return;
         }
@@ -84,10 +87,10 @@ public class MailContents extends UneditableMenu implements Listener {
         HashMap<Integer, ItemStack> map = new HashMap<>();
         map.putAll(slotItem(loadItemDataFromFile("border", plc), 9,10,11,12,13,14,15,16,17));
         map.put(1, loadItemDataFromFile("message", plc));
-        if (getMail().getSender().getName().equals(getPlayerData().getPlayer().getName())) {
-            map.put(2, loadItemDataFromFile("receiver", plc));
-        }else {
+        if (getMail().getSender() != null) {
             map.put(2, loadItemDataFromFile("sender", plc));
+        }else {
+            map.put(2, loadItemDataFromFile("receiver", plc));
         }
         map.put(3, loadItemDataFromFile("take-item", plc));
         map.put(4, loadItemDataFromFile("get-mail", plc));

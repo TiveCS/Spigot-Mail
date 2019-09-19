@@ -182,11 +182,12 @@ public class MailEditor extends UneditableMenu implements Listener {
                 }
             }
             getMail().send();
+            p.closeInventory();
         }else if (slot == addMessageSlot){
             if (p != null) {
                 try {
                     new AnvilGUI.Builder().onComplete((player, s) -> {
-                        getMail().getMessages().add(ChatColor.translateAlternateColorCodes('&', s));
+                        getMail().getMessages().add(ChatColor.translateAlternateColorCodes('&', "&f" + s));
                         return AnvilGUI.Response.close();
                     }).onClose(player -> {
                         open(player);
@@ -202,8 +203,11 @@ public class MailEditor extends UneditableMenu implements Listener {
                 try{
                     new AnvilGUI.Builder().onComplete((player, s) -> {
                         OfflinePlayer op = Bukkit.getOfflinePlayer(s);
-                        if (op.hasPlayedBefore() && op.getUniqueId() != null){
+                        if (op.hasPlayedBefore()){
                             getMail().getReceiver().add(op);
+                        }
+                        if (op.getPlayer().equals(player)){
+                            return AnvilGUI.Response.close();
                         }
                         return AnvilGUI.Response.close();
                     }).onClose(this::open).text("Input player..").plugin(plugin).open(p);

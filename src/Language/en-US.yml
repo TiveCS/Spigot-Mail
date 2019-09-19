@@ -1,0 +1,22 @@
+placeholders:
+  prefix: '&8( &aDiaMail &8)'
+
+
+events:
+  #           MAIL EVENT PLACEHOLDER LIST:
+  # mail_sender, mail_receiver, mail_receiver_<number>
+  # mail_sendall, mail_item_size, mail_items, mail_item_<number>
+  # mail_messages, mail_message_<line>
+
+  mail-send:
+    - '%prefix% &fMail has been sent..'
+  mail-receive:
+    - '%prefix% &fYou have receive mail!'
+
+  #           MAILBOX PLACEHOLDER LIST:
+  # mailbox_size, mailbox_inbox_size, mailbox_outbox_size
+  # mailbox_owner, mailbox_block_size
+  mailbox-reminder:
+    - '%prefix% &fYou have &c%mailbox_inbox_size% &fmail(s)' # mailbox_inbox_size, mailbox_size, mailbox_outbox_size
+
+

@@ -44,12 +44,12 @@ public class MailboxMenu extends UneditableMenu implements Listener {
         addItemData("next-page", XMaterial.LIME_STAINED_GLASS_PANE.parseMaterial(), "&aNext Page", new ArrayList<>(), new HashMap<>());
         addItemData("previous-page", XMaterial.BLUE_STAINED_GLASS_PANE.parseMaterial(), "&3Previous Page", new ArrayList<>(), new HashMap<>());
         addItemData("border", XMaterial.BLACK_STAINED_GLASS_PANE.parseMaterial(), " ", new ArrayList<>(), new HashMap<>());
-        addItemData("inbox-mailbox", XMaterial.CHEST_MINECART.parseMaterial(), "&aINBOX &8(&e%mailbox_inbox%&8)", new ArrayList<>(), new HashMap<>());
-        addItemData("outbox-mailbox", XMaterial.ENDER_CHEST.parseMaterial(), "&bOUTBOX &8(&e%mailbox_outbox%&8)", new ArrayList<>(), new HashMap<>());
+        addItemData("inbox-mailbox", XMaterial.CHEST_MINECART.parseMaterial(), "&aInbox &8(&e%mailbox_inbox%&8)", new ArrayList<>(), new HashMap<>());
+        addItemData("outbox-mailbox", XMaterial.ENDER_CHEST.parseMaterial(), "&bOutbox &8(&e%mailbox_outbox%&8)", new ArrayList<>(), new HashMap<>());
         addItemData("send-mail", XMaterial.WRITABLE_BOOK.parseMaterial(), "&eSend Mail", new ArrayList<>(), new HashMap<>());
         addItemData("block-list", XMaterial.TNT.parseMaterial(), "&cBlocked Players", new ArrayList<>(), new HashMap<>());
-        addItemData("inbox-mail", XMaterial.KNOWLEDGE_BOOK.parseMaterial(), " ", DataConverter.colored(Arrays.asList("&2&lSENDER &a%mail_sender%", "&e&lITEM &c%mail_item_size%", " ", "&f%mail_message%")), new HashMap<>());
-        addItemData("outbox-mail", XMaterial.BOOK.parseMaterial(), " ", DataConverter.colored(Arrays.asList("&2&lRECEIVER&8(&c%mail_receiver_size%&8) &a%mail_receiver_1%", "&7Contains &c%mail_item_size% &7item(s)", " ", "&f%mail_message%")), new HashMap<>());
+        addItemData("inbox-mail", XMaterial.KNOWLEDGE_BOOK.parseMaterial(), " ", DataConverter.colored(Arrays.asList("&2&lSENDER &a%mail_sender%", " ", "&7Contains &c%mail_item_size% &7item(s)", " ", "&f%mail_message%")), new HashMap<>());
+        addItemData("outbox-mail", XMaterial.BOOK.parseMaterial(), " ", DataConverter.colored(Arrays.asList("&2&lRECEIVER &8(&c%mail_receiver_size%&8) &a%mail_receiver_1%"," ", "&7Contains &c%mail_item_size% &7item(s)", " ", "&f%mail_message%")), new HashMap<>());
         addItemData("summary", XMaterial.OAK_SIGN.parseMaterial(), "&6%player%'s Mailbox", DataConverter.colored(Arrays.asList(" ", "&8- &fInbox &8(&7%mailbox_inbox%&8)", "&8- &fOutbox &8(&7%mailbox_outbox%&8)")), new HashMap<>());
 
     }
@@ -190,6 +190,7 @@ public class MailboxMenu extends UneditableMenu implements Listener {
                     return;
                 }
                 MailContents contents = new MailContents(getPlayerData(), m);
+
                 contents.open((Player) event.getWhoClicked());
                 contents.setConnectedMailbox(this);
             }

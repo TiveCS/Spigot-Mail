@@ -6,3 +6,15 @@ mysql:
   host: localhost
   port: 3306
   database: mydatabase
+
+default-player-settings:
+  use-reminder: true
+  reminder-interval: 900 #in seconds
+  language-file: 'en-US.yml'
+
+effect:
+  sound:
+    mail-send: ENTITY_EXPERIENCE_ORB_PICKUP-1-0
+    mail-receive: ENTITY_EXPERIENCE_ORB_PICKUP-1-2
+    mail-cancel: BLOCK_NOTE_BLOCK_BASS-1-1
+    mail-reminder: BLOCK_ENCHANTMENT_TABLE_USE-1-1

@@ -82,6 +82,7 @@ public abstract class UneditableMenu {
 
     // Setting
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void loadConstructorData(int rows, String title){
         if (this.plugin == null){System.out.println("[" + this.getClass().getSimpleName() +"] Failed to load UneditableMenu. Plugin value is null."); return;}
         if (title != null){
@@ -93,7 +94,8 @@ public abstract class UneditableMenu {
         this.file = new File(plugin.getDataFolder() + "/Menu", this.getClass().getSimpleName() + ".yml");
         if (!getFolder().exists()){
             getFolder().mkdir();
-        }else{
+        }
+        if (getFolder().exists()){
             this.configFile = new ConfigManager(getFile());
         }
     }

@@ -19,7 +19,12 @@ public class DataConverter {
 	
 	public static void playSoundByString(Location loc, String text) {
 		String[] split = text.split("-");
-		loc.getWorld().playSound(loc, Sound.valueOf(split[0].toUpperCase()), Float.parseFloat(split[1]), Float.parseFloat(split[2]));
+		String sound = split[0].toUpperCase();
+		try {
+			loc.getWorld().playSound(loc, Sound.valueOf(sound), Float.parseFloat(split[1]), Float.parseFloat(split[2]));
+		}catch (Exception e){
+			loc.getWorld().playSound(loc, XSound.matchXSound(sound).parseSound(), Float.parseFloat(split[1]), Float.parseFloat(split[2]));
+		}
 	}
 
 	public static double randomDouble(double min, double max){
