@@ -3,6 +3,7 @@ package com.rehoukrel.diamail.menu;
 import com.rehoukrel.diamail.DiaMail;
 import com.rehoukrel.diamail.api.manager.Mail;
 import com.rehoukrel.diamail.api.manager.MailType;
+import com.rehoukrel.diamail.api.manager.PlayerData;
 import com.rehoukrel.diamail.utils.DataConverter;
 import com.rehoukrel.diamail.utils.XMaterial;
 import com.rehoukrel.diamail.utils.language.Placeholder;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.BiFunction;
 
 public class MailEditor extends UneditableMenu implements Listener {
 
@@ -204,7 +204,9 @@ public class MailEditor extends UneditableMenu implements Listener {
                     new AnvilGUI.Builder().onComplete((player, s) -> {
                         OfflinePlayer op = Bukkit.getOfflinePlayer(s);
                         if (op.hasPlayedBefore()){
+                            PlayerData.getPlayerData(op);
                             getMail().getReceiver().add(op);
+                            return AnvilGUI.Response.close();
                         }
                         if (op.getPlayer().equals(player)){
                             return AnvilGUI.Response.close();

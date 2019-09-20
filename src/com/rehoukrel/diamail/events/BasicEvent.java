@@ -19,10 +19,10 @@ import java.util.List;
 
 public class BasicEvent implements Listener {
 
-    DiaMail plugin = DiaMail.getPlugin(DiaMail.class);
-    File enUSFile = new File(plugin.getDataFolder() + "/Language", "en-US.yml");
+    public static DiaMail plugin = DiaMail.getPlugin(DiaMail.class);
+    public static File enUSFile = new File(plugin.getDataFolder() + "/Language", "en-US.yml");
 
-    ConfigManager enUS = new ConfigManager(enUSFile);
+    public static ConfigManager enUS = new ConfigManager(enUSFile);
 
     @EventHandler
     public void onMailReceive(MailReceiveEvent event){

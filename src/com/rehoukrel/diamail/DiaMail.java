@@ -31,7 +31,7 @@ public class DiaMail extends JavaPlugin {
         loadCmd();
     }
 
-    private void loadLanguage() {
+    public void loadLanguage() {
         File folder = new File(getDataFolder(), "Language"), enUS = new File(folder, "en-US.yml");
         if (!folder.exists()){
             folder.mkdir();
@@ -41,7 +41,7 @@ public class DiaMail extends JavaPlugin {
         }
     }
 
-    private void loadMenu() {
+    public void loadMenu() {
         new MailboxMenu(null);
         new MailContents(null, null);
         new MailEditor(null);
@@ -61,14 +61,14 @@ public class DiaMail extends JavaPlugin {
         }
     }
 
-    private void loadConfig() {
+    public void loadConfig() {
         getConfig().options().copyDefaults(true);
         saveConfig();
 
         PlayerData.useMySQL = getConfig().getBoolean("mysql.enable");
     }
 
-    private void connectSQL(){
+    public void connectSQL(){
         host = getConfig().getString("mysql.host");
         username = getConfig().getString("mysql.username");
         password = getConfig().getString("mysql.password");

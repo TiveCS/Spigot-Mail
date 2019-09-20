@@ -81,10 +81,11 @@ public class PlayerData {
     }
 
     public void updateMailbox(){
-        if (hasUpdate == false){
+        if (!hasUpdate()){
             return;
         }
         getMailbox().update();
+        getMailboxMenu().update();
         setHasUpdate(false);
     }
 

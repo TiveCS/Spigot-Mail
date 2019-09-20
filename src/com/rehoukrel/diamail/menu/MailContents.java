@@ -58,9 +58,6 @@ public class MailContents extends UneditableMenu implements Listener {
             }
             plc.addReplacerList("item", itemName);
             plc.addReplacerList("receiver", receiverName);
-            try {
-                playerData.getPlayer().getPlayer().sendMessage("" + receiverName);
-            }catch (Exception ignored){}
         }else{
             return;
         }

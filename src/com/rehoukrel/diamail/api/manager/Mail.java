@@ -167,16 +167,13 @@ public class Mail {
                         c.input(path + "." + MailSection.ATTACHED_ITEMS.getPath(), getAttachedItem());
                         if (playerSender != null) {
                             c.input(path + "." + MailSection.SENDER.getPath(), playerSender.getUniqueId().toString());
-                            getSender().sendMessage(op.getName() + " playerSender != null");
                         } else {
                             c.input(path + "." + MailSection.SENDER.getPath(), getSender().getName());
                             c.input(path + "." + MailSection.ATTACHED_ITEMS.getPath(), getAttachedItem());
-                            getSender().sendMessage(op.getName() + " playerSender == null");
                         }
-                        getSender().sendMessage(op.getName() + " saved");
                         c.saveConfig();
-                        pd.setHasUpdate(true);
                     }
+                    pd.setHasUpdate(true);
                 }else{
                     getReceiver().remove(op);
                 }

@@ -1,4 +1,5 @@
 use-anvil-gui: true
+notify-update: true
 mysql:
   enable: false
   username: root

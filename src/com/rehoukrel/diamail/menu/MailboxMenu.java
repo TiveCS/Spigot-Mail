@@ -54,10 +54,18 @@ public class MailboxMenu extends UneditableMenu implements Listener {
 
     }
 
+    public void update(){
+        mailbox = getPlayerData().getMailbox();
+        int bi = inbox.size(), bo = outbox.size();
+        inbox = getMailOnPage(mailbox.getInbox());
+        outbox = getMailOnPage(mailbox.getOutbox());
+    }
+
     public void load(){
         if (getPlayerData() == null) {return;}
         if (!getPlayerData().getPlayer().hasPlayedBefore()){return;}
-        mailbox = getPlayerData().getMailbox();
+
+        update();
 
         HashMap<Integer, ItemStack> map = new HashMap<>();
         loadInventoryDataFromFile();
@@ -86,9 +94,6 @@ public class MailboxMenu extends UneditableMenu implements Listener {
 
         map.put(51, getFileInventoryData().get("send-mail"));
         map.put(52, getFileInventoryData().get("block-list"));
-
-        inbox = getMailOnPage(mailbox.getInbox());
-        outbox = getMailOnPage(mailbox.getOutbox());
 
         addInventoryData(0, new HashMap<>(map));
         map.clear();
@@ -141,7 +146,7 @@ public class MailboxMenu extends UneditableMenu implements Listener {
     @Override
     public void open(Player p) {
         load();
-        if (p.getOpenInventory().getTopInventory() !=null){
+        if (p.getOpenInventory().getTopInventory() != null){
             p.closeInventory();
         }
         super.open(p);

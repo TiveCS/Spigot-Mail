@@ -1,106 +1,199 @@
 package com.rehoukrel.diamail.utils.language;
 
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
+import com.rehoukrel.diamail.utils.ConfigManager;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 public class Language {
 
-    private Plugin plugin;
-    private File file;
-    private FileConfiguration config;
-    private String language;
+    public static HashMap<String, Language> registeredLanguages = new HashMap<String, Language>();
 
-    private HashMap<Path, HashMap<String, List<String>>> msg = new HashMap<Path, HashMap<String, List<String>>>();
-    private boolean asDefault = true;
+    // Language identity data
+    JavaPlugin plugin;
+    File folder;
+    File file;
+    String language;
+    Placeholder placeholder = new Placeholder();
+    boolean asTemplate = false, enabled = true;
+    ConfigManager configManager = null;
 
-    public enum Path{
-        EVENT, HELP, ERROR, SYSTEM
-    }
+    // Post data
+    HashMap<String, HashMap<String, String>> placeholderSection = new HashMap<String, HashMap<String, String>>();
+    HashMap<String, List<String>> defaultMessage = new HashMap<String, List<String>>(), loadedMessage = new HashMap<String, List<String>>(), hoverMessage = new HashMap<String, List<String>>();
 
-    public Language(Plugin plugin, String lang){
+
+    public Language(JavaPlugin plugin, String languageName){
         this.plugin = plugin;
-        this.language = lang;
-        this.file = new File(plugin.getDataFolder() + "/Language", lang + ".yml");
-        if (!file.exists()){
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        this.config = YamlConfiguration.loadConfiguration(this.file);
-        initLanguageData();
+        if (this.plugin == null){return;}
+
+        this.folder = new File(plugin.getDataFolder(), "Language");
+        this.file = new File(folder, languageName + ".yml");
+        this.language = languageName;
+        this.configManager = new ConfigManager(getFile());
     }
 
-    // Action
+    //================================================
 
-    public void initLanguageData(){
-        for (Path key : getMessage().keySet()){
-            HashMap<String, List<String>> list = getMessage().get(key);
-            for (String st : list.keySet()){
-                if (list.size() > 1) {
-                    getConfig().set(key.name().toLowerCase() + "." + st, list.get(st));
-                }else{
-                    getConfig().set(key.name().toLowerCase() + "." + st, list.get(st).get(0));
-                }
-            }
+    public void message(String path, CommandSender commandSender){
+        List<String> msg = getConfigManager().getConfig().getStringList(LanguageContents.MESSAGE.getPath() + "."+path);
+        for (String s : msg){
+            commandSender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPlaceholder().use(s)));
         }
+    }
+
+    // Not done
+    public void hoverMessage(String path, Player player){
         try {
-            getConfig().save(getFile());
-        } catch (IOException e) {
+            List<String> msg = getConfigManager().getConfig().getStringList(LanguageContents.MESSAGE.getPath() + "." + path),
+                    hover = getConfigManager().getConfig().getStringList(LanguageContents.HOVER.getPath() + "." + path);
+            msg = getPlaceholder().useMass(msg);
+            hover = getPlaceholder().useMass(hover);
+            // add hover
+            ArrayList<BaseComponent> c = new ArrayList<>();
+            for (String h : hover) {
+                TextComponent t = new TextComponent(ChatColor.translateAlternateColorCodes('&', h));
+                c.add(t);
+            }
+            BaseComponent[] bc = c.toArray(new BaseComponent[0]);
+            // then set to textcomponent
+            for (String s : msg) {
+                TextComponent t = new TextComponent(ChatColor.translateAlternateColorCodes('&', s));
+                t.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, bc));
+                player.spigot().sendMessage(t);
+            }
+        }catch (Exception e){
+            System.out.println("[" + plugin.getName() +"] Failed to send hover message");
             e.printStackTrace();
         }
     }
 
-    // Action getter
+    //================================================
 
-    public Object getMessageData(Path path, String st){
-        List<String> list;
-        try{
-            list = getConfig().getStringList(path.name().toLowerCase() + "." + st);
-            return list;
-        }catch(Exception e){
-            return getConfig().getString(path.name().toLowerCase() + "." + st);
+    // Add hardcoded placeholder
+    public void addPlaceholder(String key, String placeholder, boolean forceSave){
+        getConfigManager().init(LanguageContents.PLACEHOLDER.getPath() + "." + key, placeholder);
+        if (forceSave){getConfigManager().saveConfig();}
+    }
+
+    // Default message will be written on file from any hardcoded
+    public void addDefaultMessage(String path, List<String> messages, List<String> hoverMessages, boolean forceSave){
+        getConfigManager().init(LanguageContents.MESSAGE.getPath() + "." + path, messages);
+        if (hoverMessages != null && !hoverMessages.isEmpty()){
+            getConfigManager().init(LanguageContents.HOVER.getPath() + "." + path, hoverMessages);
+        }
+        if (forceSave){getConfigManager().saveConfig();}
+    }
+
+    // Clear any existing data from variables loadedMessage and placeholder's replacer and overwrite defaultMessage variables
+    // Then load any default message and additional message from file into loadedMessage variables
+    public void loadData(){
+        getLoadedMessage().clear();
+        getPlaceholder().getReplacer().clear();
+
+        getPlaceholder().getReplacer().putAll(getFilePlaceholders());
+        getLoadedMessage().putAll(getFileMessages());
+        for (String path : getDefaultMessage().keySet()){
+            getDefaultMessage().put(path, getConfigManager().getConfig().getStringList(LanguageContents.MESSAGE.getPath() + "." + path));
         }
     }
 
-    public boolean isList(Path path, String st){
-        Object obj = getMessageData(path, st);
-        return (obj instanceof ArrayList || obj instanceof List);
+    //-------------- GETTING PLACEHOLDERS ------------
+
+    public HashMap<String, String> getFilePlaceholders(){
+        HashMap<String, String> plcs = new HashMap<String, String>();
+        for (String path : getConfigManager().getConfig().getConfigurationSection(LanguageContents.PLACEHOLDER.getPath()).getKeys(false)){
+            String s = getConfigManager().getConfig().getString(LanguageContents.PLACEHOLDER.getPath() + "." + path);
+            plcs.put(path, s);
+        }
+        return plcs;
     }
 
-    // Setter
+    //-------------- GETTING CONTENTS-------------
 
-    public void setAsDefault(boolean asDefault) {
-        this.asDefault = asDefault;
+    public HashMap<String, List<String>> getFileMessages(){
+        HashMap<String, List<String>> map = new HashMap<String, List<String>>();
+        for (String path : getConfigManager().getConfig().getConfigurationSection(LanguageContents.MESSAGE.getPath()).getKeys(false)){
+            List<String> l = getConfigManager().getConfig().getStringList(LanguageContents.MESSAGE.getPath() + "." + path);
+            map.put(path, l);
+        }
+        return map;
     }
 
-    // Getter
 
-    public boolean isAsDefault() {
-        return asDefault;
+    //------------------------------------------------
+
+    public void setAsTemplate(boolean asTemplate) {
+        this.asTemplate = asTemplate;
     }
 
-    public String getLanguageName() {
-        return language;
+    public void setFile(File file) {
+        this.file = file;
     }
 
-    public HashMap<Path, HashMap<String, List<String>>>  getMessage(){
-        return msg;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
-    public FileConfiguration getConfig() {
-        return config;
+    public void setLoadedMessage(HashMap<String, List<String>> loadedMessage) {
+        this.loadedMessage = loadedMessage;
+    }
+
+    public boolean isAsTemplate() {
+        return asTemplate;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public HashMap<String, HashMap<String, String>> getPlaceholderSection() {
+        return placeholderSection;
+    }
+
+    public ConfigManager getConfigManager() {
+        return configManager;
+    }
+
+    public HashMap<String, List<String>> getDefaultMessage() {
+        return defaultMessage;
+    }
+
+    public HashMap<String, List<String>> getLoadedMessage() {
+        return loadedMessage;
+    }
+
+    public HashMap<String, List<String>> getHoverMessage() {
+        return hoverMessage;
+    }
+
+    public JavaPlugin getPlugin() {
+        return plugin;
+    }
+
+    public Placeholder getPlaceholder() {
+        return placeholder;
+    }
+
+    public File getFolder() {
+        return folder;
     }
 
     public File getFile() {
         return file;
+    }
+
+    public String getLanguage() {
+        return language;
     }
 }

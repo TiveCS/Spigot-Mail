@@ -4,6 +4,8 @@ api-version: 1.13
 description: E-Mail inside minecraft
 authors: [TiveCS, Rhk_Co, Rehoukrel_Studio]
 main: com.rehoukrel.diamail.DiaMail
+softdepend:
+  - Vault
 commands:
   diamail:
     aliases: [dm, dmail, mail]

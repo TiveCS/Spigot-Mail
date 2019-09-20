@@ -20,3 +20,10 @@ events:
     - '%prefix% &fYou have &c%mailbox_inbox_size% &fmail(s)' # mailbox_inbox_size, mailbox_size, mailbox_outbox_size
 
 
+system:
+  reload:
+    - '%prefix% &7&oSystem has been reloaded...'
+  error:
+    - '%prefix% &cInternal error occured...'
+  invalid-action:
+    - '%prefix% &cInvalid user input action!'
