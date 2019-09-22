@@ -84,7 +84,7 @@ public class MailContents extends UneditableMenu implements Listener {
         HashMap<Integer, ItemStack> map = new HashMap<>();
         map.putAll(slotItem(loadItemDataFromFile("border", plc), 9,10,11,12,13,14,15,16,17));
         map.put(1, loadItemDataFromFile("message", plc));
-        if (getMail().getSender() != null) {
+        if (getMail().isInbox()) {
             map.put(2, loadItemDataFromFile("sender", plc));
         }else {
             map.put(2, loadItemDataFromFile("receiver", plc));

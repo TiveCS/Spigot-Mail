@@ -36,7 +36,7 @@ public class Mail {
 
     private MailEditor editor;
     private String path = "mailbox";
-    private boolean isHasUpdate = false;
+    private boolean isHasUpdate = false, isInbox = false;
 
     public enum MailSection{
 
@@ -62,6 +62,7 @@ public class Mail {
     public Mail(PlayerData pd, String uuid, boolean isInbox){
         if (pd == null){return;}
         setHasUpdate(false);
+        this.isInbox = isInbox;
         String b = isInbox ? "inbox" : "outbox";
         if (pd.getConfigManager().getConfig().contains("mailbox." + b + "." + uuid)){
             path = "mailbox." + b +"." + uuid;
@@ -145,7 +146,7 @@ public class Mail {
                     PlayerData pd = PlayerData.getPlayerData(op);
                     MailReceiveEvent receiveEvent = new MailReceiveEvent(op, this);
                     Bukkit.getServer().getPluginManager().callEvent(receiveEvent);
-                    if (receiveEvent.isCancelled() && receiveEvent.isBlocked()){
+                    if (receiveEvent.isCancelled() || receiveEvent.isBlocked()){
                         getReceiver().remove(op);
                         continue;
                     }
@@ -285,6 +286,10 @@ public class Mail {
         isHasUpdate = hasUpdate;
     }
 
+    public void setIsInbox(boolean inbox) {
+        isInbox = inbox;
+    }
+
     public void setType(MailType type) {
         this.type = type;
     }
@@ -323,6 +328,10 @@ public class Mail {
 
     public boolean isHasUpdate() {
         return isHasUpdate;
+    }
+
+    public boolean isInbox() {
+        return isInbox;
     }
 
     public BookManager getBookManager() {

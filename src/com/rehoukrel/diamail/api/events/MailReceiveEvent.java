@@ -41,6 +41,10 @@ public class MailReceiveEvent extends Event implements Cancellable {
         return isCancelled;
     }
 
+    public void setBlocked(boolean blocked) {
+        isBlocked = blocked;
+    }
+
     @Override
     public void setCancelled(boolean b) {
         this.isCancelled = b;

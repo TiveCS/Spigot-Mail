@@ -9,15 +9,18 @@ events:
   # mail_messages, mail_message_<line>
 
   mail-send:
-    - '%prefix% &fMail has been sent..'
+    - '%prefix% &fMail has been sent to &e%mail_receiver%'
   mail-receive:
-    - '%prefix% &fYou have receive mail!'
+    - '%prefix% &fYou have got a mail!'
+  mail-empty:
+    - '%prefix% &fYou cannot send empty mail!'
 
   #           MAILBOX PLACEHOLDER LIST:
   # mailbox_size, mailbox_inbox_size, mailbox_outbox_size
   # mailbox_owner, mailbox_block_size
   mailbox-reminder:
-    - '%prefix% &fYou have &c%mailbox_inbox_size% &fmail(s)' # mailbox_inbox_size, mailbox_size, mailbox_outbox_size
+    - '%prefix% &fYou have &c%mailbox_inbox_size% &fmail(s)'
+  mailbox-
 
 
 system:

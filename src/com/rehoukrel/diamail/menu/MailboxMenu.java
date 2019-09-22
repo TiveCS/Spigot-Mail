@@ -56,7 +56,6 @@ public class MailboxMenu extends UneditableMenu implements Listener {
 
     public void update(){
         mailbox = getPlayerData().getMailbox();
-        int bi = inbox.size(), bo = outbox.size();
         inbox = getMailOnPage(mailbox.getInbox());
         outbox = getMailOnPage(mailbox.getOutbox());
     }

@@ -65,12 +65,6 @@ public class DiaMailCmd implements CommandExecutor {
                             return true;
                         }
                     }
-                    if (strings[0].equalsIgnoreCase("check")){
-                        OfflinePlayer t = Bukkit.getOfflinePlayer(strings[1]);
-                        PlayerData pdt = PlayerData.getPlayerData(t);
-                        commandSender.sendMessage("has update : " + pdt.hasUpdate());
-                        return true;
-                    }
                     if (strings[0].equalsIgnoreCase("send")) {
                         OfflinePlayer target = Bukkit.getOfflinePlayer(strings[1]);
                         Mail m = new Mail(p);

@@ -101,6 +101,9 @@ public class ConfigManager {
         return file;
     }
 
+    public void reloadConfig(){
+        this.config = YamlConfiguration.loadConfiguration(getFile());
+    }
 
     public FileConfiguration getConfig() {
         return config;

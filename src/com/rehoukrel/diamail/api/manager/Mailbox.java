@@ -93,7 +93,6 @@ public class Mailbox {
                 }
             }
             else {
-                int bi = getInbox().size(), bo = getOutbox().size();
                 getInbox().clear();
                 for (String uuid : getPlayerData().getConfigManager().getConfig().getConfigurationSection("mailbox.inbox").getKeys(false)) {
                     Mail m = new Mail(getPlayerData(), uuid, true);
@@ -106,9 +105,11 @@ public class Mailbox {
                     getOutbox().add(m);
                 }
 
-                getPlayerData().getPlayer().getPlayer().sendMessage("inbox: " + getInbox().size() + "/" + bi + " , outbox: " + getOutbox().size() + "/" + bo);
             }
-        } catch (Exception ignored){}
+        } catch (Exception ignored){
+            System.out.println("Mailbox Failed [U: " + getPlayerData().getPlayer().getName() + "]");
+            ignored.printStackTrace();
+        }
     }
 
     public PlayerData getPlayerData() {

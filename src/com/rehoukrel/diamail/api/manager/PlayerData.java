@@ -4,6 +4,7 @@ import com.rehoukrel.diamail.DiaMail;
 import com.rehoukrel.diamail.menu.MailboxMenu;
 import com.rehoukrel.diamail.utils.ConfigManager;
 import com.rehoukrel.diamail.utils.sql.MySQLManager;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.io.File;
@@ -18,7 +19,7 @@ public class PlayerData {
     public static HashMap<OfflinePlayer, PlayerData> listedData = new HashMap<OfflinePlayer, PlayerData>();
     public static boolean useMySQL = false;
 
-    private boolean hasUpdate = true;
+    private boolean hasUpdate = false, isNew = true;
     private OfflinePlayer player;
     private File file;
     private ConfigManager configManager;
@@ -80,13 +81,14 @@ public class PlayerData {
         getConfigManager().saveConfig();
     }
 
-    public void updateMailbox(){
-        if (!hasUpdate()){
-            return;
+    public void updateMailbox() {
+        if (hasUpdate() || isNew()) {
+            getConfigManager().reloadConfig();
+            getMailbox().update();
+            getMailboxMenu().update();
+            setHasUpdate(false);
         }
-        getMailbox().update();
-        getMailboxMenu().update();
-        setHasUpdate(false);
+        this.isNew = false;
     }
 
     //---------------------------
@@ -119,7 +121,12 @@ public class PlayerData {
         return hasUpdate;
     }
 
+    public boolean isNew() {
+        return isNew;
+    }
+
     public void setHasUpdate(boolean hasUpdate) {
         this.hasUpdate = hasUpdate;
     }
+
 }
