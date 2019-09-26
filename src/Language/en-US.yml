@@ -20,7 +20,8 @@ events:
   # mailbox_owner, mailbox_block_size
   mailbox-reminder:
     - '%prefix% &fYou have &c%mailbox_inbox_size% &fmail(s)'
-  mailbox-
+  mailbox-refresh:
+    - '%prefix% &fYour mailbox has been refreshed..'
 
 
 system:

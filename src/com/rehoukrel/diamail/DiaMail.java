@@ -6,6 +6,7 @@ import com.rehoukrel.diamail.events.BasicEvent;
 import com.rehoukrel.diamail.menu.MailContents;
 import com.rehoukrel.diamail.menu.MailEditor;
 import com.rehoukrel.diamail.menu.MailboxMenu;
+import com.rehoukrel.diamail.menu.SettingMenu;
 import com.rehoukrel.diamail.utils.sql.MySQLManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -45,6 +46,7 @@ public class DiaMail extends JavaPlugin {
         new MailboxMenu(null);
         new MailContents(null, null);
         new MailEditor(null);
+        new SettingMenu(null);
     }
 
     @Override

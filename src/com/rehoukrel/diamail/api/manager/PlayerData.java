@@ -26,6 +26,7 @@ public class PlayerData {
 
     private List<Mail> templates = new ArrayList<Mail>();
     private Mailbox mailbox;
+    private PlayerSetting setting;
 
     private MailboxMenu mailboxMenu;
 
